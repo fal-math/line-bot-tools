@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "lib": ["ES2019", "DOM"],
+    "strict": true,
+    "noImplicitAny": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "allowJs": false,
+    "types": ["google-apps-script", "jest", "node"]
+  },
+  "include": ["src/**/*.ts"]
+}
