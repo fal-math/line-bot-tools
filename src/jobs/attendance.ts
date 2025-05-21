@@ -1,4 +1,4 @@
-import { ATTENDANCE_ADDRESS } from "../config";
+import { ATTENDANCE_ADDRESS, LINE_CHANNEL_ACCESS_TOKEN } from "../config";
 import { pushTextV2_ } from "../services/line";
 import { stripCss_ } from "../util/string";
 
@@ -11,7 +11,7 @@ export function attandanceHandler_(to: string): void {
     const notice = buildNoticeText_(msg);
 
     try {
-      pushTextV2_(to, notice);
+      pushTextV2_(to, LINE_CHANNEL_ACCESS_TOKEN, notice);
     } catch (e) {
       Logger.log(`LINE通知エラー: ${(e as Error).message}`);
     }
@@ -24,6 +24,7 @@ export function attandanceHandler_(to: string): void {
 function buildNoticeText_(message: GoogleAppsScript.Gmail.GmailMessage): string {
   const receivedAt = Utilities.formatDate(message.getDate(), 'JST', 'MM/dd HH:mm:ss');
   return [
+    '【遅刻欠席連絡】',
     `件名　　: ${message.getSubject()}`,
     `受信時刻: ${receivedAt}`,
     '--------------------------------------',

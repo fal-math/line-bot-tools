@@ -2,6 +2,7 @@ import { LINE_CHANNEL_ACCESS_TOKEN } from '../config';
 
 export const pushTextV2_ = (
   to: string,
+  token: string,
   text: string,
   substitution?: object,
   retryKey = Utilities.getUuid()
@@ -14,7 +15,7 @@ export const pushTextV2_ = (
     method: 'post',
     contentType: 'application/json',
     payload: JSON.stringify(payload),
-    headers: { Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`, 'X-Line-Retry-Key': retryKey },
+    headers: { Authorization: `Bearer ${token}`, 'X-Line-Retry-Key': retryKey },
     muteHttpExceptions: true,
   });
 };
@@ -32,7 +33,7 @@ export const pushImage_ = (
       previewImageUrl: preview
     }]
   };
-  
+
   return UrlFetchApp.fetch('https://api.line.me/v2/bot/message/push', {
     method: 'post',
     contentType: 'application/json',

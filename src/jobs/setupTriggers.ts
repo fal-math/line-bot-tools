@@ -36,6 +36,20 @@ export function setupTriggers_(): void {
     .atHour(7)
     .create();
 
+  /** 練習前アナウンス: 毎日 09:00 */
+  ScriptApp.newTrigger('announceTodayPractice')
+    .timeBased()
+    .everyDays(1)
+    .atHour(9)
+    .create();
+
+  /** 運営向け2週間後会練確認: 毎週土曜日 20:00 */
+  ScriptApp.newTrigger('announceWeeklyForManagers')
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.SATURDAY)
+    .atHour(20)
+    .create();
+
   /** 遅刻欠席連絡: 毎分 */
   ScriptApp.newTrigger('attandanceHandler')
     .timeBased()
