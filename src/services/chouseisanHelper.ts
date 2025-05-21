@@ -1,18 +1,7 @@
 import { CHOUSEISAN_CSVS } from '../config';
+import { EventStatus, Participants } from '../type';
 import { toMD_, toYMD_ } from '../util/date';
 import { fetchChoseisan_ } from './chouseisan';
-
-interface Participants {
-  attending: string[];
-  notAttending: string[];
-  undecided: string[];
-}
-interface EventStatus {
-  eventTitle: string;
-  date: string;
-  deadline: string;
-  participants: Participants;
-}
 
 const CSV_MAP: Record<string, string> = {
   A: CHOUSEISAN_CSVS[`A`],

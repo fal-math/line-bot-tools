@@ -1,3 +1,5 @@
+import { KarutaClasses, PracticeLocations } from "./type";
+
 const userProps = PropertiesService.getScriptProperties();
 
 /**
@@ -21,14 +23,21 @@ function getJsonProp_<T>(key: string): T {
   }
 }
 
-export interface KarutaClasses {
-  A: string;
-  B: string;
-  C: string;
-  D: string;
-  E: string;
-  F: string;
-  G: string;
+function getPracticeLocations_(): PracticeLocations {
+  const json = userProps.getProperty('PRACTICE_LOCATIONS');
+  if (!json) {
+    throw new Error('ScriptProperties に PRACTICE_LOCATIONS が設定されていません');
+  }
+  let data: unknown;
+  try {
+    data = JSON.parse(json);
+  } catch (e: unknown) {
+    throw new Error(`PRACTICE_LOCATIONS の JSON パースに失敗しました: ${e}`);
+  }
+  if (typeof data !== 'object' || data === null) {
+    throw new Error('PRACTICE_LOCATIONS の中身がオブジェクトではありません');
+  }
+  return data as PracticeLocations;
 }
 
 // LINE 関連プロパティ
@@ -54,29 +63,5 @@ export const ATTENDANCE_ADDRESS = getRequiredProp_("ATTENDANCE_ADDRESS");
 // 調整さん URL／CSV（級ごとのマップ）
 export const CHOUSEISAN_URLS: KarutaClasses = getJsonProp_<KarutaClasses>("CHOUSEISAN_URLS");
 export const CHOUSEISAN_CSVS: KarutaClasses = getJsonProp_<KarutaClasses>("CHOUSEISAN_CSVS");
-
-export interface PracticeLocation {
-  name: string;
-  map_url: string;
-  location: string;
-}
-export type PracticeLocations = Record<string, PracticeLocation>;
-
-function getPracticeLocations_(): PracticeLocations {
-  const json = userProps.getProperty('PRACTICE_LOCATIONS');
-  if (!json) {
-    throw new Error('ScriptProperties に PRACTICE_LOCATIONS が設定されていません');
-  }
-  let data: unknown;
-  try {
-    data = JSON.parse(json);
-  } catch (e: unknown) {
-    throw new Error(`PRACTICE_LOCATIONS の JSON パースに失敗しました: ${e}`);
-  }
-  if (typeof data !== 'object' || data === null) {
-    throw new Error('PRACTICE_LOCATIONS の中身がオブジェクトではありません');
-  }
-  return data as PracticeLocations;
-}
 
 export const PRACTICE_LOCATIONS: PracticeLocations = getPracticeLocations_();

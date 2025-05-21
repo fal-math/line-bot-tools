@@ -1,7 +1,5 @@
 import { CHOUSEISAN_URLS } from '../config';
-
-export interface Group { events: string[]; url: string }
-export type Groups = Record<string, Group>;
+import { Groups } from '../type';
 
 export const createGroups_ = (): Groups => ({
   A: { events: [], url: CHOUSEISAN_URLS[`A`] },

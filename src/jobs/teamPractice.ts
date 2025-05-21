@@ -1,6 +1,7 @@
 import { GOOGLE_CALENDER_ID_KAIRENSHU, LINE_CHANNEL_ACCESS_TOKEN, PRACTICE_LOCATIONS } from "../config";
-import { formatToTeamPracticeInfo_, TeamPracticeInfo } from "../services/calenderImage";
+import { formatToTeamPracticeInfo_ } from "../services/calenderImage";
 import { pushTextV2_ } from "../services/line";
+import { TeamPracticeInfo } from "../type";
 import { addDays_, startOfDay_ } from "../util/date";
 
 export function announceTodayPractice_(to: string): void {

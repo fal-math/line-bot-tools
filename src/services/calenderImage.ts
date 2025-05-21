@@ -1,24 +1,6 @@
 import { GOOGLE_CALENDER_ID_KAIRENSHU, GOOGLE_CALENDER_ID_TAIKAI } from "../config";
+import { MatchInfo, TeamPracticeInfo, UrlPair } from "../type";
 
-export interface UrlPair {
-  original: string;
-  preview: string;
-}
-
-interface EventInfo {
-  month: number;
-  day: number;
-}
-
-interface TeamPracticeInfo extends EventInfo {
-  place: string;
-  timeRange: string;
-  targetClass: string;
-}
-
-interface MatchInfo extends EventInfo {
-  title: string;
-}
 
 export function generateMonthlyCalendar_(
   year: number = new Date().getFullYear(),
@@ -206,7 +188,7 @@ function subsum_(n: number, arr: number[]): number {
 }
 
 
-function formatToTeamPracticeInfo_(
+export function formatToTeamPracticeInfo_(
   event: GoogleAppsScript.Calendar.CalendarEvent
 ): TeamPracticeInfo | null {
   //  1. 場所: 先頭の「数字以外の文字列」
