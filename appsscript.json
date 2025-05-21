@@ -10,11 +10,13 @@
     ]
   },
   "oauthScopes": [
+    "https://www.googleapis.com/auth/script.scriptapp",
     "https://www.googleapis.com/auth/presentations",
     "https://www.googleapis.com/auth/presentations.readonly",
     "https://www.googleapis.com/auth/drive",
     "https://www.googleapis.com/auth/script.external_request",
-    "https://www.googleapis.com/auth/calendar.readonly"
+    "https://www.googleapis.com/auth/calendar.readonly",
+    "https://mail.google.com/"
   ],
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8"
