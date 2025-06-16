@@ -1,0 +1,106 @@
+@startuml
+skinparam linetype ortho
+
+class ConfigService {
+  +getRequired(key: String): String
+  +getJson<T>(key: String): T
+  +getPracticeLocations(): Map<String,PracticeLocation>
+}
+
+class DateUtils {
+  <<static>>
+  +startOfDay(d?: Date): Date
+  +addDays(d: Date, n: int): Date
+  +toYMD(md: String): String
+  +toMD(ymd: String): String
+}
+
+class StringUtils {
+  <<static>>
+  +stripCss_(text: string): string
+}
+
+class LineService {
+  +pushText(to: string, text: string, substitution?: object, retryKey?: string)
+  +pushImage(to: string, original: string, preview: string, retryKey?: string)
+}
+
+class ChouseisanService {
+  +fetchRaw(classKey: KarutaClass): String
+  +parse(raw: String): ChouseisanEvent[]
+  +filterByDeadline(events: ChouseisanEvent[], from: YMD, to: YMD): ChouseisanEvent[]
+}
+class CalenderService {
+  +fetchRaw(classKey: KarutaClass): String
+  +parse(raw: String): ChouseisanEvent[]
+  +filterByDeadline(events: ChouseisanEvent[], from: YMD, to: YMD): ChouseisanEvent[]
+}
+
+class Announcer {
+  +announceWeekly_(to: string): void
+  +announceDeadlineToday_(to: string): void
+  +announceDeadlineNextWeek_(to: string): void
+  +announceFinalToday_(to: string, mentionee: string): void
+  +announceChouseisanToday_(to: string): void
+  +announceChouseisanWeekly_(to: string): void
+  +announceWeeklyForManagers_(to: string): void
+  +announceTodayPractice_(to: string): void
+}
+
+class DeadlineNotifier {
+  +run(): void
+}
+
+class AttendanceHandler {
+  +attandanceHandler(): void
+}
+
+class Main {
+  +announceWeekly(): void
+  +announceDeadlineToday(): void
+  +announceDeadlineNextWeek(): void
+  +announceFinalToday(): void
+  +announceChouseisanToday(): void
+  +announceChouseisanWeekly(): void
+  +announceWeeklyForManagers(): void
+  +announceTodayPractice(): void
+  +attandanceHandler(): void
+  ' +sendMonthlyCalendar(): void
+  ' +setupTriggers(): void
+}
+
+class SetupTriggers {
+  +setupTriggers(): void
+}
+
+' ————————————————————————————————————————————
+' 関係（矢印）の向きと相対配置を指定
+' ————————————————————————————————————————————
+
+' Main は Announcer と AttendanceHandler を統合
+Main -down-|> Announcer : calls
+Main -down-|> AttendanceHandler : calls
+
+' Announcer は DateUtils と LineService と ChouseisanService を利用
+Announcer -down-> DateUtils : uses
+Announcer -down-> StringUtils : uses
+Announcer -down-> LineService : uses
+Announcer -down-> ChouseisanService : uses
+Announcer -down-> CalenderService : uses
+
+' DeadlineNotifier も同様
+DeadlineNotifier -down-> DateUtils : uses
+DeadlineNotifier -down-> LineService : uses
+DeadlineNotifier -down-> ChouseisanService : uses
+
+' AttendanceHandler は LineService 利用
+ChouseisanService -down-> DateUtils : uses
+ChouseisanService -down-> CsvUtils : uses
+
+CalenderService -down-> DateUtils : uses
+
+' SetupTriggers は Main／DeadlineNotifier／AttendanceHandler を依存
+Main .up.> SetupTriggers : 「トリガー設定」
+DeadlineNotifier .up.> SetupTriggers : 「トリガー設定」
+
+@enduml

@@ -1,0 +1,100 @@
+@startuml Class Diagram of Types
+enum KarutaClass {
+  A
+  B
+  C
+  D
+  E
+  F
+  G
+}
+
+class ByKarutaClass<T> {
+}
+
+class ChouseisanUrls {
+  +[key in KarutaClass]: String
+}
+class ChouseisanCsvs {
+  +[key in KarutaClass]: String
+}
+
+class GroupedEvents {
+  +[key in KarutaClass]: { events: List<String>; url: String }
+}
+
+class CalenderEvent {
+  +date: Date
+  +class: KarutaClass[]
+}
+
+class ChouseisanEvent {
+  +title: String
+  +eventDate: Date
+  +deadline: Date
+  +participants: ParticipantStatus
+}
+
+class MatchCalenderEvent {
+  +title: String
+  +location: String
+  +mapUrl: String
+}
+
+class OuterPracticeCalenderEvent {
+  +title: String
+  +location: String
+  +mapUrl: String
+}
+
+class TeamPracticeCalenderEvent {
+  +location: PracticeLocation
+  +place: String
+  +timeRange: String
+  +type: String
+}
+
+
+CalenderEvent <|-- TeamPracticeCalenderEvent
+CalenderEvent <|-- MatchCalenderEvent
+CalenderEvent <|-- OuterPracticeCalenderEvent
+
+' PracticeLocation
+class PracticeLocation {
+  +location: String
+  +shortenLocation: String
+  +mapUrl: String
+  +clubName: String
+  +closestStation: String
+}
+
+class PracticeLocations<Keys> {
+  +[key in Keys]: PracticeLocation
+}
+
+class ParticipantStatus {
+  +attending: List<String>
+  +notAttending: List<String>
+  +undecided: List<String>
+}
+
+
+class Mention {
+  +type: String
+  +mentionee: Object
+}
+
+class SubstitutionMap {
+  +[key: String]: Mention
+}
+
+PracticeLocation <|-- PracticeLocations
+ByKarutaClass -up-> KarutaClass
+CalenderEvent -up-> KarutaClass
+ByKarutaClass ..> ChouseisanUrls
+ByKarutaClass ..> ChouseisanCsvs
+ByKarutaClass ..> GroupedEvents
+ChouseisanEvent --> ParticipantStatus
+TeamPracticeEvent --> PracticeLocation
+SubstitutionMap --> Mention
+@enduml
