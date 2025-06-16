@@ -54,6 +54,7 @@ export const GOOGLE_CALENDER_ID_TAIKAI = getRequiredProp_("GOOGLE_CALENDER_ID_TA
 export const GOOGLE_CALENDER_ID_KAIRENSHU = getRequiredProp_("GOOGLE_CALENDER_ID_KAIRENSHU");
 export const GOOGLE_CALENDER_ID_KAISHIME = getRequiredProp_("GOOGLE_CALENDER_ID_KAISHIME");
 export const GOOGLE_CALENDER_ID_HONSHIME = getRequiredProp_("GOOGLE_CALENDER_ID_HONSHIME");
+export const GOOGLE_CALENDER_ID_OUTER = getRequiredProp_("GOOGLE_CALENDER_ID_OUTER");
 
 // その他プロパティ
 export const DRIVE_URL = getRequiredProp_("DRIVE_URL");

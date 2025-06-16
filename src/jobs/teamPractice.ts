@@ -1,7 +1,7 @@
 import { GOOGLE_CALENDER_ID_KAIRENSHU, LINE_CHANNEL_ACCESS_TOKEN, PRACTICE_LOCATIONS } from "../config";
-import { formatToTeamPracticeInfo_ } from "../services/calenderImage";
+import { formatToTeamPracticeEvent_ } from "../services/calenderImage";
 import { LineService } from "../services/LineService";
-import { TeamPracticeInfo } from "../type";
+import { TeamPracticeCalendarEvent, TeamPracticeInfo } from "../type";
 import { DateUtils } from "../util/DateUtils";
 
 export function announceTodayPractice_(to: string): void {
@@ -12,16 +12,15 @@ export function announceTodayPractice_(to: string): void {
   const teamPracticeEvents = teamPracticeCalendar.getEvents(today, tomorrow);
   if (teamPracticeEvents.length === 0) return;
 
-  const teamPractices = teamPracticeEvents.map(ev => formatToTeamPracticeInfo_(ev));
+  const teamPractices = teamPracticeEvents.map(ev => formatToTeamPracticeEvent_(ev));
 
-  function formatter(info: TeamPracticeInfo | null): string {
+  function formatter(info: TeamPracticeCalendarEvent | null): string {
     if (!info) return "";
 
-    const { place, timeRange, targetClass } = info;
-    const thisPracticeLocation = PRACTICE_LOCATIONS[place] ?? "";
-    const placeLabel = thisPracticeLocation.name
-      ? `${place}(${thisPracticeLocation.name})`
-      : place;
+    const { location, timeRange, targetClass } = info;
+    const placeLabel = location.name
+      ? `${location.shortenLocation}(${location.name})`
+      : location.shortenLocation;
 
     return `${placeLabel} ${timeRange}|${targetClass}`;
   }

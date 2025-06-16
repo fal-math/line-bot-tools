@@ -13,6 +13,7 @@ export interface PracticeLocation {
   name: string;
   map_url: string;
   location: string;
+  shortenLocation: string;
 }
 export type PracticeLocations = Record<string, PracticeLocation>;
 
@@ -23,14 +24,16 @@ export interface UrlPair {
 
 interface EventInfo {
   month: number;
+  date: number;
   day: string;
-  date:number
 }
 
 export interface TeamPracticeInfo extends EventInfo {
   place: string;
+  practiceType: string;
   timeRange: string;
   targetClass: string;
+  personInCharge: string;
 }
 
 export interface MatchInfo extends EventInfo {
@@ -91,31 +94,32 @@ export type GroupedEvents = ByKarutaClass<{
 // };
 
 // Calendar Event Base Type
-export interface CalenderEvent {
+export interface CalendarEvent {
   date: Date;
-  class: KarutaClass[];
+  targetClass: KarutaClass[] | string;
 }
 
 // Match Event
-export interface MatchEvent extends CalenderEvent {
+export interface MatchCalendarEvent extends CalendarEvent {
   title: string;
   location: string;
   mapUrl: string;
 }
 
 // Outer Practice Event
-export interface OuterPracticeEvent extends CalenderEvent {
+export interface OuterPracticeCalendarEvent extends CalendarEvent {
   title: string;
   location: string;
-  mapUrl: string;
+  mapUrl?: string;
+  timeRange?: string;
 }
 
 // Team Practice Event
-export interface TeamPracticeEvent extends CalenderEvent {
+export interface TeamPracticeCalendarEvent extends CalendarEvent {
   location: PracticeLocation;
-  place: string;
+  practiceType: string;
   timeRange: string;
-  type:string;
+  personInCharge: string;
 }
 
 // Participant Status

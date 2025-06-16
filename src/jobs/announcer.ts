@@ -6,17 +6,18 @@ import {
   GOOGLE_CALENDER_ID_HONSHIME,
   GOOGLE_CALENDER_ID_KAIRENSHU,
   GOOGLE_CALENDER_ID_KAISHIME,
+  GOOGLE_CALENDER_ID_OUTER,
   GOOGLE_CALENDER_ID_TAIKAI,
   LINE_CHANNEL_ACCESS_TOKEN,
   PRACTICE_LOCATIONS
 } from '../config';
 
-import { formatToTeamPracticeInfo_ } from '../services/calenderImage';
+import { formatToOuterPracticeEvent_, formatToTeamPracticeEvent_ } from '../services/calenderImage';
 import { buildGroupMessages_, createGroups_, getGroupedEvents_, kaishimeMessage, } from '../services/kaishimeHelper';
-import { TeamPracticeInfo } from '../type';
+import { OuterPracticeCalendarEvent, TeamPracticeCalendarEvent } from '../type';
 
-import { LineService } from '../services/LineService';
 import { ChouseisanService } from '../services/ChouseisanService';
+import { LineService } from '../services/LineService';
 import { DateUtils } from '../util/DateUtils';
 
 export class Announcer {
@@ -185,14 +186,35 @@ export class Announcer {
     return base.join("");
   }
 
-  private formatToString(infos: (TeamPracticeInfo)[]) {
-    const teamPracticesString = infos.map(info =>
-      info.month + "/" + info.date + "(" + info.day + ") " + info.timeRange + " " + info.place + " " + info.targetClass).join("\n");
-    const locationswithDup = infos.map(info => info.place);
+  private formatToString(infos: (TeamPracticeCalendarEvent)[]) {
+    const teamPracticesString = infos.map(info => {
+      const target = Array.isArray(info.targetClass)
+        ? info.targetClass.join(",")
+        : info.targetClass;
+      const weekDay = ["日", "月", "火", "水", "木", "金", "土"];
+
+      return `${info.date.getMonth() + 1}/${info.date.getDate()}(${weekDay[info.date.getDay()]})${info.timeRange} ${info.location.shortenLocation}${info.practiceType} :${target}`;
+    }).join("\n");
+
+    const locationswithDup = infos.map(info => info.location.shortenLocation);
     const locations = [...new Set(locationswithDup)];
     const practiceLocationsString = locations.map(loc => PRACTICE_LOCATIONS[loc].location + "\n" + PRACTICE_LOCATIONS[loc].map_url).join("\n");
 
     return { teamPracticesString, practiceLocationsString }
+  }
+
+  private formatToString2(infos: (OuterPracticeCalendarEvent)[]) {
+    const outerPracticesString = infos.map(info => {
+      const target = Array.isArray(info.targetClass)
+        ? info.targetClass.join(",")
+        : info.targetClass;
+      const weekDay = ["日", "月", "火", "水", "木", "金", "土"];
+
+      return `${info.date.getMonth() + 1}/${info.date.getDate()}(${weekDay[info.date.getDay()]})${info.timeRange} ${info.title} :${target}
+${info.location}`;
+    }).join("\n");
+
+    return outerPracticesString
   }
 
   // ==================================================================================
@@ -205,11 +227,23 @@ export class Announcer {
 
     const teamPracticeCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDER_ID_KAIRENSHU);
     const teamPracticeEvents = teamPracticeCalendar.getEvents(today, nextThursday);
-    const rawteamPractices = teamPracticeEvents.map(ev => formatToTeamPracticeInfo_(ev));
-    const teamPractices: TeamPracticeInfo[] = rawteamPractices.filter(
-      (item): item is TeamPracticeInfo => item !== null
+    const rawteamPractices = teamPracticeEvents.map(ev => formatToTeamPracticeEvent_(ev));
+
+    const teamPractices: TeamPracticeCalendarEvent[] = rawteamPractices.filter(
+      (item): item is TeamPracticeCalendarEvent => item !== null
     );
-    const { teamPracticesString, practiceLocationsString } = this.formatToString(teamPractices);
+    const { teamPracticesString, practiceLocationsString }
+      = this.formatToString(teamPractices);
+
+    const outerPracticeCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDER_ID_OUTER);
+    const outerPracticeEvents = outerPracticeCalendar.getEvents(today, nextThursday);
+    const rawouterPractices = outerPracticeEvents.map(ev => formatToOuterPracticeEvent_(ev));
+
+    const outerPractices: OuterPracticeCalendarEvent[] = rawouterPractices.filter(
+      (item): item is OuterPracticeCalendarEvent => item !== null
+    );
+
+    const outerPracticesString = this.formatToString2(outerPractices);
 
     const matchCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDER_ID_TAIKAI);
     const matchEvents = matchCalendar.getEvents(today, nextNextThursday);
@@ -218,33 +252,41 @@ export class Announcer {
     const lines = [
       '《ちはやふる富士見 木曜定期便》',
       '',
-      '【今週末の練習】',
+      '🟦今週末の練習🟦',
       teamPracticesString,
       '',
-      '✔️練習会場案内',
+      '📍会練会場案内',
       practiceLocationsString,
       '',
-      '✔️会練持ち物',
-      'マイ札、かるたノート、上達カード(基本級～F級)、スタートアップガイド',
+      '📒練習持ち物',
+      '・マイ札',
+      '・かるたノート',
+      '・上達カード(基本級～F級)',
+      '・スタートアップガイド',
       '',
-      '【遅刻欠席連絡】',
+      '📧会練遅刻欠席連絡',
       'あらかじめ遅参が分かっている時、または当日の遅刻欠席する時の連絡メールアドレス',
       ATTENDANCE_ADDRESS,
       '⚠️下記を必ず記載⚠️',
       '題名：名前と級',
       '本文：参加する練習会場、用件(遅刻の場合、到着予定時刻)',
-      '✔️LINEで参加を押すと「初めから参加」の意味になります📝',
+      '※LINEで参加を押すと「初めから参加」の意味になります',
       '',
-      '【今週来週の出場大会】',
+      '__________',
+      '',
+      '🟧外部練(要事前申込)🟧',
+      outerPracticesString,
+      '__________',
+      '',
+      '🟩今週来週の出場大会🟩',
       matches,
+      '__________',
       '',
-      '【活動カレンダー】',
+      '◯活動カレンダー',
       CALENDER_URL,
-      '',
-      '【周知済み大会情報】',
+      '◯周知済み大会情報',
       DRIVE_URL,
-      '',
-      '【申込入力URL(調整さん)】',
+      '◯大会申込入力URL(調整さん)',
       `A級| ${CHOUSEISAN_URLS[`A`]}\n`,
       `B級| ${CHOUSEISAN_URLS[`B`]}\n`,
       `C級| ${CHOUSEISAN_URLS[`C`]}\n`,
@@ -256,7 +298,6 @@ export class Announcer {
 
     const lineService = new LineService(LINE_CHANNEL_ACCESS_TOKEN);
     lineService.pushText(to, lines.join('\n'));
-
   }
 }
 // ==================================================================================

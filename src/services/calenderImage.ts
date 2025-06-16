@@ -1,5 +1,5 @@
-import { GOOGLE_CALENDER_ID_KAIRENSHU, GOOGLE_CALENDER_ID_TAIKAI } from "../config";
-import { MatchInfo, TeamPracticeInfo, UrlPair } from "../type";
+import { GOOGLE_CALENDER_ID_KAIRENSHU, GOOGLE_CALENDER_ID_TAIKAI, PRACTICE_LOCATIONS } from "../config";
+import { MatchInfo, OuterPracticeCalendarEvent, TeamPracticeCalendarEvent, UrlPair } from "../type";
 
 
 export function generateMonthlyCalendar_(
@@ -59,9 +59,9 @@ function buildCalendarSlide_(
 
   const teamPracticeCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDER_ID_KAIRENSHU);
   const teamPracticeEvents = teamPracticeCalendar.getEvents(firstDate, lastDate);
-  const teamPracticeList: TeamPracticeInfo[] = [];
+  const teamPracticeList: TeamPracticeCalendarEvent[] = [];
   teamPracticeEvents.forEach(ev => {
-    const result = formatToTeamPracticeInfo_(ev);
+    const result = formatToTeamPracticeEvent_(ev);
     if (!result) return;
     teamPracticeList.push(result);
   });
@@ -155,13 +155,13 @@ function buildCalendarSlide_(
     const indent = `        `;
     // 会練習
     teamPracticeList
-      .filter(info => info.month === month && info.date === d)
+      .filter(info => info.date.getMonth() + 1 === month && info.date.getDate() === d)
       .forEach(info => {
-        lines.push(`${indent}${info.timeRange} ${info.place} (${info.targetClass})`);
+        lines.push(`${indent}${info.timeRange} ${info.location.shortenLocation} (${info.targetClass})`);
       });
     // 大会情報
     const matchLines = matchList
-      .filter(m => m.month === month && m.date=== d)
+      .filter(m => m.month === month && m.date === d)
       .map(m => m.title);
     if (matchLines.length)
       lines.push(indent + matchLines.join('、'));
@@ -187,38 +187,71 @@ function subsum_(n: number, arr: number[]): number {
     .reduce((acc, v) => acc + v, 0);
 }
 
-
-export function formatToTeamPracticeInfo_(
+export function formatToTeamPracticeEvent_(
   event: GoogleAppsScript.Calendar.CalendarEvent
-): TeamPracticeInfo | null {
-  //  1. 場所: 先頭の「数字以外の文字列」
-  //  2. 時間帯: 4 桁 or 3 桁数字－4 桁 or 3 桁数字
-  //  3. カテゴリ: 空白以降の文字列
-  const re = /^(.+?)(\d{3,4}-\d{3,4})\s+(.+)$/;
-  const m = event.getTitle().match(re);
-  if (!m) return null;
+): TeamPracticeCalendarEvent | null {
+  const title = event.getTitle();
+  const date: Date = new Date(event.getStartTime().getTime());
 
-  const [, place, timeRange, targetClass] = m;
-  
-  const dayTmp = event.getStartTime().getDay();
-  const wnames = ['日', '月', '火', '水', '木', '金', '土'];
-  const day = wnames[dayTmp];
+  const [shortenLocation, rest] = title.split(".", 2);
+  if (!rest) return null;  // 不正形式防止
+
+  const re = /^([^\d]*?)(\d{3,4}-\d{3,4})\s+(.+?)\((.+?)\)$/;
+  const m = rest.trim().match(re);
+  if (!m) return null;
+  const [, practiceType, timeRange, targetClass, personInCharge] = m;
+
+  const location = PRACTICE_LOCATIONS[shortenLocation];
+  if (!location) return null;
+
   return {
-    month: event.getStartTime().getMonth() + 1,
-    date: event.getStartTime().getDate(),
-    day,
-    place: place.trim(),
-    timeRange,
-    targetClass: targetClass.trim()
+    date,
+    location,
+    practiceType: practiceType.trim(),
+    timeRange: timeRange.trim(),
+    targetClass: targetClass.trim(),
+    personInCharge: personInCharge.trim()
   };
 }
+
+
+export function formatToOuterPracticeEvent_(
+  event: GoogleAppsScript.Calendar.CalendarEvent
+): OuterPracticeCalendarEvent | null {
+  Logger.log(`aaaaaaaaaaaaaaaaaaaaaaa`)
+  
+  const eventTitle = event.getTitle();
+  const location = event.getLocation();
+  const date: Date = new Date(event.getStartTime().getTime());
+
+
+  const re = /^(.+?)(\d{3,4}-\d{3,4})\s*([^:]+):(.+)$/;
+  Logger.log(`eventTitle: ${eventTitle}`)
+
+  const m = eventTitle.trim().match(re);
+  if (!m) return null;
+  const [, title, timeRange, targetClass, comment] = m;
+  Logger.log(`title: ${title}`)
+  Logger.log(`timeRange: ${timeRange}`)
+  Logger.log(`targetClass: ${targetClass}`)
+  Logger.log(`comment: ${comment}`)
+
+  return {
+    date,
+    targetClass,
+    title,
+    timeRange,
+    location
+  };
+}
+
 
 function formatToMatchInfo_(
   event: GoogleAppsScript.Calendar.CalendarEvent
 ): MatchInfo | null {
   const title = event.getTitle();
   if (title.includes("*")) return null;
-  
+
   const dayTmp = event.getStartTime().getDay();
   const wnames = ['日', '月', '火', '水', '木', '金', '土'];
   const day = wnames[dayTmp];
