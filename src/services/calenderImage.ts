@@ -155,13 +155,13 @@ function buildCalendarSlide_(
     const indent = `        `;
     // 会練習
     teamPracticeList
-      .filter(info => info.month === month && info.day === d)
+      .filter(info => info.month === month && info.date === d)
       .forEach(info => {
         lines.push(`${indent}${info.timeRange} ${info.place} (${info.targetClass})`);
       });
     // 大会情報
     const matchLines = matchList
-      .filter(m => m.month === month && m.day === d)
+      .filter(m => m.month === month && m.date=== d)
       .map(m => m.title);
     if (matchLines.length)
       lines.push(indent + matchLines.join('、'));
@@ -199,9 +199,14 @@ export function formatToTeamPracticeInfo_(
   if (!m) return null;
 
   const [, place, timeRange, targetClass] = m;
+  
+  const dayTmp = event.getStartTime().getDay();
+  const wnames = ['日', '月', '火', '水', '木', '金', '土'];
+  const day = wnames[dayTmp];
   return {
     month: event.getStartTime().getMonth() + 1,
-    day: event.getStartTime().getDate(),
+    date: event.getStartTime().getDate(),
+    day,
     place: place.trim(),
     timeRange,
     targetClass: targetClass.trim()
@@ -213,9 +218,14 @@ function formatToMatchInfo_(
 ): MatchInfo | null {
   const title = event.getTitle();
   if (title.includes("*")) return null;
+  
+  const dayTmp = event.getStartTime().getDay();
+  const wnames = ['日', '月', '火', '水', '木', '金', '土'];
+  const day = wnames[dayTmp];
   return {
     month: event.getStartTime().getMonth() + 1,
-    day: event.getStartTime().getDate(),
+    date: event.getStartTime().getDate(),
+    day,
     title
   };
 }

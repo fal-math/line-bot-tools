@@ -1,6 +1,6 @@
 import { ATTENDANCE_ADDRESS, LINE_CHANNEL_ACCESS_TOKEN } from "../config";
-import { pushTextV2_ } from "../services/line";
-import { stripCss_ } from "../util/string";
+import { LineService } from '../services/LineService';
+import { StringUtils } from '../util/StringUtils';
 
 export function attandanceHandler_(to: string): void {
   const threads = GmailApp.search(`(to:${ATTENDANCE_ADDRESS} is:unread)`);
@@ -11,7 +11,8 @@ export function attandanceHandler_(to: string): void {
     const notice = buildNoticeText_(msg);
 
     try {
-      pushTextV2_(to, LINE_CHANNEL_ACCESS_TOKEN, notice);
+      const lineService = new LineService(LINE_CHANNEL_ACCESS_TOKEN);
+      lineService.pushText(to, notice);
     } catch (e) {
       Logger.log(`LINE通知エラー: ${(e as Error).message}`);
     }
@@ -28,7 +29,7 @@ function buildNoticeText_(message: GoogleAppsScript.Gmail.GmailMessage): string 
     `件名　　: ${message.getSubject()}`,
     `受信時刻: ${receivedAt}`,
     '--------------------------------------',
-    stripCss_(message.getPlainBody())
+    StringUtils.stripCss(message.getPlainBody())
   ].join('\n');
 }
 

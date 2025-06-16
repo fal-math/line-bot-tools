@@ -1,13 +1,13 @@
 import { GOOGLE_CALENDER_ID_KAIRENSHU, LINE_CHANNEL_ACCESS_TOKEN, PRACTICE_LOCATIONS } from "../config";
 import { formatToTeamPracticeInfo_ } from "../services/calenderImage";
-import { pushTextV2_ } from "../services/line";
+import { LineService } from "../services/LineService";
 import { TeamPracticeInfo } from "../type";
-import { addDays_, startOfDay_ } from "../util/date";
+import { DateUtils } from "../util/DateUtils";
 
 export function announceTodayPractice_(to: string): void {
   // 練習取得
-  const today = startOfDay_();
-  const tomorrow = addDays_(today, 1)
+  const today = DateUtils.startOfDay();
+  const tomorrow = DateUtils.addDays(today, 1)
   const teamPracticeCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDER_ID_KAIRENSHU);
   const teamPracticeEvents = teamPracticeCalendar.getEvents(today, tomorrow);
   if (teamPracticeEvents.length === 0) return;
@@ -76,7 +76,8 @@ export function announceTodayPractice_(to: string): void {
     myLists.map((lst, i) => `  ${i + 1}試合目 : ${orderList[i % 2]}が${lst.join(', ')}`).join('\n') + '\n' +
     '=札分けの一覧表= \n https://onl.sc/nUb3Qd8';
 
-  pushTextV2_(to, LINE_CHANNEL_ACCESS_TOKEN, teamPracticesStr + '\n\n' + messageHudawake);
+  const lineService = new LineService(LINE_CHANNEL_ACCESS_TOKEN);
+  lineService.pushText(to, teamPracticesStr + '\n\n' + messageHudawake);
 }
 
 /**
