@@ -4,31 +4,31 @@ import {
   CHOUSEISAN_URLS,
   DRIVE_URL,
   GOOGLE_CALENDER_ID_HONSHIME,
-  GOOGLE_CALENDER_ID_KAIRENSHU,
   GOOGLE_CALENDER_ID_KAISHIME,
-  GOOGLE_CALENDER_ID_OUTER,
-  GOOGLE_CALENDER_ID_TAIKAI,
-  LINE_CHANNEL_ACCESS_TOKEN,
   PRACTICE_LOCATIONS
 } from '../config';
 
-import { formatToOuterPracticeEvent_, formatToTeamPracticeEvent_ } from '../services/calenderImage';
 import { buildGroupMessages_, createGroups_, getGroupedEvents_, kaishimeMessage, } from '../services/kaishimeHelper';
-import { OuterPracticeCalendarEvent, TeamPracticeCalendarEvent } from '../type';
+import { MatchCalendarEvent, OuterPracticeCalendarEvent, TeamPracticeCalendarEvent } from '../type';
 
+import { CalendarService } from '../services/CalendarService';
 import { ChouseisanService } from '../services/ChouseisanService';
 import { LineService } from '../services/LineService';
-import { DateUtils } from '../util/DateUtils';
+import { DateUtils, WEEK_DAYS } from '../util/DateUtils';
 
 export class Announcer {
+  private today = DateUtils.startOfDay();
+  private tomorrow = DateUtils.addDays(this.today, 1);
+  private oneWeekLater = DateUtils.addDays(this.today, 7);
+  private twoWeekLater = DateUtils.addDays(this.today, 14);
+  private readonly groups = createGroups_();
+
   // ==================================================================================
   // 受付〆アナウンス（当日 21 時）
   // ==================================================================================
   public deadlineToday(to: string): void {
-    const today = DateUtils.startOfDay();
-    const tomorrow = DateUtils.addDays(today, 1);
-    const groups = createGroups_();
-    getGroupedEvents_(today, tomorrow, groups, GOOGLE_CALENDER_ID_KAISHIME);
+    const events = getGroupedEvents_(
+      this.today, this.tomorrow, this.groups, GOOGLE_CALENDER_ID_KAISHIME);
 
     const base = [
       '❗️本日21時に大会受付締切❗️',
@@ -39,10 +39,10 @@ export class Announcer {
       kaishimeMessage,
     ].join('\n');
 
-    const { message, totalEvents } = buildGroupMessages_(base, groups);
+    const { message, totalEvents } = buildGroupMessages_(base, events);
 
     if (totalEvents > 0) {
-      const lineService = new LineService(LINE_CHANNEL_ACCESS_TOKEN);
+      const lineService = new LineService();
       lineService.pushText(to, message);
     }
   }
@@ -51,10 +51,8 @@ export class Announcer {
   // 受付〆アナウンス（来週分まとめ）
   // ==================================================================================
   public deadlineNextWeek(to: string): void {
-    const today = DateUtils.startOfDay();
-    const oneWeekLater = DateUtils.addDays(today, 7);
-    const groups = createGroups_();
-    getGroupedEvents_(today, oneWeekLater, groups, GOOGLE_CALENDER_ID_KAISHIME);
+    const events = getGroupedEvents_(
+      this.today, this.oneWeekLater, this.groups, GOOGLE_CALENDER_ID_KAISHIME);
 
     const base = [
       '❗️大会受付締め切りまで間近❗️',
@@ -66,10 +64,10 @@ export class Announcer {
       kaishimeMessage,
     ].join('\n');
 
-    const { message, totalEvents } = buildGroupMessages_(base, groups);
+    const { message, totalEvents } = buildGroupMessages_(base, events);
 
     if (totalEvents > 0) {
-      const lineService = new LineService(LINE_CHANNEL_ACCESS_TOKEN);
+      const lineService = new LineService();
       lineService.pushText(to, message);
     }
   }
@@ -78,13 +76,11 @@ export class Announcer {
   // 本〆アナウンス（当日）
   // ==================================================================================
   public finalIsToday(to: string, mentionee: string): void {
-    const today = DateUtils.startOfDay();
-    const tomorrow = DateUtils.addDays(today, 1);
     const calendar = CalendarApp.getCalendarById(GOOGLE_CALENDER_ID_HONSHIME);
-    const events = calendar.getEvents(today, tomorrow);
+    const events = calendar.getEvents(this.today, this.tomorrow);
     if (events.length === 0) return;
 
-    const formatted = Utilities.formatDate(today, 'JST', 'MM/dd');
+    const formatted = Utilities.formatDate(this.today, 'JST', 'MM/dd');
     const header = `${formatted} {maintainer}さん\n大会本〆リマインダーです。以下の大会の申込を確認してください。\n\n`;
     const schedule = events.map(ev => ev.getTitle()).join('\n');
     const substitution = {
@@ -95,7 +91,7 @@ export class Announcer {
     } as const;
 
 
-    const lineService = new LineService(LINE_CHANNEL_ACCESS_TOKEN);
+    const lineService = new LineService();
     lineService.pushText(to, header + schedule, substitution);
   }
 
@@ -103,12 +99,11 @@ export class Announcer {
   // 調整さん集計（当日）
   // ==================================================================================
   public chouseisanToday(to: string): void {
-    const today = DateUtils.startOfDay();
     const chouseisanService = new ChouseisanService();
-    const { hasEvent, body } = chouseisanService.checkChouseisanByClass(today, today);
+    const { hasEvent, body } = chouseisanService.checkChouseisanByClass(this.today, this.today);
 
     if (hasEvent) {
-      const lineService = new LineService(LINE_CHANNEL_ACCESS_TOKEN);
+      const lineService = new LineService();
       lineService.pushText(to, body);
     }
   }
@@ -117,137 +112,106 @@ export class Announcer {
   // 調整さん集計（1 週間分）
   // ==================================================================================
   public chouseisanWeekly(to: string): void {
-    const today = DateUtils.startOfDay();
-    const start = DateUtils.addDays(today, -14);
-    const end = DateUtils.addDays(today, 14);
+    const start = DateUtils.addDays(this.today, -14);
+    const end = DateUtils.addDays(this.today, 14);
 
     const chouseisanService = new ChouseisanService();
     const { hasEvent, body } = chouseisanService.checkChouseisanByClass(start, end);
 
     if (hasEvent) {
-      const lineService = new LineService(LINE_CHANNEL_ACCESS_TOKEN);
+      const lineService = new LineService();
       lineService.pushText(to, body);
     }
   }
 
-  // ==================================================================================
-  // 運営2週間後会練(毎週土曜)
-  // ==================================================================================
-  public weeklyForManagers(to: string): void {
-    const today = DateUtils.startOfDay();
-    const tomorrow = DateUtils.addDays(today, 1);
-    const tomorrowStr = Utilities.formatDate(tomorrow, 'JST', 'MM/dd');
-    const nextWednesday = DateUtils.addDays(today, 11);
-    const nextNextWednesday = DateUtils.addDays(today, 18);
+  private teamPracticesToString(
+    infos: TeamPracticeCalendarEvent[]
+  ): {
+    teamPracticesString: string;
+    practiceLocationsString: string;
+  } {
+    const teamPracticesString = infos
+      .map(({ date, timeRange, location, practiceType, targetClasses }) => {
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const weekday = WEEK_DAYS[date.getDay()];
+        const target = Array.isArray(targetClasses)
+          ? targetClasses.join("")
+          : targetClasses;
 
-    const teamPracticeCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDER_ID_KAIRENSHU);
-    const teamPracticeEvents = teamPracticeCalendar.getEvents(nextWednesday, nextNextWednesday);
-    const teamPractices = teamPracticeEvents.map(ev => this.formatEvent(ev)).join('\n');
+        return [
+          `・${month}/${day}（${weekday}） ${timeRange}`,
+          `　${location.shortenBuildingName}${practiceType}`,
+          `　対象：${target}`,
+        ].join("\n");
+      }).join("\n");
 
-    const matchCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDER_ID_TAIKAI);
-    const matchEvents = matchCalendar.getEvents(nextWednesday, nextNextWednesday);
-    const matches = matchEvents.map(ev => this.formatEvent(ev)).join('\n');
+    const uniqueLocs = Array.from(
+      new Set(infos.map(info => info.location.shortenBuildingName))
+    );
+    const practiceLocationsString = uniqueLocs
+      .map(shortenBuildingName => {
+        const { buildingName, mapUrl: map_url } = PRACTICE_LOCATIONS[shortenBuildingName];
+        return [buildingName, map_url].join("\n");
+      })
+      .join("\n");
 
-    const base = [
-      `{everyone}`,
-      `2週間後会練の参加不参加を,`,
-      `明日(${tomorrowStr})までにお願いします🤲`,
-      ``,
-      `↓対象の会練↓`,
-      ``,
-      teamPractices,
-      ``,
-      `↓開催の大会↓`,
-      ``,
-      matches,
-      ``
-    ].join('\n');
-    const substitution = {
-      "everyone": {
-        type: 'mention',
-        mentionee: { type: 'all' },
-      }
-    } as const;
-
-    const lineService = new LineService(LINE_CHANNEL_ACCESS_TOKEN);
-    lineService.pushText(to, base, substitution);
+    return { teamPracticesString, practiceLocationsString };
   }
 
-  public formatEvent(event: GoogleAppsScript.Calendar.CalendarEvent): string {
-    const monthStr = String(event.getStartTime().getMonth() + 1);
-    const dateStr = String(event.getStartTime().getDate());
-    const day = event.getStartTime().getDay();
-    const wnames = ['日', '月', '火', '水', '木', '金', '土'];
-    const dayStr = wnames[day];
-    const title = event.getTitle();
 
-    const base = [monthStr, "/", dateStr, "(", dayStr, ") ", title]
+  private outerPracticesToString(
+    infos: OuterPracticeCalendarEvent[]
+  ): string {
+    return infos
+      .map(({ date, timeRange, title, targetClasses, location }) => {
+        const target = Array.isArray(targetClasses)
+          ? targetClasses.join("、")
+          : targetClasses;
 
-    return base.join("");
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const weekday = WEEK_DAYS[date.getDay()];
+
+        return [
+          `${month}/${day}（${weekday}） ${timeRange} ${title}`,
+          `対象：${target}`,
+          `場所：${location}`,
+        ].join("\n");
+      }).join("\n");
   }
 
-  private formatToString(infos: (TeamPracticeCalendarEvent)[]) {
-    const teamPracticesString = infos.map(info => {
-      const target = Array.isArray(info.targetClass)
-        ? info.targetClass.join(",")
-        : info.targetClass;
-      const weekDay = ["日", "月", "火", "水", "木", "金", "土"];
+  private matchesToString(infos: (MatchCalendarEvent)[]): string {
+    return infos
+      .map(({ date, title, targetClasses, location }) => {
+        const target = Array.isArray(targetClasses)
+          ? targetClasses.join("、")
+          : targetClasses;
 
-      return `${info.date.getMonth() + 1}/${info.date.getDate()}(${weekDay[info.date.getDay()]})${info.timeRange} ${info.location.shortenLocation}${info.practiceType} :${target}`;
-    }).join("\n");
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const weekday = WEEK_DAYS[date.getDay()];
 
-    const locationswithDup = infos.map(info => info.location.shortenLocation);
-    const locations = [...new Set(locationswithDup)];
-    const practiceLocationsString = locations.map(loc => PRACTICE_LOCATIONS[loc].location + "\n" + PRACTICE_LOCATIONS[loc].map_url).join("\n");
-
-    return { teamPracticesString, practiceLocationsString }
-  }
-
-  private formatToString2(infos: (OuterPracticeCalendarEvent)[]) {
-    const outerPracticesString = infos.map(info => {
-      const target = Array.isArray(info.targetClass)
-        ? info.targetClass.join(",")
-        : info.targetClass;
-      const weekDay = ["日", "月", "火", "水", "木", "金", "土"];
-
-      return `${info.date.getMonth() + 1}/${info.date.getDate()}(${weekDay[info.date.getDay()]})${info.timeRange} ${info.title} :${target}
-${info.location}`;
-    }).join("\n");
-
-    return outerPracticesString
+        return `${month}/${day}（${weekday}）${title}${target}`
+      }).join("\n");
   }
 
   // ==================================================================================
   // 木曜定期便
   // ==================================================================================
   public weekly(to: string): void {
-    const today = DateUtils.startOfDay(); //thursday
-    const nextThursday = DateUtils.addDays(today, 7);
-    const nextNextThursday = DateUtils.addDays(today, 14);
+    const calendarService = new CalendarService();
 
-    const teamPracticeCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDER_ID_KAIRENSHU);
-    const teamPracticeEvents = teamPracticeCalendar.getEvents(today, nextThursday);
-    const rawteamPractices = teamPracticeEvents.map(ev => formatToTeamPracticeEvent_(ev));
-
-    const teamPractices: TeamPracticeCalendarEvent[] = rawteamPractices.filter(
-      (item): item is TeamPracticeCalendarEvent => item !== null
-    );
+    const teamPractices: TeamPracticeCalendarEvent[]
+      = calendarService.getTeamPractices(this.today, this.oneWeekLater);
     const { teamPracticesString, practiceLocationsString }
-      = this.formatToString(teamPractices);
+      = this.teamPracticesToString(teamPractices);
 
-    const outerPracticeCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDER_ID_OUTER);
-    const outerPracticeEvents = outerPracticeCalendar.getEvents(today, nextThursday);
-    const rawouterPractices = outerPracticeEvents.map(ev => formatToOuterPracticeEvent_(ev));
+    const outerPractices = calendarService.getOuterPractices(this.today, this.oneWeekLater)
+    const outerPracticesString = this.outerPracticesToString(outerPractices);
 
-    const outerPractices: OuterPracticeCalendarEvent[] = rawouterPractices.filter(
-      (item): item is OuterPracticeCalendarEvent => item !== null
-    );
-
-    const outerPracticesString = this.formatToString2(outerPractices);
-
-    const matchCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDER_ID_TAIKAI);
-    const matchEvents = matchCalendar.getEvents(today, nextNextThursday);
-    const matches = matchEvents.map(ev => this.formatEvent(ev)).join('\n');
+    const matches = calendarService.getMatches(this.today, this.twoWeekLater)
+    const matchesString = this.matchesToString(matches);
 
     const lines = [
       '《ちはやふる富士見 木曜定期便》',
@@ -279,7 +243,7 @@ ${info.location}`;
       '__________',
       '',
       '🟩今週来週の出場大会🟩',
-      matches,
+      matchesString,
       '__________',
       '',
       '◯活動カレンダー',
@@ -296,10 +260,145 @@ ${info.location}`;
       `G級| ${CHOUSEISAN_URLS[`G`]}`,
     ];
 
-    const lineService = new LineService(LINE_CHANNEL_ACCESS_TOKEN);
+    const lineService = new LineService();
     lineService.pushText(to, lines.join('\n'));
   }
+
+  /**
+   * Fisher–Yates でシャッフルして先頭 size 件抽出 & 昇順ソート
+   */
+  private chooseAndSort(size: number, source: number[]): number[] {
+    if (size <= 0) return [];
+    const arr = [...source];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.slice(0, size).sort((a, b) => a - b);
+  }
+
+  /**
+   * ベースと残りから混在リストを生成して昇順ソート
+   */
+  private mixAndSort(base: number[], all: number[], pickBase: number, pickRest: number): number[] {
+    const fromBase = this.chooseAndSort(pickBase, base);
+    const fromRest = this.chooseAndSort(pickRest, all.filter(n => !base.includes(n)));
+    return [...fromBase, ...fromRest].sort((a, b) => a - b);
+  }
+
+
+  // ==================================================================================
+  // 今日の練習・札分け
+  // ==================================================================================
+  public todayPractice(to: string): void {
+    const practices: TeamPracticeCalendarEvent[]
+      = new CalendarService().getTeamPractices(this.today, this.tomorrow);
+    if (!practices.length) return;
+
+    // 1) 今日の練習情報テキスト化
+    const practiceMsg = practices
+      .map(({ location, timeRange, targetClasses }) => {
+        const place = location.buildingName
+          ? `${location.shortenBuildingName}(${location.buildingName})`
+          : location.shortenBuildingName;
+        return `${place} ${timeRange}|${targetClasses}`;
+      })
+      .join("\n");
+
+    // 2) 会札リスト生成
+    const nums = Array.from({ length: 10 }, (_, i) => i);
+    const hira = ['あ', 'い', 'う', 'え', 'お', 'か', 'き', 'く', 'け', 'こ'];
+    const kata = ['サ', 'シ', 'ス', 'セ', 'ソ', 'タ', 'チ', 'ツ', 'テ', 'ト'];
+    const kanji = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+    const charSets = [hira, kata, kanji] as const;
+
+    const numLists: number[][] = [];
+    numLists.push(this.chooseAndSort(5, nums));
+    numLists.push(this.chooseAndSort(5, nums));
+    numLists.push(this.chooseAndSort(5, nums));
+    numLists.push(this.mixAndSort(numLists[0], nums, 2, 3));
+    numLists.push(this.mixAndSort(numLists[1], nums, 2, 3));
+    numLists.push(this.mixAndSort(numLists[2], nums, 2, 3));
+
+    const kaihudaLists = numLists.map((list, idx) => {
+      const set = idx < 3 ? charSets[idx] : charSets[(idx - 3)];
+      return list.map(i => set[i]);
+    });
+
+    // 3) マイ札リスト生成
+    const myCardsList: number[][] = [];
+    myCardsList.push(this.chooseAndSort(5, nums));
+    myCardsList.push(this.chooseAndSort(5, nums));
+    myCardsList.push(this.mixAndSort(myCardsList[0], nums, 2, 3));
+    myCardsList.push(this.mixAndSort(myCardsList[1], nums, 2, 3));
+    myCardsList.push(this.mixAndSort(myCardsList[2], nums, 2, 3));
+    myCardsList.push(this.mixAndSort(myCardsList[3], nums, 2, 3));
+
+    // 4) メッセージ組み立て
+    const order = ["一の位", "十の位"];
+    const msgKai = kaihudaLists
+      .map((lst, i) => `  ${i + 1}試合目: ${lst.join(', ')}`)
+      .join("\n");
+    const msgMy = myCardsList
+      .map((lst, i) => `  ${i + 1}試合目: ${order[i % 2]}が${lst.join(', ')}`)
+      .join("\n");
+
+    const fullMsg = [
+      "■今日の練習■",
+      practiceMsg,
+      "=会札=",
+      msgKai,
+      "",
+      "=マイ札=",
+      msgMy,
+      "",
+      "=札分けの一覧表=",
+      "https://onl.sc/nUb3Qd8"
+    ].join("\n");
+
+    new LineService().pushText(to, fullMsg);
+  }
 }
+
+// ==================================================================================
+// 運営2週間後会練(毎週土曜)
+// ==================================================================================
+// public weeklyForManagers(to: string): void {
+//   const today = DateUtils.startOfDay();
+//   const tomorrow = DateUtils.addDays(today, 1);
+//   const tomorrowStr = Utilities.formatDate(tomorrow, 'JST', 'MM/dd');
+//   const nextWednesday = DateUtils.addDays(today, 11);
+//   const nextNextWednesday = DateUtils.addDays(today, 18);
+
+//   const calendarService = new CalendarService();
+
+//   const teamPractices = calendarService.getTeamPractices(nextWednesday, nextNextWednesday);
+//   const matches = calendarService.getMatches(nextWednesday, nextNextWednesday);
+
+//   const base = [
+//     `{everyone}`,
+//     `2週間後会練の参加不参加を,`,
+//     `明日(${tomorrowStr})までにお願いします🤲`,
+//     ``,
+//     `↓対象の会練↓`,
+//     ``,
+//     teamPractices,
+//     ``,
+//     `↓開催の大会↓`,
+//     ``,
+//     matches,
+//     ``
+//   ].join('\n');
+//   const substitution = {
+//     "everyone": {
+//       type: 'mention',
+//       mentionee: { type: 'all' },
+//     }
+//   } as const;
+
+//   const lineService = new LineService();
+//   lineService.pushText(to, base, substitution);
+// }
 // ==================================================================================
 // カレンダー画像生成&送信
 // ==================================================================================

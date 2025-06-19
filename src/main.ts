@@ -9,7 +9,6 @@ import {
 import { Announcer } from './jobs/announcer';
 import { setupTriggers_ } from './jobs/setupTriggers';
 import { attandanceHandler_ } from './jobs/attendance';
-import { announceTodayPractice_ } from './jobs/teamPractice';
 
 // リマインドなび
 
@@ -37,18 +36,19 @@ function announceChouseisanWeekly() {
   return new Announcer().chouseisanWeekly(LINE_USER_ID_MAINTAINER);
 }
 
-function announceWeeklyForManagers() {
-  return new Announcer().weeklyForManagers(LINE_GROUP_ID_UNNEI_SHIFT);
+function announceTodayPractice() {
+  return new Announcer().todayPractice(LINE_GROUP_ID_UNNEI_HOMBU);
 }
+
+// function announceWeeklyForManagers() {
+//   return new Announcer().weeklyForManagers(LINE_GROUP_ID_UNNEI_SHIFT);
+// }
 
 // TODO: monthly calender render
 // function sendMonthlyCalendar() {
 // return sendMonthlyCalendar_(LINE_GROUP_ID_TEST);
 // }
 
-function announceTodayPractice() {
-  return announceTodayPractice_(LINE_GROUP_ID_UNNEI_HOMBU);
-}
 
 function attandanceHandler() {
   return attandanceHandler_(LINE_GROUP_ID_UNNEI_HOMBU);

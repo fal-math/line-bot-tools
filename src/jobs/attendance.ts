@@ -1,4 +1,4 @@
-import { ATTENDANCE_ADDRESS, LINE_CHANNEL_ACCESS_TOKEN } from "../config";
+import { ATTENDANCE_ADDRESS } from "../config";
 import { LineService } from '../services/LineService';
 import { StringUtils } from '../util/StringUtils';
 
@@ -11,8 +11,7 @@ export function attandanceHandler_(to: string): void {
     const notice = buildNoticeText_(msg);
 
     try {
-      const lineService = new LineService(LINE_CHANNEL_ACCESS_TOKEN);
-      lineService.pushText(to, notice);
+      new LineService().pushText(to, notice);
     } catch (e) {
       Logger.log(`LINE通知エラー: ${(e as Error).message}`);
     }

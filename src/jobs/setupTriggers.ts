@@ -44,11 +44,11 @@ export function setupTriggers_(): void {
     .create();
 
   /** 運営向け2週間後会練確認: 毎週土曜日 20:00 */
-  ScriptApp.newTrigger('announceWeeklyForManagers')
-    .timeBased()
-    .onWeekDay(ScriptApp.WeekDay.SATURDAY)
-    .atHour(20)
-    .create();
+  // ScriptApp.newTrigger('announceWeeklyForManagers')
+  //   .timeBased()
+  //   .onWeekDay(ScriptApp.WeekDay.SATURDAY)
+  //   .atHour(20)
+  //   .create();
 
   /** 遅刻欠席連絡: 毎分 */
   ScriptApp.newTrigger('attandanceHandler')

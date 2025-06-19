@@ -1,4 +1,5 @@
 const DAY_MS = 86_400_000;
+export const WEEK_DAYS = ["日", "月", "火", "水", "木", "金", "土"];
 export class DateUtils {
 
   static startOfDay(d?: Date): Date {

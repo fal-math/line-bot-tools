@@ -1,5 +1,7 @@
+import { LINE_CHANNEL_ACCESS_TOKEN } from "../config";
+
 export class LineService {
-  constructor(private token: string) { }
+  constructor(private token: string = LINE_CHANNEL_ACCESS_TOKEN) { }
 
   pushText(to: string, text: string, substitution?: object, retryKey?: string): GoogleAppsScript.URL_Fetch.HTTPResponse {
     const payload = {

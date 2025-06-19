@@ -1,4 +1,6 @@
 @startuml Class Diagram of Types
+skinparam linetype ortho
+
 enum KarutaClass {
   A
   B
@@ -7,6 +9,20 @@ enum KarutaClass {
   E
   F
   G
+}
+
+enum ShortBuildingName {
+  Jinja: "神社";
+  Tokiwa: "常盤";
+  Kitaurawa: "北浦和";
+  Nakacho: "仲町";
+  Kamiochiai: "上落合";
+  Shimoochiai: "下落合";
+  Nakamoto: "仲本";
+  Motobuto: "本太";
+  Bessho: "別所";
+  Tajima: "田島";
+  Sashiougi: "指扇";
 }
 
 class ByKarutaClass<T> {
@@ -19,11 +35,11 @@ class ChouseisanCsvs {
   +[key in KarutaClass]: String
 }
 
-class GroupedEvents {
-  +[key in KarutaClass]: { events: List<String>; url: String }
-}
+' class GroupedEvents {
+'   +[key in KarutaClass]: { events: List<String>; url: String }
+' }
 
-class CalenderEvent {
+class CalendarEvent {
   +date: Date
   +class: KarutaClass[]
 }
@@ -35,19 +51,19 @@ class ChouseisanEvent {
   +participants: ParticipantStatus
 }
 
-class MatchCalenderEvent {
+class MatchCalendarEvent {
   +title: String
   +location: String
   +mapUrl: String
 }
 
-class OuterPracticeCalenderEvent {
+class OuterPracticeCalendarEvent {
   +title: String
   +location: String
   +mapUrl: String
 }
 
-class TeamPracticeCalenderEvent {
+class TeamPracticeCalendarEvent {
   +location: PracticeLocation
   +place: String
   +timeRange: String
@@ -55,17 +71,17 @@ class TeamPracticeCalenderEvent {
 }
 
 
-CalenderEvent <|-- TeamPracticeCalenderEvent
-CalenderEvent <|-- MatchCalenderEvent
-CalenderEvent <|-- OuterPracticeCalenderEvent
+CalendarEvent <|-- TeamPracticeCalendarEvent
+CalendarEvent <|-- MatchCalendarEvent
+CalendarEvent <|-- OuterPracticeCalendarEvent
 
 ' PracticeLocation
 class PracticeLocation {
-  +location: String
-  +shortenLocation: String
+  +buildingName: String
+  +shortBuildingName: ShortBuildingName
   +mapUrl: String
   +clubName: String
-  +closestStation: String
+  +nearestStation: String
 }
 
 class PracticeLocations<Keys> {
@@ -79,6 +95,11 @@ class ParticipantStatus {
 }
 
 
+class UrlPair {
+  +original: String
+  +preview: string
+}
+
 class Mention {
   +type: String
   +mentionee: Object
@@ -90,11 +111,11 @@ class SubstitutionMap {
 
 PracticeLocation <|-- PracticeLocations
 ByKarutaClass -up-> KarutaClass
-CalenderEvent -up-> KarutaClass
+CalendarEvent -up-> KarutaClass
 ByKarutaClass ..> ChouseisanUrls
 ByKarutaClass ..> ChouseisanCsvs
-ByKarutaClass ..> GroupedEvents
+' ByKarutaClass ..> GroupedEvents
 ChouseisanEvent --> ParticipantStatus
-TeamPracticeEvent --> PracticeLocation
+TeamPracticeCalendarEvent --> PracticeLocation
 SubstitutionMap --> Mention
 @enduml

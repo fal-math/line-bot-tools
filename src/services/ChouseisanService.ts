@@ -1,5 +1,5 @@
 import { CHOUSEISAN_CSVS } from '../config';
-import { Participants, KarutaClass, ChouseisanEvent } from '../type';
+import { ParticipantStatus, KarutaClass, ChouseisanEvent } from '../type';
 import { DateUtils } from '../util/DateUtils';
 
 export class ChouseisanService {
@@ -59,7 +59,7 @@ export class ChouseisanService {
     const [, eventDateMD, title, deadlineMD] = m;
     const eventDate = DateUtils.parseMD(eventDateMD);
     const deadline = DateUtils.parseMD(deadlineMD);
-    const participants: Participants = { attending: [], notAttending: [], undecided: [] };
+    const participants: ParticipantStatus = { attending: [], notAttending: [], undecided: [] };
 
     members.forEach((member, i) => {
       const status = rest[i];

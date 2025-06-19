@@ -1,4 +1,4 @@
-import { KarutaClasses, PracticeLocations } from "./type";
+import { ChouseisanCsvs, ChouseisanUrls, KarutaClass, PracticeLocations } from "./type";
 
 const userProps = PropertiesService.getScriptProperties();
 
@@ -62,7 +62,7 @@ export const CALENDER_URL = getRequiredProp_("CALENDER_URL");
 export const ATTENDANCE_ADDRESS = getRequiredProp_("ATTENDANCE_ADDRESS");
 
 // 調整さん URL／CSV（級ごとのマップ）
-export const CHOUSEISAN_URLS: KarutaClasses = getJsonProp_<KarutaClasses>("CHOUSEISAN_URLS");
-export const CHOUSEISAN_CSVS: KarutaClasses = getJsonProp_<KarutaClasses>("CHOUSEISAN_CSVS");
+export const CHOUSEISAN_URLS: ChouseisanUrls = getJsonProp_("CHOUSEISAN_URLS");
+export const CHOUSEISAN_CSVS: ChouseisanCsvs = getJsonProp_("CHOUSEISAN_CSVS");
 
 export const PRACTICE_LOCATIONS: PracticeLocations = getPracticeLocations_();
