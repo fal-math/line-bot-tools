@@ -1,4 +1,4 @@
-import { ChouseisanCsvs, ChouseisanUrls, KarutaClass, PracticeLocations } from "./type";
+import { ClassUrls, PracticeLocations } from "./type";
 
 const userProps = PropertiesService.getScriptProperties();
 
@@ -40,29 +40,30 @@ function getPracticeLocations_(): PracticeLocations {
   return data as PracticeLocations;
 }
 
-// LINE 関連プロパティ
-export const LINE_CHANNEL_ACCESS_TOKEN = getRequiredProp_("LINE_CHANNEL_ACCESS_TOKEN");
-export const LINE_USER_ID_MAINTAINER = getRequiredProp_("LINE_USER_ID_MAINTAINER");
-export const LINE_GROUP_ID_TAIKAI_MOUSHIKOMI = getRequiredProp_("LINE_GROUP_ID_TAIKAI_MOUSHIKOMI");
-export const LINE_GROUP_ID_UNNEI_HOMBU = getRequiredProp_("LINE_GROUP_ID_UNNEI_HOMBU");
-export const LINE_GROUP_ID_UNNEI_SHIFT = getRequiredProp_("LINE_GROUP_ID_UNNEI_SHIFT");
-export const LINE_GROUP_ID_ZENTAI = getRequiredProp_("LINE_GROUP_ID_ZENTAI");
-export const LINE_GROUP_ID_TEST = getRequiredProp_("LINE_GROUP_ID_TEST");
+export const LineConfig = {
+  channelToken: getRequiredProp_("LINE_CHANNEL_ACCESS_TOKEN"),
+  maintainerId: getRequiredProp_("LINE_USER_ID_MAINTAINER"),
+  groupIds: {
+    apply: getRequiredProp_("LINE_GROUP_ID_TAIKAI_MOUSHIKOMI"),
+    operations: getRequiredProp_("LINE_GROUP_ID_UNNEI_HOMBU"),
+    shift: getRequiredProp_("LINE_GROUP_ID_UNNEI_SHIFT"),
+    all: getRequiredProp_("LINE_GROUP_ID_ZENTAI"),
+    test: getRequiredProp_("LINE_GROUP_ID_TEST"),
+  } as const,
+};
 
-// Google カレンダー関連プロパティ
-export const GOOGLE_CALENDER_ID_TAIKAI = getRequiredProp_("GOOGLE_CALENDER_ID_TAIKAI");
-export const GOOGLE_CALENDER_ID_KAIRENSHU = getRequiredProp_("GOOGLE_CALENDER_ID_KAIRENSHU");
-export const GOOGLE_CALENDER_ID_KAISHIME = getRequiredProp_("GOOGLE_CALENDER_ID_KAISHIME");
-export const GOOGLE_CALENDER_ID_HONSHIME = getRequiredProp_("GOOGLE_CALENDER_ID_HONSHIME");
-export const GOOGLE_CALENDER_ID_OUTER = getRequiredProp_("GOOGLE_CALENDER_ID_OUTER");
+export const CalendarIds = {
+  match: getRequiredProp_("GOOGLE_CALENDAR_ID_TAIKAI"),
+  clubPractice: getRequiredProp_("GOOGLE_CALENDAR_ID_KAIRENSHU"),
+  internalDeadline: getRequiredProp_("GOOGLE_CALENDAR_ID_KAISHIME"),
+  actualDeadline: getRequiredProp_("GOOGLE_CALENDAR_ID_HONSHIME"),
+  externalPractice: getRequiredProp_("GOOGLE_CALENDAR_ID_OUTER"),
+} as const;
 
-// その他プロパティ
 export const DRIVE_URL = getRequiredProp_("DRIVE_URL");
-export const CALENDER_URL = getRequiredProp_("CALENDER_URL");
+export const CALENDAR_URL = getRequiredProp_("CALENDAR_URL");
 export const ATTENDANCE_ADDRESS = getRequiredProp_("ATTENDANCE_ADDRESS");
 
-// 調整さん URL／CSV（級ごとのマップ）
-export const CHOUSEISAN_URLS: ChouseisanUrls = getJsonProp_("CHOUSEISAN_URLS");
-export const CHOUSEISAN_CSVS: ChouseisanCsvs = getJsonProp_("CHOUSEISAN_CSVS");
-
-export const PRACTICE_LOCATIONS: PracticeLocations = getPracticeLocations_();
+export const CHOUSEISAN_URLS = getJsonProp_<ClassUrls>("CHOUSEISAN_URLS");
+export const CHOUSEISAN_CSVS = getJsonProp_<ClassUrls>("CHOUSEISAN_CSVS");
+export const PRACTICE_LOCATIONS = getPracticeLocations_();
