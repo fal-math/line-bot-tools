@@ -30,7 +30,7 @@ class ChouseisanService {
   +parse(raw: String): ChouseisanEvent[]
   +filterByDeadline(events: ChouseisanEvent[], from: YMD, to: YMD): ChouseisanEvent[]
 }
-class CalenderService {
+class CalendarService {
   +fetchRaw(classKey: KarutaClass): String
   +parse(raw: String): ChouseisanEvent[]
   +filterByDeadline(events: ChouseisanEvent[], from: YMD, to: YMD): ChouseisanEvent[]
@@ -86,7 +86,7 @@ Announcer -down-> DateUtils : uses
 Announcer -down-> StringUtils : uses
 Announcer -down-> LineService : uses
 Announcer -down-> ChouseisanService : uses
-Announcer -down-> CalenderService : uses
+Announcer -down-> CalendarService : uses
 
 ' DeadlineNotifier も同様
 DeadlineNotifier -down-> DateUtils : uses
@@ -97,7 +97,7 @@ DeadlineNotifier -down-> ChouseisanService : uses
 ChouseisanService -down-> DateUtils : uses
 ChouseisanService -down-> CsvUtils : uses
 
-CalenderService -down-> DateUtils : uses
+CalendarService -down-> DateUtils : uses
 
 ' SetupTriggers は Main／DeadlineNotifier／AttendanceHandler を依存
 Main .up.> SetupTriggers : 「トリガー設定」
