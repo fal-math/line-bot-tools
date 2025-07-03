@@ -1,5 +1,5 @@
 import { CHOUSEISAN_CSVS } from '../config';
-import { ParticipantStatus, KarutaClass, ChouseisanEvent } from '../type';
+import { ParticipantStatus, KarutaClass, Registration } from '../type';
 import { DateUtils } from '../util/DateUtils';
 
 export class ChouseisanService {
@@ -21,10 +21,10 @@ export class ChouseisanService {
   /**
    * 生の CSV 文字列を ChouseisanEvent の配列にパース
    */
-  private formatData(rawCsv: string): ChouseisanEvent[] {
+  private formatData(rawCsv: string): Registration[] {
     const rows = rawCsv.trim().split(/\r?\n/).map(line => line.split(','));
     const members = this.extractMembers(rows);
-    const events: ChouseisanEvent[] = [];
+    const events: Registration[] = [];
 
     rows.forEach(row => {
       const ev = this.parseRow(row, members);
@@ -47,7 +47,7 @@ export class ChouseisanService {
    */
   private parseRow(
     row: string[], members: string[]
-  ): ChouseisanEvent | null {
+  ): Registration | null {
     const [first, ...rest] = row;
     const regex = /^\(?(\d{1,2}\/\d{1,2})(?:[日月火水木金土](?:祝)?)?\.(.+?)\(〆(\d{1,2}\/\d{1,2})(?:[日月火水木金土](?:祝)?)?\)$/;
     const m = first.match(regex);
@@ -75,10 +75,10 @@ export class ChouseisanService {
    * 締切範囲でフィルタ
    */
   private filterByDeadline(
-    events: ChouseisanEvent[],
+    events: Registration[],
     start: Date,
     end: Date
-  ): ChouseisanEvent[] {
+  ): Registration[] {
     return events.filter(ev => ev.deadline >= start && ev.deadline <= end);
   }
 

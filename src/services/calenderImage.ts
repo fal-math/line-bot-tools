@@ -1,5 +1,5 @@
-import { GOOGLE_CALENDER_ID_KAIRENSHU, GOOGLE_CALENDER_ID_TAIKAI, PRACTICE_LOCATIONS } from "../config";
-import { OuterPracticeCalendarEvent, TeamPracticeCalendarEvent, UrlPair } from "../type";
+import { CalendarIds, PRACTICE_LOCATIONS } from "../config";
+import { ExternalPracticeEvent, ClubPracticeEvent, ImageUrls } from "../type";
 
 
 // export function generateMonthlyCalendar_(
@@ -57,7 +57,7 @@ import { OuterPracticeCalendarEvent, TeamPracticeCalendarEvent, UrlPair } from "
 //   const firstDate = new Date(year, month - 1, 1)
 //   const lastDate = new Date(year, month, 0);
 
-//   const teamPracticeCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDER_ID_KAIRENSHU);
+//   const teamPracticeCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDAR_ID_KAIRENSHU);
 //   const teamPracticeEvents = teamPracticeCalendar.getEvents(firstDate, lastDate);
 //   const teamPracticeList: TeamPracticeCalendarEvent[] = [];
 //   teamPracticeEvents.forEach(ev => {
@@ -66,7 +66,7 @@ import { OuterPracticeCalendarEvent, TeamPracticeCalendarEvent, UrlPair } from "
 //     teamPracticeList.push(result);
 //   });
 
-//   const matchCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDER_ID_TAIKAI);
+//   const matchCalendar = CalendarApp.getCalendarById(GOOGLE_CALENDAR_ID_TAIKAI);
 //   const matchEvents = matchCalendar.getEvents(firstDate, lastDate);
 //   const matchList: MatchInfo[] = [];
 //   matchEvents.forEach(ev => {

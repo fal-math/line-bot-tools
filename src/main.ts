@@ -1,58 +1,53 @@
-import {
-  LINE_USER_ID_MAINTAINER,
-  LINE_GROUP_ID_ZENTAI,
-  LINE_GROUP_ID_TAIKAI_MOUSHIKOMI,
-  LINE_GROUP_ID_UNNEI_SHIFT,
-  LINE_GROUP_ID_TEST,
-  LINE_GROUP_ID_UNNEI_HOMBU
-} from './config';
-import { Announcer } from './jobs/announcer';
+import { LineConfig } from './config';
+import { Announcer } from './jobs/Announcer';
 import { setupTriggers_ } from './jobs/setupTriggers';
-import { attandanceHandler_ } from './jobs/attendance';
+import { Attendance } from './jobs/Attendance';
+import { ChouseisanSummary } from './jobs/ChouseisanSummary';
 
 // リマインドなび
 
+const lineId = LineConfig.groupIds;
+
 function announceWeekly() {
-  return new Announcer().weekly(LINE_GROUP_ID_ZENTAI);
+  return new Announcer().weekly(lineId.all);
 }
 
 function announceDeadlineToday() {
-  return new Announcer().deadlineToday(LINE_GROUP_ID_ZENTAI);
+  return new Announcer().deadlineToday(lineId.all);
 }
 
 function announceDeadlineNextWeek() {
-  return new Announcer().deadlineNextWeek(LINE_GROUP_ID_ZENTAI);
+  return new Announcer().deadlineNextWeek(lineId.all);
 }
 
 function announceFinalToday() {
-  return new Announcer().finalIsToday(LINE_GROUP_ID_TAIKAI_MOUSHIKOMI, LINE_USER_ID_MAINTAINER);
-}
-
-function announceChouseisanToday() {
-  return new Announcer().chouseisanToday(LINE_GROUP_ID_TAIKAI_MOUSHIKOMI);
-}
-
-function announceChouseisanWeekly() {
-  return new Announcer().chouseisanWeekly(LINE_USER_ID_MAINTAINER);
+  return new Announcer().finalIsToday(lineId.apply, LineConfig.maintainerId);
 }
 
 function announceTodayPractice() {
-  return new Announcer().todayPractice(LINE_GROUP_ID_UNNEI_HOMBU);
+  return new Announcer().todayPractice(lineId.operations);
+}
+
+function announceChouseisanToday() {
+  return new ChouseisanSummary().sendToday(lineId.apply);
+}
+
+function announceChouseisanWeekly() {
+  return new ChouseisanSummary().sendWeekly(LineConfig.maintainerId);
+}
+
+function attandanceHandler() {
+  return new Attendance().do(lineId.operations);
 }
 
 // function announceWeeklyForManagers() {
 //   return new Announcer().weeklyForManagers(LINE_GROUP_ID_UNNEI_SHIFT);
 // }
 
-// TODO: monthly calender render
+// TODO: monthly calendar render
 // function sendMonthlyCalendar() {
 // return sendMonthlyCalendar_(LINE_GROUP_ID_TEST);
 // }
-
-
-function attandanceHandler() {
-  return attandanceHandler_(LINE_GROUP_ID_UNNEI_HOMBU);
-}
 
 function setupTriggers() {
   return setupTriggers_();

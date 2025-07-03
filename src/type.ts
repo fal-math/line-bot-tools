@@ -1,14 +1,3 @@
-export interface PracticeLocation {
-  clubName: string;
-  mapUrl: string;
-  buildingName: string;
-  shortenBuildingName: string;
-}
-export type PracticeLocations = Record<string, PracticeLocation>;
-
-export interface Group { events: string[]; url: string }
-export type Groups = Record<string, Group>;
-
 // Karuta Class Enum
 export enum KarutaClass {
   A = 'A',
@@ -20,105 +9,78 @@ export enum KarutaClass {
   G = 'G',
 }
 
-// Utility Generic for mapping KarutaClass to any type
-export type ByKarutaClass<T> = {
+export type ClassMap<T> = {
   [K in KarutaClass]: T;
 };
 
-// Chouseisan URLs and CSVs
-export type ChouseisanUrls = ByKarutaClass<string>;
-export type ChouseisanCsvs = ByKarutaClass<string>;
+export type ClassUrls = ClassMap<string>;
 
-export type GroupedEvents = ByKarutaClass<{
-  events: string[];
-  url: string;
-}>;
-
-
-
-// Practice Location Definition
-// export interface PracticeLocation {
-//   buildingName: string;
-//   shortenBuildingName: ShortBuildingName;
-//   mapUrl: string;
-//   clubName: string;
-//   closestStation: string;
-// }
-
-// export enum ShortBuildingName {
-//   Jinja= "神社",
-//   Tokiwa= "常盤",
-//   Kitaurawa= "北浦和",
-//   Nakacho= "仲町",
-//   Kamiochiai= "上落合",
-//   Shimoochiai= "下落合",
-//   Nakamoto= "仲本",
-//   Motobuto= "本太",
-//   Bessho= "別所",
-//   Tajima= "田島",
-//   Sashiougi= "指扇",
-// }
-// export type BuildingKey = keyof typeof ShortBuildingName;
-
-// export type PracticeLocations<Keys extends string> = {
-//   [K in Keys]: PracticeLocation;
-// };
-
-// Calendar Event Base Type
-export interface CalendarEvent {
+// ========== Calendar Events ==========
+export interface BaseEvent {
   date: Date;
   targetClasses: KarutaClass[] | string;
 }
 
-// Match Event
-export interface MatchCalendarEvent extends CalendarEvent {
+export interface MatchEvent extends BaseEvent {
   title: string;
   location: string;
   mapUrl?: string;
+  targetClasses: KarutaClass[];
 }
 
-// Outer Practice Event
-export interface OuterPracticeCalendarEvent extends CalendarEvent {
+export interface ExternalPracticeEvent extends BaseEvent {
   title: string;
   location: string;
   mapUrl?: string;
   timeRange?: string;
+  targetClasses: KarutaClass[];
 }
 
-// Team Practice Event
-export interface TeamPracticeCalendarEvent extends CalendarEvent {
+export interface ClubPracticeEvent extends BaseEvent {
   location: PracticeLocation;
   practiceType: string;
   timeRange: string;
   personInCharge: string;
 }
 
-// Participant Status
+export interface InternalDeadlineEvent extends BaseEvent {
+  title: string;
+  targetClasses: KarutaClass[];
+  isExternalPractice: boolean
+}
+
+export interface PracticeLocation {
+  clubName: string;
+  mapUrl: string;
+  buildingName: string;
+  shortenBuildingName: string;
+}
+
+export type PracticeLocations = Record<string, PracticeLocation>;
+
+// ========== Participation & Registration ==========
 export interface ParticipantStatus {
   attending: string[];
   notAttending: string[];
   undecided: string[];
 }
 
-// Chouseisan Event
-export interface ChouseisanEvent {
+export interface Registration {
   title: string;
   eventDate: Date;
   deadline: Date;
   participants: ParticipantStatus;
 }
 
-// Mention and Substitution Map
+// ========== Messaging Helpers ==========
 export interface Mention {
   type: string;
   mentionee: object;
 }
 
-export type SubstitutionMap = {
-  [key: string]: Mention;
-};
+export type SubstitutionMap = Record<string, Mention>;
 
-export interface UrlPair {
+export interface ImageUrls {
   original: string;
   preview: string;
 }
