@@ -1,9 +1,19 @@
 const DAY_MS = 86_400_000;
 export const WEEK_DAYS = ["日", "月", "火", "水", "木", "金", "土"];
 export class DateUtils {
+  private static _today: Date = new Date();
+
+  /** test用関数 */
+  public static setToday(date: Date) {
+    DateUtils._today = new Date(date);
+  }
+  /** リセットする */
+  public static resetToday() {
+    DateUtils._today = new Date();
+  }
 
   static startOfDay(d?: Date): Date {
-    const date = d ? new Date(d) : new Date();
+    const date = d ? new Date(d) : this._today;
     date.setHours(0, 0, 0, 0);
     return date;
   }
@@ -31,11 +41,10 @@ export class DateUtils {
     const m = Number(month);
     const d = Number(day);
 
-    const today = new Date();
-    const y = today.getFullYear();
+    const y = this._today.getFullYear();
 
     const candidate = new Date(y, m - 1, d);
-    if (today.getTime() - candidate.getTime() > 183 * DAY_MS)
+    if (this._today.getTime() - candidate.getTime() > 183 * DAY_MS)
       candidate.setFullYear(y + 1);
 
     return candidate;
