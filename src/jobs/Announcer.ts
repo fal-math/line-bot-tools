@@ -194,7 +194,8 @@ export class Announcer {
         const weekday = WEEK_DAYS[date.getDay()];
 
         return [
-          `${month}/${day}（${weekday}） ${timeRange} ${title}`,
+          `${month}/${day}（${weekday}） ${timeRange} `,
+          `${title}`,
           `対象：${target}`,
           `場所：${location}`,
         ].join("\n");
@@ -269,13 +270,20 @@ export class Announcer {
       '◯周知済み大会情報',
       DRIVE_URL,
       '◯大会申込入力URL(調整さん)',
-      `A級| ${CHOUSEISAN_URLS[`A`]}\n`,
-      `B級| ${CHOUSEISAN_URLS[`B`]}\n`,
-      `C級| ${CHOUSEISAN_URLS[`C`]}\n`,
-      `D級| ${CHOUSEISAN_URLS[`D`]}\n`,
-      `E級| ${CHOUSEISAN_URLS[`E`]}\n`,
-      `F級| ${CHOUSEISAN_URLS[`F`]}\n`,
-      `G級| ${CHOUSEISAN_URLS[`G`]}`,
+      `A級|`,
+      ` ${CHOUSEISAN_URLS[`A`]}`,
+      `B級|`,
+      ` ${CHOUSEISAN_URLS[`B`]}`,
+      `C級|`,
+      ` ${CHOUSEISAN_URLS[`C`]}`,
+      `D級|`,
+      ` ${CHOUSEISAN_URLS[`D`]}`,
+      `E級|`,
+      ` ${CHOUSEISAN_URLS[`E`]}`,
+      `F級|`,
+      ` ${CHOUSEISAN_URLS[`F`]}`,
+      `G級|`,
+      ` ${CHOUSEISAN_URLS[`G`]}`,
     ];
 
     this.lineService.pushText(to, lines.join('\n'));

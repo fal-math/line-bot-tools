@@ -27,10 +27,9 @@ export class CalendarService {
   private readonly configs: Record<EventTypeKey, EventConfig<any>> = {
     [EventType.ClubPractice]: {
       calendarId: CalendarIds.clubPractice,
-      regex: /^([^\d]*?)(\d{3,4}-\d{3,4})\s+(.+?)\((.+?)\)$/,
+      regex: /^(.+?)\.(.+?)(\d{3,4}-\d{3,4})\s+(.+?)\((.+?)\)$/,
       parser: (m, event) => {
-        const [shortLoc] = event.getTitle().split('.', 2);
-        const [_, practiceType, timeRange, targetClasses, person] = m;
+        const [_, shortLoc, practiceType, timeRange, targetClasses, person] = m;
         const loc = PRACTICE_LOCATIONS[shortLoc];
         if (!loc) return null;
         return {
@@ -72,9 +71,9 @@ export class CalendarService {
     },
     [EventType.InternalDeadline]: {
       calendarId: CalendarIds.internalDeadline,
-      regex: /^\[(?<classStr>[A-G]+)\]\|(?<title>.+)$/,
+      regex: /^〆([A-G]+)\|(.+)$/,
       parser: (m, event) => {
-        const { classStr, title } = m.groups!;
+        const [_, classStr, title] = m;
         return {
           date: new Date(event.getStartTime().getTime()),
           targetClasses: StringUtils.formatKarutaClass(classStr),

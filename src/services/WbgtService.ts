@@ -9,16 +9,18 @@ type Parsed = {
   measurements: Measurement[];
 };
 
+// static データはクラスの外でまとめて定義
+export const WbgtConfig = {
+  START_MD: { month: 4, day: 23 } as const,
+  END_MD: { month: 10, day: 22 } as const,
+  HOURS: [9, 12, 15, 18] as const,
+};
+
 export class WbgtAlert {
-  private readonly url = "https://www.wbgt.env.go.jp/prev15WG/dl/yohou_43241.csv";
+  /** CSV URL */
+  private url = "https://www.wbgt.env.go.jp/prev15WG/dl/yohou_43241.csv";
 
-  // 運用期間の月日（MM/DD）
-  private static readonly START_MD = { month: 4, day: 23 };
-  private static readonly END_MD = { month: 10, day: 22 };
-
-  // 取得時刻（時）のデフォルトリスト
-  private static readonly HOURS = [9, 12, 15, 18] as const;
-
+  constructor() { }
   /**
    * 4/23〜10/22 の期間内のみフォーマット済み文字列を返す
    * 期間外は空文字
@@ -49,9 +51,10 @@ export class WbgtAlert {
 
   /** 今日が 4/23〜10/22 の間かどうか */
   private isInSeason(today: Date): boolean {
+    const { START_MD, END_MD } = WbgtConfig;
     const y = today.getFullYear();
-    const start = new Date(y, WbgtAlert.START_MD.month - 1, WbgtAlert.START_MD.day);
-    const end = new Date(y, WbgtAlert.END_MD.month - 1, WbgtAlert.END_MD.day, 23, 59, 59);
+    const start = new Date(y, START_MD.month - 1, START_MD.day);
+    const end = new Date(y, END_MD.month - 1, END_MD.day, 23, 59, 59);
     return today >= start && today <= end;
   }
 
@@ -81,7 +84,8 @@ export class WbgtAlert {
 
   /** 指定時刻データを取得し、10で割って小数に */
   private extractDaily(parsed: Parsed) {
-    return WbgtAlert.HOURS.reduce<Record<number, number | null>>((acc, h) => {
+    const { HOURS } = WbgtConfig;
+    return HOURS.reduce<Record<number, number | null>>((acc, h) => {
       const m = parsed.measurements.find(x => x.time.getHours() === h);
       acc[h] = m ? m.predicted / 10 : null;
       return acc;
@@ -90,8 +94,9 @@ export class WbgtAlert {
 
   /** 最終的に「09時：値」の形式で文字列に整形 */
   private formatDailyValues(parsed: Parsed): string {
+    const { HOURS } = WbgtConfig;
     const daily = this.extractDaily(parsed);
-    return WbgtAlert.HOURS
+    return HOURS
       .map(h => `${String(h).padStart(2, '0')}時：${daily[h] ?? '-'}`)
       .join('\n');
   }
