@@ -10,28 +10,31 @@ type Parsed = {
 };
 
 export class WbgtAlert {
-  private url = "https://www.wbgt.env.go.jp/prev15WG/dl/yohou_43241.csv";
+  private readonly url = "https://www.wbgt.env.go.jp/prev15WG/dl/yohou_43241.csv";
+
+  // 運用期間の月日（MM/DD）
+  private static readonly START_MD = { month: 4, day: 23 };
+  private static readonly END_MD = { month: 10, day: 22 };
+
+  // 取得時刻（時）のデフォルトリスト
+  private static readonly HOURS = [9, 12, 15, 18] as const;
 
   /**
    * 4/23〜10/22 の期間内のみフォーマット済み文字列を返す
    * 期間外は空文字
    */
-  public getMessage(): string {
-    const today = new Date();
-    const year = today.getFullYear();
-
-    const start = new Date(year, 3, 23); // 4月23日 00:00
-    const end = new Date(year, 9, 22, 23, 59, 59); // 10月22日 23:59:59
-    if (today < start || today > end) return '';
+  public getMessage(): { message: string; values?: Parsed } {
+    if (!this.isInSeason(new Date())) {
+      return { message: '' };
+    }
 
     const raw = UrlFetchApp.fetch(this.url).getContentText('UTF-8');
-    const parsedCsv = this.parseCsv(raw);
-    const predictedValues = this.formatDailyValuesString(parsedCsv);
+    const parsed = this.parseCsv(raw);
+    const body = this.formatDailyValues(parsed);
 
-    const message = [
-      "",
+    const header = [
       "■今日の暑さ指数(WBGT)・屋外■",
-      predictedValues,
+      body,
       "",
       "=値の読み方=",
       "↑で提供されている値は屋外の値のため、参考程度にしてください",
@@ -39,54 +42,57 @@ export class WbgtAlert {
       "28-31:厳重警戒, 10～20分おきに休憩をとり水分・塩分の補給を行う",
       "25-28:警戒, 積極的に休憩をとり適宜、水分・塩分を補給する",
       "21-25:注意, 運動の合間に積極的に水分・塩分を補給する",
-    ].join('\n'); 
-    return message;
+    ];
+
+    return { message: header.join('\n'), values: parsed };
   }
 
-  private parseCsv(input: string): Parsed {
-    const lines = input.trim().split('\n');
-    const headerItems = lines[0].split(',').map(s => s.trim());
-    const dataItems = lines[1].split(',').map(s => s.trim());
+  /** 今日が 4/23〜10/22 の間かどうか */
+  private isInSeason(today: Date): boolean {
+    const y = today.getFullYear();
+    const start = new Date(y, WbgtAlert.START_MD.month - 1, WbgtAlert.START_MD.day);
+    const end = new Date(y, WbgtAlert.END_MD.month - 1, WbgtAlert.END_MD.day, 23, 59, 59);
+    return today >= start && today <= end;
+  }
 
-    const id = Number(dataItems[0]);
-    const baseTime = new Date(dataItems[1].replace(/-/g, '/'));
+  private parseCsv(csv: string): Parsed {
+    const [header, data] = csv.trim().split('\n');
+    const colsH = header.split(',').map(s => s.trim());
+    const colsD = data.split(',').map(s => s.trim());
 
-    const times = headerItems.slice(2);
-    const values = dataItems.slice(2).map(Number);
+    const id = +colsD[0];
+    const baseTime = new Date(colsD[1].replace(/-/g, '/'));
+    const times = colsH.slice(2);
+    const values = colsD.slice(2).map(Number);
 
-    const measurements: Measurement[] = times.map((ts, i) => {
-      const year = ts.slice(0, 4);
-      const month = ts.slice(4, 6);
-      const day = ts.slice(6, 8);
-      const hour = ts.slice(8, 10);
-      const date = new Date(`${year}-${month}-${day}T${hour}:00:00`);
-      return { time: date, predicted: values[i] };
+    const measurements = times.map((ts, i) => {
+      const yyyy = ts.slice(0, 4);
+      const mm = ts.slice(4, 6);
+      const dd = ts.slice(6, 8);
+      const hh = ts.slice(8, 10);
+      return {
+        time: new Date(`${yyyy}-${mm}-${dd}T${hh}:00:00`),
+        predicted: values[i],
+      };
     });
 
     return { id, baseTime, measurements };
   }
 
-  private extractDailyValues(
-    parsed: Parsed,
-    hours: number[] = [9, 12, 15, 18]
-  ): Record<number, number | null> {
-    const result: Record<number, number | null> = {};
-    hours.forEach(h => {
-      const measurement = parsed.measurements.find(m => m.time.getHours() === h);
-      result[h] = measurement ? measurement.predicted / 10 : null;
-    });
-    return result;
+  /** 指定時刻データを取得し、10で割って小数に */
+  private extractDaily(parsed: Parsed) {
+    return WbgtAlert.HOURS.reduce<Record<number, number | null>>((acc, h) => {
+      const m = parsed.measurements.find(x => x.time.getHours() === h);
+      acc[h] = m ? m.predicted / 10 : null;
+      return acc;
+    }, {});
   }
 
-  private formatDailyValuesString(
-    parsed: Parsed,
-    hours: number[] = [9, 12, 15, 18]
-  ): string {
-    const values = this.extractDailyValues(parsed, hours);
-    return hours
-      .map(h => {
-        const hh = String(h).padStart(2, '0');
-        return `${hh}時：${values[h] !== null ? values[h] : '-'}`;
-      }).join('\n');
+  /** 最終的に「09時：値」の形式で文字列に整形 */
+  private formatDailyValues(parsed: Parsed): string {
+    const daily = this.extractDaily(parsed);
+    return WbgtAlert.HOURS
+      .map(h => `${String(h).padStart(2, '0')}時：${daily[h] ?? '-'}`)
+      .join('\n');
   }
 }

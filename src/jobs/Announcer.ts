@@ -8,7 +8,7 @@ import {
 } from '../config';
 
 import { BaseEvent, KarutaClass, MatchEvent, ExternalPracticeEvent, InternalDeadlineEvent, ClubPracticeEvent as ClubPracticeEvent } from '../type';
-import { CalendarService } from '../services/CalendarService';
+import { CalendarService, EventType } from '../services/CalendarService';
 import { LineService } from '../services/LineService';
 import { DateUtils, WEEK_DAYS } from '../util/DateUtils';
 import { StringUtils } from '../util/StringUtils';
@@ -84,7 +84,7 @@ export class Announcer {
   // ==================================================================================
   public deadlineToday(to: string): void {
     const clubDeadlineEvents = this.calendarService
-      .getInternalDeadlines(this.today, this.tomorrow)
+      .getEvents(EventType.InternalDeadline, this.today, this.tomorrow)
     if (clubDeadlineEvents.length === 0) return;
     const message = this.formatDeadlines(clubDeadlineEvents);
 
@@ -105,7 +105,7 @@ export class Announcer {
   // ==================================================================================
   public deadlineNextWeek(to: string): void {
     const internalDeadlineEvents = this.calendarService
-      .getInternalDeadlines(this.today, this.oneWeekLater)
+      .getEvents(EventType.InternalDeadline, this.today, this.oneWeekLater)
     if (internalDeadlineEvents.length === 0) return;
     const message = this.formatDeadlines(internalDeadlineEvents);
 
@@ -221,14 +221,14 @@ export class Announcer {
   // ==================================================================================
   public weekly(to: string): void {
     const clubPractices: ClubPracticeEvent[]
-      = this.calendarService.getClubPractices(this.today, this.oneWeekLater);
+      = this.calendarService.getEvents(EventType.ClubPractice, this.today, this.oneWeekLater);
     const { clubPracticesString, practiceLocationsString }
       = this.clubPracticesToString(clubPractices);
 
-    const outerPractices = this.calendarService.getOuterPractices(this.today, this.oneWeekLater)
+    const outerPractices = this.calendarService.getEvents(EventType.ExternalPractice, this.today, this.oneWeekLater)
     const outerPracticesString = this.outerPracticesToString(outerPractices);
 
-    const matches = this.calendarService.getMatches(this.today, this.twoWeekLater)
+    const matches = this.calendarService.getEvents(EventType.Match, this.today, this.twoWeekLater)
     const matchesString = this.matchesToString(matches);
 
     const lines = [
@@ -286,7 +286,7 @@ export class Announcer {
   // ==================================================================================
   public todayPractice(to: string): void {
     const practices: ClubPracticeEvent[]
-      = this.calendarService.getClubPractices(this.today, this.tomorrow);
+      = this.calendarService.getEvents(EventType.ClubPractice, this.today, this.tomorrow);
     if (!practices.length) return;
 
     const practiceMsg = practices
@@ -297,7 +297,7 @@ export class Announcer {
 
     const { clubCardsStr, myCardsStr } = new CardShufffle().do();
 
-    const wbgtAlert = new WbgtAlert().getMessage();
+    const { message: wbgtAlert } = new WbgtAlert().getMessage();
 
     const message = [
       "■今日の練習■",
