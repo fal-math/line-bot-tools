@@ -1,10 +1,10 @@
 import {
   ATTENDANCE_ADDRESS,
   CALENDAR_URL,
+  CalendarIds,
   CHOUSEISAN_URLS,
   DRIVE_URL,
-  PRACTICE_LOCATIONS,
-  CalendarIds
+  PRACTICE_LOCATIONS
 } from '../config';
 
 import { CalendarService, EventType } from '../services/CalendarService';
@@ -227,7 +227,15 @@ export class Announcer {
       = this.clubPracticesToString(clubPractices);
 
     const outerPractices = this.calendarService.getEvents(EventType.ExternalPractice, this.today, this.oneWeekLater)
-    const outerPracticesString = this.outerPracticesToString(outerPractices);
+    let outerPracticesString = '';
+    if (outerPractices.length > 0) {
+      outerPracticesString = [
+        '__________',
+        '',
+        '🟧外部練(要事前申込)🟧',
+        this.outerPracticesToString(outerPractices),
+      ].join('\n');
+    }
 
     const matches = this.calendarService.getEvents(EventType.Match, this.today, this.twoWeekLater)
     const matchesString = this.matchesToString(matches);
@@ -254,10 +262,6 @@ export class Announcer {
       '題名：名前と級',
       '本文：参加する練習会場、用件(遅刻の場合、到着予定時刻)',
       '※LINEで参加を押すと「初めから参加」の意味になります',
-      '',
-      '__________',
-      '',
-      '🟧外部練(要事前申込)🟧',
       outerPracticesString,
       '__________',
       '',

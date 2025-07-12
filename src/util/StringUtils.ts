@@ -1,4 +1,4 @@
-import { KarutaClass } from "../type";
+import { KarutaClass } from "../types/type";
 const ALL_CLASSES = Object.values(KarutaClass) as KarutaClass[];
 
 export class StringUtils {
@@ -6,6 +6,10 @@ export class StringUtils {
     return text.replace(/([^\{]+)\s*\{[^}]*}/g, '').replace(/[\n\r]*\s*[\n\r]+/g, '\n')
   };
 
+  /**
+   * @param input 級を表す文字列(ABC, G以上, etc..)
+   * @returns KarutaClassの配列
+   */
   static formatKarutaClass(input: string): KarutaClass[] {
     if (!input) return [];
     const text = input.trim();
@@ -25,4 +29,27 @@ export class StringUtils {
       .map(c => KarutaClass[c])
       .sort((a, b) => ALL_CLASSES.indexOf(a) - ALL_CLASSES.indexOf(b));
   }
+
+  /**
+   * 文字列からよく使われるカッコ文字をすべて除去する
+   * - 丸括弧: () （）
+   * - 角括弧: [] ［］
+   * - 波括弧: {} ｛｝
+   * - 山括弧: 〈〉 《》
+   * - 山括弧小: ＜＞ 
+   * - 二重山括弧: 【】 
+   * - 二重山括弧（小）: 《》
+   * - 和製引用符: 「」 『』
+   * - 半角山括弧: <>
+   *
+   * @param input 元の文字列
+   * @returns カッコ文字のみ除去した文字列
+   */
+  static removeBracketSymbols(input: string): string {
+    return input.replace(
+      /[()\[\]{}〈〉《》<>＜＞【】（）［］｛｝「」『』]/g,
+      ''
+    );
+  }
 }
+
