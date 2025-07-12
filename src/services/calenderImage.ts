@@ -1,5 +1,5 @@
 import { CalendarIds, PRACTICE_LOCATIONS } from "../config";
-import { ExternalPracticeEvent, ClubPracticeEvent, ImageUrls } from "../type";
+import { ExternalPracticeEvent, ClubPracticeEvent, ImageUrls } from "../types/type";
 
 
 // export function generateMonthlyCalendar_(

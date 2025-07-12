@@ -1,5 +1,5 @@
 import { CalendarIds, PRACTICE_LOCATIONS } from "../config";
-import { MatchEvent, ExternalPracticeEvent, InternalDeadlineEvent, ClubPracticeEvent } from "../type";
+import { MatchEvent, ExternalPracticeEvent, InternalDeadlineEvent, ClubPracticeEvent } from "../types/type";
 import { StringUtils } from "../util/StringUtils";
 
 export const EventType = {

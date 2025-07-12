@@ -7,13 +7,13 @@ import {
   CalendarIds
 } from '../config';
 
-import { BaseEvent, KarutaClass, MatchEvent, ExternalPracticeEvent, InternalDeadlineEvent, ClubPracticeEvent as ClubPracticeEvent } from '../type';
 import { CalendarService, EventType } from '../services/CalendarService';
+import { CardShufffle } from '../services/CardShuffle';
 import { LineService } from '../services/LineService';
+import { WbgtAlert } from '../services/WbgtService';
+import { BaseEvent, ClubPracticeEvent, ExternalPracticeEvent, InternalDeadlineEvent, KarutaClass, MatchEvent } from '../types/type';
 import { DateUtils, WEEK_DAYS } from '../util/DateUtils';
 import { StringUtils } from '../util/StringUtils';
-import { CardShufffle } from '../services/CardShuffle';
-import { WbgtAlert } from '../services/WbgtService';
 
 export class Announcer {
   private today = DateUtils.startOfDay();

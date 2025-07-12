@@ -1,5 +1,5 @@
 import { CHOUSEISAN_CSVS } from '../config';
-import { ParticipantStatus, KarutaClass, Registration } from '../type';
+import { ParticipantStatus, KarutaClass, Registration } from '../types/type';
 import { DateUtils } from '../util/DateUtils';
 
 export class ChouseisanService {
