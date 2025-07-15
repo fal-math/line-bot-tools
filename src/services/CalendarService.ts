@@ -1,4 +1,4 @@
-import { CalendarIds, PRACTICE_LOCATIONS } from "../config";
+import { CalendarIds, LineConfig, PRACTICE_LOCATIONS } from "../config";
 import { MatchEvent, ExternalPracticeEvent, InternalDeadlineEvent, ClubPracticeEvent } from "../types/type";
 import { StringUtils } from "../util/StringUtils";
 
@@ -27,7 +27,7 @@ export class CalendarService {
   private readonly configs: Record<EventTypeKey, EventConfig<any>> = {
     [EventType.ClubPractice]: {
       calendarId: CalendarIds.clubPractice,
-      regex: /^(.+?)\.(.+?)(\d{3,4}-\d{3,4})\s+(.+?)\((.+?)\)$/,
+      regex: /^(.+?)\.(.+?)(\d{3,4}-\d{3,4})(.+?)\((.+?)\)$/,
       parser: (m, event) => {
         const [_, shortLoc, practiceType, timeRange, targetClasses, person] = m;
         const loc = PRACTICE_LOCATIONS[shortLoc];
@@ -35,10 +35,10 @@ export class CalendarService {
         return {
           date: new Date(event.getStartTime().getTime()),
           location: loc,
-          practiceType: practiceType.trim(),
-          timeRange: timeRange.trim(),
-          targetClasses,
-          personInCharge: person.trim(),
+          practiceType: StringUtils.removeBracketSymbols(practiceType.trim()),
+          timeRange: StringUtils.removeBracketSymbols(timeRange.trim()),
+          targetClasses: StringUtils.removeBracketSymbols(targetClasses.trim()),
+          personInCharge: StringUtils.removeBracketSymbols(person.trim()),
         } as ClubPracticeEvent;
       }
     },
@@ -52,7 +52,7 @@ export class CalendarService {
           title: title.trim(),
           timeRange: timeRange.trim(),
           targetClasses: StringUtils.formatKarutaClass(classStr),
-          location: event.getLocation(),
+          location: event.getLocation().split(",")[0],
         } as ExternalPracticeEvent;
       }
     },
@@ -101,5 +101,39 @@ export class CalendarService {
         return m ? cfg.parser(m, ev) : null;
       })
       .filter((e): e is EventMap[K] => e !== null);
+  }
+
+  /**
+    * 外部練習イベントを登録する
+    *
+    * @param params.start    開始日時 (Date)
+    * @param params.end      終了日時 (Date)
+    * @param params.summary  イベントタイトル
+    * @param params.location イベント場所
+    * @param params.description 説明 (〆切など)
+    * @returns CalendarApp.CalendarEvent
+    */
+  public createCalenderEvent(params: {
+    start: Date;
+    summary: string;
+    location?: string;
+    description?: string;
+  },
+    calendarId: string
+  ): GoogleAppsScript.Calendar.CalendarEvent {
+    const calendar = CalendarApp.getCalendarById(calendarId);
+    if (!calendar) {
+      throw new Error(`Calendar not found: ${calendarId}`);
+    }
+    // イベント作成
+    const event = calendar.createAllDayEvent(
+      params.summary,
+      params.start,
+      {
+        location: params.location,
+        description: params.description,
+      }
+    );
+    return event;
   }
 }

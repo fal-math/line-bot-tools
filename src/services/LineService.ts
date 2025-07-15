@@ -31,6 +31,30 @@ export class LineService {
     });
   }
 
+  pushError(text: string, retryKey?: string): void {
+    const to = LineConfig.maintainerId;
+    const payload = {
+      to,
+      messages: [
+        {
+          type: 'textV2',
+          text,
+        },
+      ],
+    };
+
+    UrlFetchApp.fetch('https://api.line.me/v2/bot/message/push', {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify(payload),
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+        'X-Line-Retry-Key': retryKey ?? Utilities.getUuid(),
+      },
+      muteHttpExceptions: true,
+    });
+  }
+
   pushImage(to: string, original: string, preview: string, retryKey?: string): GoogleAppsScript.URL_Fetch.HTTPResponse {
     const payload = {
       to,

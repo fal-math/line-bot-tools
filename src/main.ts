@@ -3,6 +3,7 @@ import { Announcer } from './jobs/Announcer';
 import { setupTriggers_ } from './jobs/setupTriggers';
 import { Attendance } from './jobs/Attendance';
 import { ChouseisanSummary } from './jobs/ChouseisanSummary';
+import { LineWebhookHandler } from './services/LineWebhookHandler';
 
 // リマインドなび
 
@@ -49,6 +50,32 @@ function attandanceHandler() {
 // return sendMonthlyCalendar_(LINE_GROUP_ID_TEST);
 // }
 
+// ------------- Webhook エンドポイント ----------------
+/**
+ * LINE からの Webhook を受ける関数
+ */
+function doPost(e: GoogleAppsScript.Events.DoPost) {
+  try {
+    const body = JSON.parse(e.postData!.contents) as { events: any[] };
+    for (const ev of body.events) {
+      const text: string | undefined = ev.message?.text;
+      const to: string = ev.source.groupId || ev.source.roomId || ev.source.userId || '';
+      if (text && to) {
+        new LineWebhookHandler().handle(text, to);
+      }
+    }
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'ok' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    console.error('doPost error', err);
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: 'error' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// 初回一括セットアップ用
 function setupTriggers() {
   return setupTriggers_();
 }
