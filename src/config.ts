@@ -62,6 +62,7 @@ export const CalendarIds = {
 
 export const DRIVE_URL = getRequiredProp_("DRIVE_URL");
 export const CALENDAR_URL = getRequiredProp_("CALENDAR_URL");
+export const MANAGERS_PORTAL_URL = getRequiredProp_("MANAGERS_PORTAL_URL");
 export const ATTENDANCE_ADDRESS = getRequiredProp_("ATTENDANCE_ADDRESS");
 
 export const CHOUSEISAN_URLS = getJsonProp_<ClassUrls>("CHOUSEISAN_URLS");

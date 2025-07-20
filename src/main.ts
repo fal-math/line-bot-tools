@@ -2,7 +2,6 @@ import { LineConfig } from './config';
 import { Announcer } from './jobs/Announcer';
 import { setupTriggers_ } from './jobs/setupTriggers';
 import { Attendance } from './jobs/Attendance';
-import { ChouseisanSummary } from './jobs/ChouseisanSummary';
 import { LineWebhookHandler } from './services/LineWebhookHandler';
 
 // リマインドなび
@@ -29,12 +28,8 @@ function announceTodayPractice() {
   return new Announcer().todayPractice(lineId.operations);
 }
 
-function announceChouseisanToday() {
-  return new ChouseisanSummary().sendToday(lineId.apply);
-}
-
 function announceChouseisanWeekly() {
-  return new ChouseisanSummary().sendWeekly(LineConfig.maintainerId);
+  return new Announcer().chouseisanWeekly(LineConfig.maintainerId);
 }
 
 function attandanceHandler() {
@@ -43,6 +38,10 @@ function attandanceHandler() {
 
 // function announceWeeklyForManagers() {
 //   return new Announcer().weeklyForManagers(LINE_GROUP_ID_UNNEI_SHIFT);
+// }
+
+// function announceChouseisanToday() {
+//   return new ChouseisanSummary().sendToday(lineId.apply);
 // }
 
 // TODO: monthly calendar render

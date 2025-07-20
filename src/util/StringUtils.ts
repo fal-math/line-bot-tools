@@ -1,5 +1,15 @@
-import { KarutaClass } from "../types/type";
+import { ClassMap, KarutaClass } from "../types/type";
+
 const ALL_CLASSES = Object.values(KarutaClass) as KarutaClass[];
+export const KARUTA_CLASS_COLOR: ClassMap<string> = {
+  A: "🟧",
+  B: "🟦",
+  C: "🟩",
+  D: "🟨",
+  E: "🟦",
+  F: "🟥",
+  G: "🟪",
+}
 
 export class StringUtils {
   static stripCss(text: string): string {

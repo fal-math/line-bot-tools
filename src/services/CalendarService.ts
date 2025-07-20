@@ -85,7 +85,7 @@ export class CalendarService {
   };
 
   // 汎用取得メソッド
-  public getEvents<K extends EventTypeKey>(
+  public get<K extends EventTypeKey>(
     type: K,
     start: Date,
     end: Date

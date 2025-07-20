@@ -1,5 +1,5 @@
 import { CHOUSEISAN_CSVS } from '../config';
-import { ParticipantStatus, KarutaClass, Registration } from '../types/type';
+import { ParticipantStatus, KarutaClass, Registration, ClassMap } from '../types/type';
 import { DateUtils } from '../util/DateUtils';
 
 export class ChouseisanService {
@@ -19,7 +19,7 @@ export class ChouseisanService {
   }
 
   /**
-   * 生の CSV 文字列を ChouseisanEvent の配列にパース
+   * CSV 文字列を ChouseisanEvent の配列にパース
    */
   private formatData(rawCsv: string): Registration[] {
     const rows = rawCsv.trim().split(/\r?\n/).map(line => line.split(','));
@@ -83,34 +83,51 @@ export class ChouseisanService {
   }
 
   /**
-   * 各クラスごとに締切をチェックし、通知本文を生成
+   * 各クラスごとに締切をチェックし、Registration列を返す
    */
-  public checkChouseisanByClass(
+  public getSummaryByClass(
     start: Date,
     end: Date
-  ): {
-    hasEvent: boolean;
-    body: string
-  } {
-    let body = `＝大会申込状況まとめ（〆切${DateUtils.formatMD(start)}〜${DateUtils.formatMD(end)}）＝\n\n`;
-    let hasEvent = false;
+  ): ClassMap<Registration[]> {
+    const result = {} as ClassMap<Registration[]>;
 
     (Object.keys(this.csvMap) as KarutaClass[]).forEach(kClass => {
       const rawCsv = this.fetchCsv(this.csvMap[kClass]);
       const events = this.formatData(rawCsv);
       const filtered = this.filterByDeadline(events, start, end);
-
-      if (filtered.length > 0) {
-        body += `--${kClass}級--\n`;
-        filtered.forEach(ev => {
-          body += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}(${DateUtils.formatMD(ev.deadline)}〆切)\n`;
-          body += `⭕参加:\n${ev.participants.attending.join('\n')}\n`;
-          body += `❓未回答:\n${ev.participants.undecided.join('\n')}\n\n`;
-        });
-        hasEvent = true;
-      }
+      result[kClass] = filtered;
     });
 
-    return { hasEvent, body };
+    return result;
+  }
+
+  /**
+   * 各クラスごとに締切をチェックし、stringを返す
+   */
+  public getSummary(start: Date, end: Date): ClassMap<string> {
+    const summaries = this.getSummaryByClass(start, end);
+    const result = {} as ClassMap<string>;
+    Logger.log(`summaries:${summaries}`)
+
+    for (const [kClass, registrations] of Object.entries(summaries) as [KarutaClass, Registration[]][]) {
+      if (registrations.length === 0) {
+        result[kClass] = "";
+      } else {
+        let body = ``;
+        registrations.forEach(ev => {
+          body += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(ev.deadline)}〆切）\n`;
+          body += `⭕参加:\n`;
+          if (ev.participants.attending.length > 0) {
+            body += ev.participants.attending.join('\n') + '\n';
+          }
+          if (ev.participants.undecided.length > 0) {
+            body += `❓未回答:\n`;
+            body += ev.participants.undecided.join('\n') + '\n';
+          }
+        });
+        result[kClass] = body;
+      }
+    }
+    return result;
   }
 }
