@@ -13,8 +13,6 @@ export type ClassMap<T> = {
   [K in KarutaClass]: T;
 };
 
-export type ClassUrls = ClassMap<string>;
-
 // ========== Calendar Events ==========
 export interface BaseEvent {
   date: Date;
@@ -34,6 +32,7 @@ export interface ExternalPracticeEvent extends BaseEvent {
   mapUrl?: string;
   timeRange?: string;
   targetClasses: KarutaClass[];
+  description?: string;
 }
 
 export interface ClubPracticeEvent extends BaseEvent {

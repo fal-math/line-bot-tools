@@ -11,111 +11,87 @@ enum KarutaClass {
   G
 }
 
-enum ShortBuildingName {
-  Jinja: "神社";
-  Tokiwa: "常盤";
-  Kitaurawa: "北浦和";
-  Nakacho: "仲町";
-  Kamiochiai: "上落合";
-  Shimoochiai: "下落合";
-  Nakamoto: "仲本";
-  Motobuto: "本太";
-  Bessho: "別所";
-  Tajima: "田島";
-  Sashiougi: "指扇";
+class ClassMap<T> {
 }
 
-class ByKarutaClass<T> {
-}
-
-class ChouseisanUrls {
-  +[key in KarutaClass]: String
-}
-class ChouseisanCsvs {
-  +[key in KarutaClass]: String
-}
-
-' class GroupedEvents {
-'   +[key in KarutaClass]: { events: List<String>; url: String }
-' }
-
-class CalendarEvent {
+class BaseEvent {
   +date: Date
-  +class: KarutaClass[]
+  +targetClasses: string | KarutaClass[]
 }
 
-class ChouseisanEvent {
-  +title: String
-  +eventDate: Date
-  +deadline: Date
-  +participants: ParticipantStatus
+class MatchEvent {
+  +title: string
+  +location: string
+  +targetClasses: KarutaClass[]
+  +mapUrl?: string
 }
 
-class MatchCalendarEvent {
-  +title: String
-  +location: String
-  +mapUrl: String
+class ExternalPracticeEvent {
+  +title: string
+  +location: string
+  +targetClasses: KarutaClass[]
+  +mapUrl?: string
+  +timeRange?: string
+  +description?: string
 }
 
-class OuterPracticeCalendarEvent {
-  +title: String
-  +location: String
-  +mapUrl: String
-}
-
-class TeamPracticeCalendarEvent {
+class ClubPracticeEvent {
   +location: PracticeLocation
-  +place: String
-  +timeRange: String
-  +type: String
+  +practiceType: string
+  +personInCharge: string
+  +timeRange: string
 }
 
+class InternalDeadlineEvent {
+  +title: string
+  +isExternalPractice: boolean
+  +isMatch: boolean
+  +targetClasses: KarutaClass[]
+}
 
-CalendarEvent <|-- TeamPracticeCalendarEvent
-CalendarEvent <|-- MatchCalendarEvent
-CalendarEvent <|-- OuterPracticeCalendarEvent
+BaseEvent <|-- ClubPracticeEvent
+BaseEvent <|-- MatchEvent
+BaseEvent <|-- ExternalPracticeEvent
+BaseEvent <|-- InternalDeadlineEvent
 
 ' PracticeLocation
 class PracticeLocation {
-  +buildingName: String
+  +buildingName: string
   +shortBuildingName: ShortBuildingName
-  +mapUrl: String
-  +clubName: String
-  +nearestStation: String
-}
-
-class PracticeLocations<Keys> {
-  +[key in Keys]: PracticeLocation
+  +mapUrl: string
+  +clubName: string
 }
 
 class ParticipantStatus {
-  +attending: List<String>
-  +notAttending: List<String>
-  +undecided: List<String>
+  +attending: string[]
+  +notAttending: string[]
+  +undecided: string[]
 }
 
+class Registration {
+  +deadline: Date
+  +eventDate: Date
+  +participants: ParticipantStatus
+  +title: string
+}
 
-class UrlPair {
-  +original: String
+class ImageUrls {
+  +original: string
   +preview: string
 }
 
 class Mention {
-  +type: String
+  +type: string
   +mentionee: Object
 }
 
 class SubstitutionMap {
-  +[key: String]: Mention
+  +[key: string]: Mention
 }
 
-PracticeLocation <|-- PracticeLocations
-ByKarutaClass -up-> KarutaClass
-CalendarEvent -up-> KarutaClass
-ByKarutaClass ..> ChouseisanUrls
-ByKarutaClass ..> ChouseisanCsvs
-' ByKarutaClass ..> GroupedEvents
-ChouseisanEvent --> ParticipantStatus
-TeamPracticeCalendarEvent --> PracticeLocation
+ClassMap -up-> KarutaClass
+BaseEvent -up-> KarutaClass
+Registration --> ParticipantStatus
+ClubPracticeEvent --> PracticeLocation
 SubstitutionMap --> Mention
 @enduml

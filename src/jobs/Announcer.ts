@@ -321,9 +321,9 @@ export class Announcer {
       })
       .join("\n");
 
-    const { clubCardsStr, myCardsStr } = new CardShufffle().do();
+    const { clubCardsStr, myCardsStr } = new CardShufffleService().do();
 
-    const { message: wbgtAlert } = new WbgtAlert().getMessage();
+    const { message: wbgtAlert } = new WbgtService().getMessage();
 
     const message = [
       "■今日の練習■",

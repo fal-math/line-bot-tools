@@ -1,4 +1,4 @@
-import { ClassUrls, PracticeLocations } from "./types/type";
+import { ClassMap, PracticeLocations } from "./types/type";
 
 const userProps = PropertiesService.getScriptProperties();
 
@@ -65,6 +65,6 @@ export const CALENDAR_URL = getRequiredProp_("CALENDAR_URL");
 export const MANAGERS_PORTAL_URL = getRequiredProp_("MANAGERS_PORTAL_URL");
 export const ATTENDANCE_ADDRESS = getRequiredProp_("ATTENDANCE_ADDRESS");
 
-export const CHOUSEISAN_URLS = getJsonProp_<ClassUrls>("CHOUSEISAN_URLS");
-export const CHOUSEISAN_CSVS = getJsonProp_<ClassUrls>("CHOUSEISAN_CSVS");
+export const CHOUSEISAN_URLS = getJsonProp_<ClassMap<string>>("CHOUSEISAN_URLS");
+export const CHOUSEISAN_CSVS = getJsonProp_<ClassMap<string>>("CHOUSEISAN_CSVS");
 export const PRACTICE_LOCATIONS = getPracticeLocations_();
