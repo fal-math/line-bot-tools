@@ -1,4 +1,4 @@
-export class CardShufffle {
+export class CardShufffleService {
   /**
    * Fisher–Yates でシャッフルして先頭 size 件抽出 & 昇順ソート
    */

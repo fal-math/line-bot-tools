@@ -1,14 +1,14 @@
-import { WbgtAlert } from "../../services/WbgtService";
+import { WbgtService } from "../../services/WbgtService";
 
 const sampleCsv = `,,2025062121,2025062124,2025062203,2025062206,2025062209,2025062212,2025062215,2025062218,2025062221,2025062224,2025062303,2025062306,2025062309,2025062312,2025062315,2025062318,2025062321,2025062324
 43056,2025/06/21 19:25,240,230,230,230,270,290,310,270,260,250,240,260,280,290,290,270,260,250`;
 
 describe('WbgtAlert クラスのテスト', () => {
-  let alert: WbgtAlert;
+  let alert: WbgtService;
   let parsed: any;
 
   beforeEach(() => {
-    alert = new WbgtAlert();
+    alert = new WbgtService();
     // private メソッド parseCsv を any キャストで呼び出し
     parsed = (alert as any).parseCsv(sampleCsv);
   });

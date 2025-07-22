@@ -9,20 +9,21 @@ import {
 } from '../config';
 
 import { CalendarService, EventType } from '../services/CalendarService';
-import { CardShufffle } from '../services/CardShuffle';
+import { CardShufffleService } from '../services/CardShuffle';
 import { ChouseisanService } from '../services/ChouseisanService';
 import { LineService } from '../services/LineService';
-import { WbgtAlert } from '../services/WbgtService';
-import { BaseEvent, ClassMap, ClubPracticeEvent, ExternalPracticeEvent, KarutaClass, MatchEvent } from '../types/type';
+import { WbgtService } from '../services/WbgtService';
+import { ClubPracticeEvent, ExternalPracticeEvent, KarutaClass, MatchEvent } from '../types/type';
 import { DateUtils, WEEK_DAYS } from '../util/DateUtils';
-import { KARUTA_CLASS_COLOR, StringUtils } from '../util/StringUtils';
+import { KARUTA_CLASS_COLOR } from '../util/StringUtils';
 
 export class Announcer {
+  private weekdays = 7;
   private today = DateUtils.startOfDay();
   private tomorrow = DateUtils.addDays(this.today, 1);
-  private oneWeekLater = DateUtils.addDays(this.today, 7);
-  private twoWeekLater = DateUtils.addDays(this.today, 14);
-  private oneWeekAgo = DateUtils.addDays(this.today, -7);
+  private oneWeekLater = DateUtils.addDays(this.today, this.weekdays);
+  private twoWeekLater = DateUtils.addDays(this.today, 2 * this.weekdays);
+  private oneWeekAgo = DateUtils.addDays(this.today, -this.weekdays);
 
   private kaishimeMessage =
     [

@@ -13,7 +13,7 @@ export type EventTypeKey = typeof EventType[keyof typeof EventType];
 interface EventConfig<T> {
   calendarId: string;
   regex: RegExp;
-  parser: (match: RegExpMatchArray, event: GoogleAppsScript.Calendar.CalendarEvent) => T | null;
+  parser: (reg: RegExpMatchArray, event: GoogleAppsScript.Calendar.CalendarEvent) => T | null;
 }
 export interface EventMap {
   [EventType.ClubPractice]: ClubPracticeEvent;

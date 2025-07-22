@@ -16,7 +16,7 @@ export const WbgtConfig = {
   HOURS: [9, 12, 15, 18] as const,
 };
 
-export class WbgtAlert {
+export class WbgtService {
   /** CSV URL */
   private url = "https://www.wbgt.env.go.jp/prev15WG/dl/yohou_43241.csv";
 
@@ -82,17 +82,16 @@ export class WbgtAlert {
     return { id, baseTime, measurements };
   }
 
-  /** 指定時刻データを取得し、10で割って小数に */
   private extractDaily(parsed: Parsed) {
     const { HOURS } = WbgtConfig;
     return HOURS.reduce<Record<number, number | null>>((acc, h) => {
       const m = parsed.measurements.find(x => x.time.getHours() === h);
+      // 提供データはWBGT値*10の形式
       acc[h] = m ? m.predicted / 10 : null;
       return acc;
     }, {});
   }
 
-  /** 最終的に「09時：値」の形式で文字列に整形 */
   private formatDailyValues(parsed: Parsed): string {
     const { HOURS } = WbgtConfig;
     const daily = this.extractDaily(parsed);

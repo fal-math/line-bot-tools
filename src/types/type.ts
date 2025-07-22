@@ -46,7 +46,8 @@ export interface ClubPracticeEvent extends BaseEvent {
 export interface InternalDeadlineEvent extends BaseEvent {
   title: string;
   targetClasses: KarutaClass[];
-  isExternalPractice: boolean
+  isMatch: boolean;
+  isExternalPractice: boolean;
 }
 
 export interface PracticeLocation {
