@@ -53,6 +53,7 @@ export class CalendarService {
           timeRange: timeRange.trim(),
           targetClasses: StringUtils.formatKarutaClass(classStr),
           location: event.getLocation().split(",")[0],
+          description: StringUtils.htmlToPlainText(event.getDescription()),
         } as ExternalPracticeEvent;
       }
     },

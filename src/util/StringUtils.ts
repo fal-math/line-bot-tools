@@ -16,6 +16,14 @@ export class StringUtils {
     return text.replace(/([^\{]+)\s*\{[^}]*}/g, '').replace(/[\n\r]*\s*[\n\r]+/g, '\n')
   };
 
+  static htmlToPlainText(html: string) {
+    return html
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/div>/gi, '\n')
+      .replace(/<[^>]+>/g, '')
+      .trim();
+  }
+
   /**
    * @param input 級を表す文字列(ABC, G以上, etc..)
    * @returns KarutaClassの配列
@@ -39,6 +47,7 @@ export class StringUtils {
       .map(c => KarutaClass[c])
       .sort((a, b) => ALL_CLASSES.indexOf(a) - ALL_CLASSES.indexOf(b));
   }
+
 
   /**
    * 文字列からよく使われるカッコ文字をすべて除去する

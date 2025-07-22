@@ -117,8 +117,8 @@ export class Announcer {
   public chouseisanWeekly(to: string): void {
     const lastWeek = this.buildDeadlineSummaryByClass(this.oneWeekAgo, this.today);
     const thisWeek = this.buildDeadlineSummaryByClass(this.today, this.oneWeekLater);
-
     if (!lastWeek && !thisWeek) return;
+
     const message = `先週分\n\n${lastWeek}\n\n今週分\n\n${thisWeek}`;
     this.line.pushText(to, message);
   }
@@ -180,18 +180,19 @@ export class Announcer {
     infos: ExternalPracticeEvent[]
   ): string {
     return infos
-      .map(({ date, timeRange, title, targetClasses, location }) => {
+      .map(({ date, timeRange, title, targetClasses, location, description }) => {
         const month = date.getMonth() + 1;
         const day = date.getDate();
         const weekday = WEEK_DAYS[date.getDay()];
         const target = Array.isArray(targetClasses) ? targetClasses.join("") : targetClasses;
 
         return [
-          `${month}/${day}（${weekday}） ${timeRange}`,
-          `${title}`,
-          `対象：${target}`,
-          `場所：${location}`,
-        ].join("\n");
+          `・${month}/${day}（${weekday}） ${timeRange}`,
+          `　${title}`,
+          `　対象：${target}`,
+          location ? `　場所：${location}` : null,
+          description ? `　備考：${description.replace(/\n/g, '\n　')}\n` : null,
+        ].filter(Boolean).join("\n");
       }).join("\n");
   }
 
