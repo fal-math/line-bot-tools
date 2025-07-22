@@ -1,5 +1,5 @@
-import { CalendarIds, LineConfig, PRACTICE_LOCATIONS } from "../config";
-import { MatchEvent, ExternalPracticeEvent, InternalDeadlineEvent, ClubPracticeEvent } from "../types/type";
+import { CalendarIds, PRACTICE_LOCATIONS } from "../config";
+import { MatchEvent, ExternalPracticeEvent, InternalDeadlineEvent, ClubPracticeEvent, BaseEvent, ClassMap, KarutaClass } from "../types/type";
 import { StringUtils } from "../util/StringUtils";
 
 export const EventType = {
@@ -78,13 +78,36 @@ export class CalendarService {
           date: new Date(event.getStartTime().getTime()),
           targetClasses: StringUtils.formatKarutaClass(classStr),
           title: title.trim(),
+          isMatch: !title.includes('外部'),
           isExternalPractice: title.includes('外部'),
         } as InternalDeadlineEvent;
       }
     }
   };
 
-  // 汎用取得メソッド
+  static groupByClass<T extends BaseEvent>(
+    events: T[]
+  ): ClassMap<T[]> {
+    const result = (Object.values(KarutaClass) as KarutaClass[]).reduce(
+      (acc, klass) => {
+        acc[klass] = [];
+        return acc;
+      },
+      {} as ClassMap<T[]>
+    );
+
+    for (const ev of events) {
+      const classes: KarutaClass[] = Array.isArray(ev.targetClasses)
+        ? ev.targetClasses
+        : StringUtils.formatKarutaClass(ev.targetClasses);
+
+      for (const kc of classes) {
+        result[kc].push(ev);
+      }
+    }
+    return result;
+  }
+
   public get<K extends EventTypeKey>(
     type: K,
     start: Date,

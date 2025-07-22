@@ -43,33 +43,10 @@ export class Announcer {
     private readonly chouseisan: ChouseisanService = new ChouseisanService(),
   ) { }
 
-  private groupByClass<T extends BaseEvent>(
-    events: T[]
-  ): ClassMap<T[]> {
-    const result = (Object.values(KarutaClass) as KarutaClass[]).reduce(
-      (acc, klass) => {
-        acc[klass] = [];
-        return acc;
-      },
-      {} as ClassMap<T[]>
-    );
-
-    for (const ev of events) {
-      const classes: KarutaClass[] = Array.isArray(ev.targetClasses)
-        ? ev.targetClasses
-        : StringUtils.formatKarutaClass(ev.targetClasses);
-
-      for (const kc of classes) {
-        result[kc].push(ev);
-      }
-    }
-    return result;
-  }
-
   private buildDeadlineSummaryByClass(start: Date, end: Date): string | null {
     const internalDeadlineEvents = this.calendar.get(EventType.InternalDeadline, start, end);
     if (internalDeadlineEvents.length === 0) return null;
-    const groupedEvents = this.groupByClass(internalDeadlineEvents);
+    const groupedEvents = CalendarService.groupByClass(internalDeadlineEvents);
 
     const attendanceSummaries = this.chouseisan.getSummary(start, end);
 
