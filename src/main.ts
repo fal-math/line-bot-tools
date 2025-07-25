@@ -1,12 +1,13 @@
 import { LineConfig } from './config';
 import { Announcer } from './jobs/Announcer';
+import { Notify } from './jobs/Notify';
 import { setupTriggers_ } from './jobs/setupTriggers';
 import { Attendance } from './jobs/Attendance';
 import { LineWebhookHandler } from './services/LineWebhookHandler';
 
 // リマインドなび
 
-const lineId = LineConfig.groupIds;
+const lineId = LineConfig.id;
 
 function announceWeekly() {
   return new Announcer().weekly(lineId.all);
@@ -20,34 +21,27 @@ function announceDeadlineNextWeek() {
   return new Announcer().deadlineNextWeek(lineId.all);
 }
 
-function announceFinalToday() {
-  return new Announcer().finalIsToday(lineId.apply, LineConfig.maintainerId);
+function notifyDeadlineToday() {
+  return new Notify().deadlineToday(lineId.apply, lineId.userF);
 }
 
-function announceTodayPractice() {
-  return new Announcer().todayPractice(lineId.operations);
+function notifyFinalToday() {
+  return new Notify().finalIsToday(lineId.apply, lineId.userT);
 }
 
-function announceChouseisanWeekly() {
-  return new Announcer().chouseisanWeekly(LineConfig.maintainerId);
+function notifyTodayPractice() {
+  return new Notify().todayPractice(lineId.operations);
+}
+
+function notifyChouseisanWeekly() {
+  return new Notify().chouseisanWeekly(lineId.userT);
 }
 
 function attandanceHandler() {
   return new Attendance().do(lineId.operations);
 }
 
-// function announceWeeklyForManagers() {
-//   return new Announcer().weeklyForManagers(LINE_GROUP_ID_UNNEI_SHIFT);
-// }
-
-// function announceChouseisanToday() {
-//   return new ChouseisanSummary().sendToday(lineId.apply);
-// }
-
 // TODO: monthly calendar render
-// function sendMonthlyCalendar() {
-// return sendMonthlyCalendar_(LINE_GROUP_ID_TEST);
-// }
 
 // ------------- Webhook エンドポイント ----------------
 /**

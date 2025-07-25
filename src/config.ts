@@ -42,13 +42,15 @@ function getPracticeLocations_(): PracticeLocations {
 
 export const LineConfig = {
   channelToken: getRequiredProp_("LINE_CHANNEL_ACCESS_TOKEN"),
-  maintainerId: getRequiredProp_("LINE_USER_ID_MAINTAINER"),
-  groupIds: {
+  id: {
     apply: getRequiredProp_("LINE_GROUP_ID_TAIKAI_MOUSHIKOMI"),
     operations: getRequiredProp_("LINE_GROUP_ID_UNNEI_HOMBU"),
     shift: getRequiredProp_("LINE_GROUP_ID_UNNEI_SHIFT"),
     all: getRequiredProp_("LINE_GROUP_ID_ZENTAI"),
     test: getRequiredProp_("LINE_GROUP_ID_TEST"),
+    userT: getRequiredProp_("LINE_USER_ID_T"),
+    userF: getRequiredProp_("LINE_USER_ID_F"),
+    userI: getRequiredProp_("LINE_USER_ID_I"),
   } as const,
 };
 

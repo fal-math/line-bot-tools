@@ -32,7 +32,7 @@ export class LineService {
   }
 
   pushError(text: string, retryKey?: string): void {
-    const to = LineConfig.maintainerId;
+    const to = LineConfig.id.userT;
     const payload = {
       to,
       messages: [

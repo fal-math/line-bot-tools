@@ -85,7 +85,7 @@ export class ChouseisanService {
   /**
    * 各クラスごとに締切をチェックし、Registration列を返す
    */
-  public getSummaryByClass(
+  public getSummary(
     start: Date,
     end: Date
   ): ClassMap<Registration[]> {
@@ -98,36 +98,6 @@ export class ChouseisanService {
       result[kClass] = filtered;
     });
 
-    return result;
-  }
-
-  /**
-   * 各クラスごとに締切をチェックし、stringを返す
-   */
-  public getSummary(start: Date, end: Date): ClassMap<string> {
-    const summaries = this.getSummaryByClass(start, end);
-    const result = {} as ClassMap<string>;
-    Logger.log(`summaries:${summaries}`)
-
-    for (const [kClass, registrations] of Object.entries(summaries) as [KarutaClass, Registration[]][]) {
-      if (registrations.length === 0) {
-        result[kClass] = "";
-      } else {
-        let body = ``;
-        registrations.forEach(ev => {
-          body += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(ev.deadline)}〆切）\n`;
-          body += `⭕参加:\n`;
-          if (ev.participants.attending.length > 0) {
-            body += ev.participants.attending.join('\n') + '\n';
-          }
-          if (ev.participants.undecided.length > 0) {
-            body += `❓未回答:\n`;
-            body += ev.participants.undecided.join('\n') + '\n';
-          }
-        });
-        result[kClass] = body;
-      }
-    }
     return result;
   }
 }

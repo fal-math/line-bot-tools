@@ -8,36 +8,36 @@ export function setupTriggers_(): void {
     .atHour(16)
     .create();
 
-  /** 会〆来週アナウンス: 毎週土曜日 09:00 */
+  /** 会〆来週全体アナウンス: 毎週土曜日 09:00 */
   ScriptApp.newTrigger('announceDeadlineNextWeek')
     .timeBased()
     .onWeekDay(ScriptApp.WeekDay.SATURDAY)
     .atHour(9)
     .create();
 
-  /** 会〆当日アナウンス: 毎日 09:00 */
+  /** 会〆当日全体アナウンス: 毎日 09:00 */
   ScriptApp.newTrigger('announceDeadlineToday')
     .timeBased()
     .everyDays(1)
     .atHour(9)
     .create();
 
-  /** 会〆当日調整さんチェック: 毎日 17:00 */
-  ScriptApp.newTrigger('announceChouseisanToday')
+  /** 会〆当日通知: 毎日 09:00 */
+  ScriptApp.newTrigger('notifyDeadlineToday')
     .timeBased()
     .everyDays(1)
-    .atHour(17)
+    .atHour(21)
     .create();
 
-  /** 本〆当日アナウンス: 毎日 07:00 */
-  ScriptApp.newTrigger('announceFinalToday')
+  /** 本〆当日通知: 毎日 07:00 */
+  ScriptApp.newTrigger('notifyFinalToday')
     .timeBased()
     .everyDays(1)
     .atHour(7)
     .create();
 
-  /** 練習前アナウンス: 毎日 08:00 */
-  ScriptApp.newTrigger('announceTodayPractice')
+  /** 練習前通知: 毎日 08:00 */
+  ScriptApp.newTrigger('notifyTodayPractice')
     .timeBased()
     .everyDays(1)
     .atHour(8)
