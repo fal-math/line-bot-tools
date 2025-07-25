@@ -1,72 +1,88 @@
-@startuml
+@startuml class diagram
 skinparam linetype ortho
 
 class ConfigService {
-  +getRequired(key: String): String
-  +getJson<T>(key: String): T
-  +getPracticeLocations(): Map<String,PracticeLocation>
+  +getRequired(key: string): string
+  +getJson<T>(key: string): T
+  +getPracticeLocations(): Map<string, PracticeLocation>
 }
 
 class DateUtils {
   <<static>>
   +startOfDay(d?: Date): Date
   +addDays(d: Date, n: int): Date
-  +toYMD(md: String): String
-  +toMD(ymd: String): String
+  +parseMD(md: string): Date
+  +parseYMD(ymd: string): Date
+  +formatMD(date: Date): string
+  +formatYMD(date: Date): string
 }
 
-class StringUtils {
+class stringUtils {
   <<static>>
-  +stripCss_(text: string): string
+  +stripCss(text: string): string
+  +htmlToPlainText(html: string): string
+  +formatKarutaClass(input: string): KarutaClass[]
+  +removeBracketSymbols(input: string): string
 }
 
 class LineService {
   +pushText(to: string, text: string, substitution?: object, retryKey?: string)
+  +pushError(text: string, retryKey?: string): void
   +pushImage(to: string, original: string, preview: string, retryKey?: string)
 }
 
 class ChouseisanService {
-  +fetchRaw(classKey: KarutaClass): String
-  +parse(raw: String): ChouseisanEvent[]
-  +filterByDeadline(events: ChouseisanEvent[], from: YMD, to: YMD): ChouseisanEvent[]
+  +getSummary(start: Date, end: Date): ClassMap<Registration[]>
 }
 class CalendarService {
-  +fetchRaw(classKey: KarutaClass): String
-  +parse(raw: String): ChouseisanEvent[]
-  +filterByDeadline(events: ChouseisanEvent[], from: YMD, to: YMD): ChouseisanEvent[]
+  +groupByClass<T extends BaseEvent>(events: T[]): ClassMap<T[]>
+  +get<K extends EventTypeKey>(type: K, start: Date, end: Date): EventMap[K][]
+  +createCalenderEvent(
+  params: {start: Date; summary: string; location?: string; description?: string;}, 
+  calendarId: string)
+  : GoogleAppsScript.Calendar.CalendarEvent 
+ }
+
+class LineWebhookHandler{
+  +handle(text: string, to: string): void
+}
+
+class CardShufffleService{
+  +do():{ clubCardsStr: string, myCardsStr: string }
+}
+
+class WbgtService{
+  +getMessage():{ message: string; values?: Parsed } 
 }
 
 class Announcer {
-  +announceWeekly_(to: string): void
-  +announceDeadlineToday_(to: string): void
-  +announceDeadlineNextWeek_(to: string): void
-  +announceFinalToday_(to: string, mentionee: string): void
-  +announceChouseisanToday_(to: string): void
-  +announceChouseisanWeekly_(to: string): void
-  +announceWeeklyForManagers_(to: string): void
-  +announceTodayPractice_(to: string): void
+  +weekly(to: string): void
+  +deadlineToday(to: string): void
+  +deadlineNextWeek(to: string): void
 }
 
-class DeadlineNotifier {
-  +run(): void
+class Notify {
+  +deadlineToday(to: string): void
+  +finalIsToday(to: string, mentionee: string): void
+  +todayPractice(to: string): void
+  +chouseisanWeekly(to: string): void
 }
 
-class AttendanceHandler {
-  +attandanceHandler(): void
+class Attendance {
+  +do(to: string): void
 }
 
-class Main {
+class Main {  
   +announceWeekly(): void
   +announceDeadlineToday(): void
   +announceDeadlineNextWeek(): void
-  +announceFinalToday(): void
-  +announceChouseisanToday(): void
-  +announceChouseisanWeekly(): void
-  +announceWeeklyForManagers(): void
-  +announceTodayPractice(): void
+  +NotifyFinalToday(): void
+  +NotifyTodayPractice(): void
+  +NotifyChouseisanWeekly(): void
   +attandanceHandler(): void
+  +doPost(e: GoogleAppsScript.Events.DoPost): void
   ' +sendMonthlyCalendar(): void
-  ' +setupTriggers(): void
+  +setupTriggers(): void
 }
 
 class SetupTriggers {
@@ -77,30 +93,45 @@ class SetupTriggers {
 ' 関係（矢印）の向きと相対配置を指定
 ' ————————————————————————————————————————————
 
-' Main は Announcer と AttendanceHandler を統合
+' Main 
 Main -down-|> Announcer : calls
-Main -down-|> AttendanceHandler : calls
+Main -down-|> Notify : calls
+Main -down-|> Attendance : calls
+Main -down-|> LineWebhookHandler : calls
 
-' Announcer は DateUtils と LineService と ChouseisanService を利用
-Announcer -down-> DateUtils : uses
-Announcer -down-> StringUtils : uses
-Announcer -down-> LineService : uses
-Announcer -down-> ChouseisanService : uses
-Announcer -down-> CalendarService : uses
+' Announcer 
+Announcer -down-> DateUtils
+Announcer -down-> stringUtils
+Announcer -down-> LineService
+Announcer -down-> CalendarService
+Announcer -down-> ChouseisanService
 
-' DeadlineNotifier も同様
-DeadlineNotifier -down-> DateUtils : uses
-DeadlineNotifier -down-> LineService : uses
-DeadlineNotifier -down-> ChouseisanService : uses
+' Notify 
+Notify -down-> DateUtils
+Notify -down-> CardShufffleService
+Notify -down-> ChouseisanService
+Notify -down-> WbgtService
+Notify -down-> LineService
+Notify -down-> CalendarService
+Notify -down-> stringUtils
 
-' AttendanceHandler は LineService 利用
-ChouseisanService -down-> DateUtils : uses
-ChouseisanService -down-> CsvUtils : uses
+' ChouseisanService
+ChouseisanService -down-> DateUtils
 
-CalendarService -down-> DateUtils : uses
+' ChouseisanService
+CalendarService -down-> stringUtils
 
-' SetupTriggers は Main／DeadlineNotifier／AttendanceHandler を依存
+' LineWebhookHandler
+LineWebhookHandler -down-> DateUtils
+LineWebhookHandler -down-> LineService
+LineWebhookHandler -down-> CalendarService
+
+' Attendance
+Attendance -down-> LineService
+Attendance -down-> stringUtils
+
+CalendarService -down-> DateUtils
+
 Main .up.> SetupTriggers : 「トリガー設定」
-DeadlineNotifier .up.> SetupTriggers : 「トリガー設定」
 
 @enduml
