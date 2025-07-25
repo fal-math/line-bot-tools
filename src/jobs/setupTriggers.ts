@@ -43,6 +43,12 @@ export function setupTriggers_(): void {
     .atHour(8)
     .create();
 
+  /** デバッグモード通知: 30分毎 */
+  ScriptApp.newTrigger('notifyDebugMode')
+    .timeBased()
+    .everyMinutes(30)
+    .create();
+
   /** 遅刻欠席連絡: 毎分 */
   ScriptApp.newTrigger('attandanceHandler')
     .timeBased()

@@ -1,5 +1,6 @@
 import {
   CalendarIds,
+  DEBUG_MODE,
   MANAGERS_PORTAL_URL,
 } from '../config';
 import { ClubPracticeEvent, KarutaClass, Registration } from '../types/type';
@@ -148,5 +149,10 @@ export class Notify {
     ].join("\n");
 
     this.line.pushText(to, message);
+  }
+
+  public sendDebugBanner():void{
+    if(!DEBUG_MODE) return;
+    this.line.pushError("[line-bot-tooks]\nATTENTION: DEBUG MODE IS ON.")
   }
 }

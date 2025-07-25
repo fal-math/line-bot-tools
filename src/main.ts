@@ -37,6 +37,10 @@ function notifyChouseisanWeekly() {
   return new Notify().chouseisanWeekly(lineId.userT);
 }
 
+function notifyDebugMode(){
+  return new Notify().sendDebugBanner();
+}
+
 function attandanceHandler() {
   return new Attendance().do(lineId.operations);
 }

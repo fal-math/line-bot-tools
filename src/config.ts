@@ -4,11 +4,28 @@ const userProps = PropertiesService.getScriptProperties();
 
 /**
  * プロパティ値を取得し、存在しなければ例外を投げる
+ * 
+ * @param key プロパティ名
+ * @returns プロパティの値
  */
 function getRequiredProp_(key: string): string {
   const value = userProps.getProperty(key);
   if (!value) throw new Error(`Missing required property: ${key}`);
   return value;
+}
+
+/**
+ * スクリプトプロパティからオプションの環境変数を取得します。
+ * プロパティが未設定（null または空文字列）の場合は undefined を返します。
+ *
+ * @param key プロパティ名
+ * @returns プロパティの値、未設定なら undefined
+ */
+export function getOptionalProp_(key: string): string | undefined {
+  // GAS のスクリプトプロパティから取得
+  const raw = userProps.getProperty(key);
+  if (raw === null || raw === "") return undefined;
+  return raw;
 }
 
 /**
@@ -62,6 +79,7 @@ export const CalendarIds = {
   externalPractice: getRequiredProp_("GOOGLE_CALENDAR_ID_OUTER"),
 } as const;
 
+export const DEBUG_MODE = (getOptionalProp_("DEBUG_MODE") || "false") === "true";
 export const DRIVE_URL = getRequiredProp_("DRIVE_URL");
 export const CALENDAR_URL = getRequiredProp_("CALENDAR_URL");
 export const MANAGERS_PORTAL_URL = getRequiredProp_("MANAGERS_PORTAL_URL");
