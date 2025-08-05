@@ -85,6 +85,7 @@ export const CalendarConfig = {
 export const ChouseisanConfig = {
   urls: getJsonProp_<ClassMap<string>>("CHOUSEISAN_URLS"),
   csvs: getJsonProp_<ClassMap<string>>("CHOUSEISAN_CSVS"),
+  spreadsheetId: getRequiredProp_("SPREADSHEET_ID")
 }
 
 export const DEBUG_MODE = (getOptionalProp_("DEBUG_MODE") || "false") === "true";

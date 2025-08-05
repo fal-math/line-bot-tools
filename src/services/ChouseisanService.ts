@@ -1,5 +1,5 @@
 import Config from '../config';
-import { ParticipantStatus, KarutaClass, Registration, ClassMap } from '../types/type';
+import { ClassMap, KarutaClass, ParticipantStatus, Registration } from '../types/type';
 import { DateUtils } from '../util/DateUtils';
 
 export class ChouseisanService {
@@ -99,5 +99,39 @@ export class ChouseisanService {
     });
 
     return result;
+  }
+
+  public backupChouseisanCsv(): void {
+    const csvUrlMap = {} as ClassMap<string>;
+    (Object.keys(this.csvMap) as KarutaClass[]).forEach(kClass => {
+      const rawCsv = this.fetchCsv(this.csvMap[kClass]);
+      csvUrlMap[kClass] = rawCsv;
+    });
+
+    const spreadsheetId = Config.Chouseisan.spreadsheetId;
+    const ss = SpreadsheetApp.openById(spreadsheetId);
+
+    (Object.keys(csvUrlMap) as KarutaClass[]).forEach((kClass) => {
+      const rawCsv = csvUrlMap[kClass];
+      const sheetName = `${DateUtils.formatYMD(new Date())}${kClass}`;
+
+      let sheet = ss.getSheetByName(sheetName);
+      if (!sheet) {
+        sheet = ss.insertSheet(sheetName);
+      } else {
+        sheet.clearContents();
+      }
+
+      const rows = rawCsv
+        .trim()
+        .split(/\r?\n/)
+        .map(line => line.split(','));
+
+      if (rows.length === 0) return;
+
+      sheet
+        .getRange(1, 1, rows.length, rows[0].length)
+        .setValues(rows);
+    });
   }
 }

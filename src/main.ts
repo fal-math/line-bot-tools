@@ -4,6 +4,7 @@ import { Notify } from './jobs/Notify';
 import { setupTriggers_ } from './jobs/setupTriggers';
 import { Attendance } from './jobs/Attendance';
 import { LineWebhookHandler } from './services/LineWebhookHandler';
+import { ChouseisanService } from './services/ChouseisanService';
 
 // リマインドなび
 
@@ -43,6 +44,10 @@ function notifyDebugMode(){
 
 function attandanceHandler() {
   return new Attendance().do(lineId.operations);
+}
+
+function backupChouseisan(){
+  return new ChouseisanService().backupChouseisanCsv();
 }
 
 // TODO: monthly calendar render
