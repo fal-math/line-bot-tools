@@ -199,7 +199,7 @@ export class Announcer {
       externalPracticesString = [
         '__________',
         '',
-        '🟧外部練(要事前申込)🟧',
+        '🟧今週の外部練(要事前申込)🟧',
         this.formatExternalPracticeSummary(externalPractices),
       ].join('\n');
     }
@@ -210,7 +210,7 @@ export class Announcer {
     const lines = [
       '《ちはやふる富士見 木曜定期便》',
       '',
-      '🟦今週末の練習🟦',
+      '🟦今週の練習🟦',
       clubPracticesString,
       '',
       '📍会練会場案内',
@@ -232,29 +232,12 @@ export class Announcer {
       externalPracticesString,
       '__________',
       '',
-      '🟩今週来週の出場大会🟩',
+      '🟩今週・来週の出場大会🟩',
       matchesString,
       '__________',
       '',
       '◯活動カレンダー',
       Config.Calendar.url,
-      '◯周知済み大会情報',
-      Config.DRIVE_URL,
-      '◯大会申込入力URL(調整さん)',
-      `A級|`,
-      ` ${Config.Chouseisan.urls[`A`]}`,
-      `B級|`,
-      ` ${Config.Chouseisan.urls[`B`]}`,
-      `C級|`,
-      ` ${Config.Chouseisan.urls[`C`]}`,
-      `D級|`,
-      ` ${Config.Chouseisan.urls[`D`]}`,
-      `E級|`,
-      ` ${Config.Chouseisan.urls[`E`]}`,
-      `F級|`,
-      ` ${Config.Chouseisan.urls[`F`]}`,
-      `G級|`,
-      ` ${Config.Chouseisan.urls[`G`]}`,
     ];
 
     this.line.pushText(to, lines.join('\n'));
