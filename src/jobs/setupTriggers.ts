@@ -43,6 +43,13 @@ export function setupTriggers_(): void {
     .atHour(8)
     .create();
 
+  /** 調整さんバックアップ: 火曜22時 */
+  ScriptApp.newTrigger('notifyDebugMode')
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.TUESDAY)
+    .atHour(22)
+    .create();
+
   /** デバッグモード通知: 30分毎 */
   ScriptApp.newTrigger('notifyDebugMode')
     .timeBased()
