@@ -44,7 +44,7 @@ export function setupTriggers_(): void {
     .create();
 
   /** 調整さんバックアップ: 火曜22時 */
-  ScriptApp.newTrigger('notifyDebugMode')
+  ScriptApp.newTrigger('backupChouseisan')
     .timeBased()
     .onWeekDay(ScriptApp.WeekDay.TUESDAY)
     .atHour(22)
