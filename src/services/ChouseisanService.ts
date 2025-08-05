@@ -5,7 +5,7 @@ import { DateUtils } from '../util/DateUtils';
 export class ChouseisanService {
   private csvMap: Record<KarutaClass, string>;
 
-  constructor(csvMap: Record<KarutaClass, string> = Config.Chouseisan.urls) {
+  constructor(csvMap: Record<KarutaClass, string> = Config.Chouseisan.csvs) {
     this.csvMap = csvMap;
   }
 
