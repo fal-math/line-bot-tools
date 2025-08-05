@@ -71,20 +71,37 @@ export const LineConfig = {
   } as const,
 };
 
-export const CalendarIds = {
-  match: getRequiredProp_("GOOGLE_CALENDAR_ID_TAIKAI"),
-  clubPractice: getRequiredProp_("GOOGLE_CALENDAR_ID_KAIRENSHU"),
-  internalDeadline: getRequiredProp_("GOOGLE_CALENDAR_ID_KAISHIME"),
-  actualDeadline: getRequiredProp_("GOOGLE_CALENDAR_ID_HONSHIME"),
-  externalPractice: getRequiredProp_("GOOGLE_CALENDAR_ID_OUTER"),
+export const CalendarConfig = {
+  url: getRequiredProp_("CALENDAR_URL"),
+  id: {
+    match: getRequiredProp_("GOOGLE_CALENDAR_ID_TAIKAI"),
+    clubPractice: getRequiredProp_("GOOGLE_CALENDAR_ID_KAIRENSHU"),
+    internalDeadline: getRequiredProp_("GOOGLE_CALENDAR_ID_KAISHIME"),
+    actualDeadline: getRequiredProp_("GOOGLE_CALENDAR_ID_HONSHIME"),
+    externalPractice: getRequiredProp_("GOOGLE_CALENDAR_ID_OUTER"),
+  }
 } as const;
+
+export const ChouseisanConfig = {
+  urls: getJsonProp_<ClassMap<string>>("CHOUSEISAN_URLS"),
+  csvs: getJsonProp_<ClassMap<string>>("CHOUSEISAN_CSVS"),
+}
 
 export const DEBUG_MODE = (getOptionalProp_("DEBUG_MODE") || "false") === "true";
 export const DRIVE_URL = getRequiredProp_("DRIVE_URL");
-export const CALENDAR_URL = getRequiredProp_("CALENDAR_URL");
 export const MANAGERS_PORTAL_URL = getRequiredProp_("MANAGERS_PORTAL_URL");
 export const ATTENDANCE_ADDRESS = getRequiredProp_("ATTENDANCE_ADDRESS");
-
-export const CHOUSEISAN_URLS = getJsonProp_<ClassMap<string>>("CHOUSEISAN_URLS");
-export const CHOUSEISAN_CSVS = getJsonProp_<ClassMap<string>>("CHOUSEISAN_CSVS");
 export const PRACTICE_LOCATIONS = getPracticeLocations_();
+
+const Config = {
+  Line: LineConfig,
+  Calendar: CalendarConfig,
+  Chouseisan: ChouseisanConfig,
+  DEBUG_MODE,
+  DRIVE_URL,
+  MANAGERS_PORTAL_URL,
+  ATTENDANCE_ADDRESS,
+  PRACTICE_LOCATIONS,
+} as const;
+
+export default Config;

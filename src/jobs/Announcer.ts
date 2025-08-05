@@ -1,11 +1,4 @@
-import {
-  ATTENDANCE_ADDRESS,
-  CALENDAR_URL,
-  CHOUSEISAN_URLS,
-  DRIVE_URL,
-  PRACTICE_LOCATIONS
-} from '../config';
-
+import Config from '../config';
 import { CalendarService, EventType } from '../services/CalendarService';
 import { ChouseisanService } from '../services/ChouseisanService';
 import { LineService } from '../services/LineService';
@@ -78,7 +71,7 @@ export class Announcer {
       const fullText = [summaryText, externalPracticeText].filter(Boolean).join('\n');
       if (!fullText) continue;
 
-      const header = `${KARUTA_CLASS_COLOR[kClass]}${kClass}級｜${CHOUSEISAN_URLS[kClass]}`;
+      const header = `${KARUTA_CLASS_COLOR[kClass]}${kClass}級｜${Config.Chouseisan.urls[kClass]}`;
 
       sections.push(`\n${header}\n\n${fullText}`);
     }
@@ -151,7 +144,7 @@ export class Announcer {
     );
     const practiceLocationsString = uniqueLocs
       .map(shortName => {
-        const { buildingName, mapUrl } = PRACTICE_LOCATIONS[shortName];
+        const { buildingName, mapUrl } = Config.PRACTICE_LOCATIONS[shortName];
         return `${buildingName}\n${mapUrl}`;
       }).join("\n");
 
@@ -231,7 +224,7 @@ export class Announcer {
       '',
       '📧会練遅刻欠席連絡',
       'あらかじめ遅参が分かっている時、または当日の遅刻欠席する時の連絡メールアドレス',
-      ATTENDANCE_ADDRESS,
+      Config.ATTENDANCE_ADDRESS,
       '⚠️下記を必ず記載⚠️',
       '題名：名前と級',
       '本文：参加する練習会場、用件(遅刻の場合、到着予定時刻)',
@@ -244,24 +237,24 @@ export class Announcer {
       '__________',
       '',
       '◯活動カレンダー',
-      CALENDAR_URL,
+      Config.Calendar.url,
       '◯周知済み大会情報',
-      DRIVE_URL,
+      Config.DRIVE_URL,
       '◯大会申込入力URL(調整さん)',
       `A級|`,
-      ` ${CHOUSEISAN_URLS[`A`]}`,
+      ` ${Config.Chouseisan.urls[`A`]}`,
       `B級|`,
-      ` ${CHOUSEISAN_URLS[`B`]}`,
+      ` ${Config.Chouseisan.urls[`B`]}`,
       `C級|`,
-      ` ${CHOUSEISAN_URLS[`C`]}`,
+      ` ${Config.Chouseisan.urls[`C`]}`,
       `D級|`,
-      ` ${CHOUSEISAN_URLS[`D`]}`,
+      ` ${Config.Chouseisan.urls[`D`]}`,
       `E級|`,
-      ` ${CHOUSEISAN_URLS[`E`]}`,
+      ` ${Config.Chouseisan.urls[`E`]}`,
       `F級|`,
-      ` ${CHOUSEISAN_URLS[`F`]}`,
+      ` ${Config.Chouseisan.urls[`F`]}`,
       `G級|`,
-      ` ${CHOUSEISAN_URLS[`G`]}`,
+      ` ${Config.Chouseisan.urls[`G`]}`,
     ];
 
     this.line.pushText(to, lines.join('\n'));

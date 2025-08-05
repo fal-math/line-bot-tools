@@ -1,10 +1,10 @@
-import { ATTENDANCE_ADDRESS } from "../config";
+import Config from '../config';
 import { LineService } from '../services/LineService';
 import { StringUtils } from '../util/StringUtils';
 
 export class Attendance {
   public do(to: string): void {
-    const threads = GmailApp.search(`(to:${ATTENDANCE_ADDRESS} is:unread)`);
+    const threads = GmailApp.search(`(to:${Config.ATTENDANCE_ADDRESS} is:unread)`);
     if (!threads.length) return;
 
     GmailApp.getMessagesForThreads(threads).forEach(messages => {
@@ -42,7 +42,7 @@ export class Attendance {
     try {
       message.reply(
         '遅刻、欠席連絡を受け付けました。※こちらは自動配信メールのため返信はできません。',
-        { from: ATTENDANCE_ADDRESS }
+        { from: Config.ATTENDANCE_ADDRESS }
       );
     } catch (e) {
       throw e;

@@ -1,8 +1,4 @@
-import {
-  CalendarIds,
-  DEBUG_MODE,
-  MANAGERS_PORTAL_URL,
-} from '../config';
+import Config from '../config';
 import { ClubPracticeEvent, KarutaClass, Registration } from '../types/type';
 import { CalendarService, EventType } from '../services/CalendarService';
 import { CardShufffleService } from '../services/CardShuffle';
@@ -98,7 +94,7 @@ export class Notify {
   // 本〆アナウンス（当日）
   // ==================================================================================
   public finalIsToday(to: string, mentionee: string): void {
-    const calendar = CalendarApp.getCalendarById(CalendarIds.actualDeadline);
+    const calendar = CalendarApp.getCalendarById(Config.Calendar.id.actualDeadline);
     const events = calendar.getEvents(this.today, this.tomorrow);
     if (events.length === 0) return;
 
@@ -143,7 +139,7 @@ export class Notify {
       myCardsStr,
       "",
       "=運営ポータル=",
-      MANAGERS_PORTAL_URL,
+      Config.MANAGERS_PORTAL_URL,
       "",
       wbgtAlert,
     ].join("\n");
@@ -152,7 +148,7 @@ export class Notify {
   }
 
   public sendDebugBanner():void{
-    if(!DEBUG_MODE) return;
+    if(!Config.DEBUG_MODE) return;
     this.line.pushError("[line-bot-tooks]\nATTENTION: DEBUG MODE IS ON.")
   }
 }

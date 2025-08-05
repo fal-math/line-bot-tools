@@ -1,7 +1,7 @@
 import { LineService } from '../services/LineService';
 import { CalendarService } from '../services/CalendarService';
 import { DateUtils } from '../util/DateUtils';
-import { CalendarIds } from '../config';
+import Config from '../config';
 
 export class LineWebhookHandler {
   private line = new LineService();
@@ -46,7 +46,7 @@ export class LineWebhookHandler {
           location: parsed.practiceName,
           summary: `外部${parsed.practiceName}${parsed.timeRange} ${parsed.targetClasses}:${DateUtils.formatMD(parsed.deadline)}〆(参加ポチ)`,
           description: `〆切：${parsed.deadline.toLocaleDateString()}`
-        }, CalendarIds.externalPractice);
+        }, Config.Calendar.id.externalPractice);
       } catch (e) {
         this.line.pushError((e as Error).message);
       }
@@ -55,7 +55,7 @@ export class LineWebhookHandler {
           start: parsed.deadline,
           summary: `〆${parsed.targetClasses}|外部${parsed.practiceName}${parsed.start.toLocaleDateString()}`,
           description: `グループLINE内「イベント」から参加ポチ`
-        }, CalendarIds.internalDeadline);
+        }, Config.Calendar.id.internalDeadline);
       } catch (e) {
         this.line.pushError((e as Error).message);
       }

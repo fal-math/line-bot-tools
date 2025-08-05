@@ -1,11 +1,11 @@
-import { CHOUSEISAN_CSVS } from '../config';
+import Config from '../config';
 import { ParticipantStatus, KarutaClass, Registration, ClassMap } from '../types/type';
 import { DateUtils } from '../util/DateUtils';
 
 export class ChouseisanService {
   private csvMap: Record<KarutaClass, string>;
 
-  constructor(csvMap: Record<KarutaClass, string> = CHOUSEISAN_CSVS) {
+  constructor(csvMap: Record<KarutaClass, string> = Config.Chouseisan.urls) {
     this.csvMap = csvMap;
   }
 

@@ -1,4 +1,4 @@
-import { CalendarIds, PRACTICE_LOCATIONS } from "../config";
+import Config from "../config";
 import { MatchEvent, ExternalPracticeEvent, InternalDeadlineEvent, ClubPracticeEvent, BaseEvent, ClassMap, KarutaClass } from "../types/type";
 import { StringUtils } from "../util/StringUtils";
 
@@ -26,11 +26,11 @@ export class CalendarService {
   // イベントごとの設定
   private readonly configs: Record<EventTypeKey, EventConfig<any>> = {
     [EventType.ClubPractice]: {
-      calendarId: CalendarIds.clubPractice,
+      calendarId: Config.Calendar.id.clubPractice,
       regex: /^(.+?)\.(.+?)(\d{3,4}-\d{3,4})(.+?)\((.+?)\)$/,
       parser: (m, event) => {
         const [_, shortLoc, practiceType, timeRange, targetClasses, person] = m;
-        const loc = PRACTICE_LOCATIONS[shortLoc];
+        const loc = Config.PRACTICE_LOCATIONS[shortLoc];
         if (!loc) return null;
         return {
           date: new Date(event.getStartTime().getTime()),
@@ -43,7 +43,7 @@ export class CalendarService {
       }
     },
     [EventType.ExternalPractice]: {
-      calendarId: CalendarIds.externalPractice,
+      calendarId: Config.Calendar.id.externalPractice,
       regex: /^(.+?)(\d{3,4}-\d{3,4})\s*([^:]+):(.+)$/,
       parser: (m, event) => {
         const [_, title, timeRange, classStr] = m;
@@ -58,7 +58,7 @@ export class CalendarService {
       }
     },
     [EventType.Match]: {
-      calendarId: CalendarIds.match,
+      calendarId: Config.Calendar.id.match,
       regex: /^(.+?)([A-G]+)?$/u,
       parser: (m, event) => {
         const [_, title, classStr] = m;
@@ -71,7 +71,7 @@ export class CalendarService {
       }
     },
     [EventType.InternalDeadline]: {
-      calendarId: CalendarIds.internalDeadline,
+      calendarId: Config.Calendar.id.internalDeadline,
       regex: /^〆([A-G]+)\|(.+)$/,
       parser: (m, event) => {
         const [_, classStr, title] = m;
