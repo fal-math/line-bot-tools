@@ -43,7 +43,7 @@ export class LineWebhookHandler {
       try {
         this.calendar.createCalenderEvent({
           start: parsed.start,
-          location: parsed.practiceName,
+          location: parsed.location,
           summary: `外部${parsed.practiceName}${parsed.timeRange} ${parsed.targetClasses}:${DateUtils.formatMD(parsed.deadline)}〆(参加ポチ)`,
           description: `〆切：${parsed.deadline.toLocaleDateString()}`
         }, Config.Calendar.id.externalPractice);
