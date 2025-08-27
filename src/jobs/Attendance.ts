@@ -4,6 +4,7 @@ import { StringUtils } from '../util/StringUtils';
 
 export class Attendance {
   public do(to: string): void {
+    if (Config.DEBUG_MODE) return;
     const threads = GmailApp.search(`(to:${Config.ATTENDANCE_ADDRESS} is:unread)`);
     if (!threads.length) return;
 
