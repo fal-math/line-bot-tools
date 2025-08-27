@@ -8,7 +8,6 @@ import { KARUTA_CLASS_COLOR } from '../util/StringUtils';
 
 export class Announcer {
   private weekdays = 7;
-  private today = DateUtils.startOfDay();
   private tomorrow = DateUtils.addDays(this.today, 1);
   private oneWeekLater = DateUtils.addDays(this.today, this.weekdays);
   private twoWeekLater = DateUtils.addDays(this.today, 2 * this.weekdays);
@@ -26,6 +25,8 @@ export class Announcer {
     ].join('\n');
 
   constructor(
+    private readonly today: Date = new Date(),
+    private readonly testMode: boolean = false,
     private readonly line: LineService = new LineService(),
     private readonly calendar: CalendarService = new CalendarService(),
     private readonly chouseisan: ChouseisanService = new ChouseisanService(),
@@ -239,6 +240,9 @@ export class Announcer {
       '◯活動カレンダー',
       Config.Calendar.url,
     ];
+    if (this.testMode) {
+      lines.unshift("[テスト投稿]");
+    }
 
     this.line.pushText(to, lines.join('\n'));
   }

@@ -8,6 +8,13 @@ export function setupTriggers_(): void {
     .atHour(16)
     .create();
 
+  /** 木曜定期便テスト: 毎週水曜日 16:00 */
+  ScriptApp.newTrigger('announceWeeklyTest')
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.WEDNESDAY)
+    .atHour(16)
+    .create();
+
   /** 会〆来週全体アナウンス: 毎週土曜日 09:00 */
   ScriptApp.newTrigger('announceDeadlineNextWeek')
     .timeBased()
@@ -22,7 +29,7 @@ export function setupTriggers_(): void {
     .atHour(9)
     .create();
 
-  /** 会〆当日通知: 毎日 09:00 */
+  /** 会〆当日通知: 毎日 21:00 */
   ScriptApp.newTrigger('notifyDeadlineToday')
     .timeBased()
     .everyDays(1)
@@ -34,6 +41,13 @@ export function setupTriggers_(): void {
     .timeBased()
     .everyDays(1)
     .atHour(7)
+    .create();
+
+  /** 今週来週の運営担当通知: 月曜 16:00 */
+  ScriptApp.newTrigger('notifyWeeklyPractice')
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.MONDAY)
+    .atHour(16)
     .create();
 
   /** 練習前通知: 毎日 08:00 */

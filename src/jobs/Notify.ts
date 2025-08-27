@@ -4,8 +4,7 @@ import { CalendarService, EventType } from '../services/CalendarService';
 import { CardShufffleService } from '../services/CardShuffle';
 import { ChouseisanService } from '../services/ChouseisanService';
 import { LineService } from '../services/LineService';
-import { WbgtService } from '../services/WbgtService';
-import { DateUtils } from '../util/DateUtils';
+import { DateUtils, WEEK_DAYS } from '../util/DateUtils';
 import { KARUTA_CLASS_COLOR } from '../util/StringUtils';
 
 export class Notify {
@@ -111,6 +110,36 @@ export class Notify {
   }
 
   // ==================================================================================
+  // 今週来週の練習と運営担当
+  // 毎週月曜日 送信
+  // ==================================================================================
+  public weeklyPractice(to: string): void {
+    const twoWeekLater = DateUtils.addDays(this.today, 2 * this.weekdays + 1);
+    const practices: ClubPracticeEvent[]
+      = this.calendar.get(EventType.ClubPractice, this.tomorrow, twoWeekLater);
+    if (!practices.length) return;
+
+    const practiceMsg = practices
+      .map(({ date, location, timeRange, practiceType, personInCharge }) => {
+        return `・${date.getMonth() + 1}/${date.getDate()}(${WEEK_DAYS[date.getDay()]})${timeRange}${location.shortenBuildingName}${practiceType}\n　${personInCharge}`;
+      })
+      .join("\n\n");
+
+    const message = [
+      "■今週来週の担当■",
+      "",
+      practiceMsg,
+      "",
+      "全体LINEの参加ポチも忘れずにお願いします！",
+      "",
+      "=運営ポータル=",
+      Config.MANAGERS_PORTAL_URL,
+    ].join("\n");
+
+    this.line.pushText(to, message);
+  }
+
+  // ==================================================================================
   // 今日の練習・札分け
   // ==================================================================================
   public todayPractice(to: string): void {
@@ -119,14 +148,14 @@ export class Notify {
     if (!practices.length) return;
 
     const practiceMsg = practices
-      .map(({ location, timeRange, targetClasses }) => {
-        return `・${location.shortenBuildingName}(${location.clubName})\n　${timeRange} ${targetClasses}`;
+      .map(({ location, timeRange, practiceType }) => {
+        return `・${location.shortenBuildingName}(${location.clubName})\n　${timeRange} ${practiceType}`;
       })
       .join("\n");
 
     const { clubCardsStr, myCardsStr } = new CardShufffleService().do();
 
-    const { message: wbgtAlert } = new WbgtService().getMessage();
+    // const { message: wbgtAlert } = new WbgtService().getMessage();
 
     const message = [
       "■今日の練習■",
@@ -138,17 +167,32 @@ export class Notify {
       "=マイ札=",
       myCardsStr,
       "",
+      "=アルファベットの札分け=",
+      "札の長さでグループ分けされています。",
+      "  AB : 1・2枚札(むすめふさほせ・うつしもゆ・あいあしあけ)、",
+      "  CDE : 2字、",
+      "  FGH : 3字、",
+      "  IJ : 4・5・6字の札。",
+      "",
+      "=記号の札分け=",
+      "音でグループ分けされています。",
+      "  ◯ あいう、さしすせ、な（34枚）",
+      "  △ かきこ、たちつ、みむめも（33枚）",
+      "  ◆ お、はひふほ、やゆよ、わ（33枚）",
+      "記号で札分けし、10枚ずつ自陣に持ち試合をすると20枚ミニゲームができます。",
+      "同じ記号内の33枚(34枚)を全て読むと空札数もちょうどよいです。",
+      "",
       "=運営ポータル=",
       Config.MANAGERS_PORTAL_URL,
-      "",
-      wbgtAlert,
+      // "",
+      // wbgtAlert,
     ].join("\n");
 
     this.line.pushText(to, message);
   }
 
-  public sendDebugBanner():void{
-    if(!Config.DEBUG_MODE) return;
+  public sendDebugBanner(): void {
+    if (!Config.DEBUG_MODE) return;
     this.line.pushError("[line-bot-tooks]\nATTENTION: DEBUG MODE IS ON.")
   }
 }

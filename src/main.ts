@@ -5,6 +5,7 @@ import { setupTriggers_ } from './jobs/setupTriggers';
 import { Attendance } from './jobs/Attendance';
 import { LineWebhookHandler } from './services/LineWebhookHandler';
 import { ChouseisanService } from './services/ChouseisanService';
+import { DateUtils } from './util/DateUtils';
 
 // リマインドなび
 
@@ -12,6 +13,11 @@ const lineId = LineConfig.id;
 
 function announceWeekly() {
   return new Announcer().weekly(lineId.all);
+}
+
+function announceWeeklyTest() {
+  const tomorrow = DateUtils.addDays(new Date(),1);
+  return new Announcer(tomorrow, true).weekly(lineId.test);
 }
 
 function announceDeadlineToday() {
@@ -34,11 +40,15 @@ function notifyTodayPractice() {
   return new Notify().todayPractice(lineId.operations);
 }
 
+function notifyWeeklyPractice() {
+  return new Notify().weeklyPractice(lineId.operations);
+}
+
 function notifyChouseisanWeekly() {
   return new Notify().chouseisanWeekly(lineId.userT);
 }
 
-function notifyDebugMode(){
+function notifyDebugMode() {
   return new Notify().sendDebugBanner();
 }
 
@@ -46,7 +56,7 @@ function attandanceHandler() {
   return new Attendance().do(lineId.operations);
 }
 
-function backupChouseisan(){
+function backupChouseisan() {
   return new ChouseisanService().backupChouseisanCsv();
 }
 
