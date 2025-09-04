@@ -27,9 +27,9 @@ export class CalendarService {
   private readonly configs: Record<EventTypeKey, EventConfig<any>> = {
     [EventType.ClubPractice]: {
       calendarId: Config.Calendar.id.clubPractice,
-      regex: /^(.+?)\.(.+?)(\d{3,4}-\d{3,4})(.+?)\((.+?)\)$/,
+      regex: /^(.+?)\.(.+?)(\d{3,4}-\d{3,4})(.+?)\((.+?)\)(.*)$/,
       parser: (m, event) => {
-        const [_, shortLoc, practiceType, timeRange, targetClasses, person] = m;
+        const [_, shortLoc, practiceType, timeRange, targetClasses, person, description] = m;
         const loc = Config.PRACTICE_LOCATIONS[shortLoc];
         if (!loc) return null;
         return {
@@ -39,6 +39,7 @@ export class CalendarService {
           timeRange: StringUtils.removeBracketSymbols(timeRange.trim()),
           targetClasses: StringUtils.removeBracketSymbols(targetClasses.trim()),
           personInCharge: StringUtils.removeBracketSymbols(person.trim()),
+          description: StringUtils.removeBracketSymbols(description.trim())
         } as ClubPracticeEvent;
       }
     },
@@ -108,6 +109,40 @@ export class CalendarService {
     }
     return result;
   }
+  /**
+  * ClubPracticeEvent[] を日付ごとにまとめて、同じ日付内は開始時間順にソートする
+  *
+  * @param events ClubPracticeEvent[]
+  * @returns Map<Date, ClubPracticeEvent[]> （日付キーは 00:00 に正規化）
+  */
+  static groupAndSortPractices(
+    events: ClubPracticeEvent[]
+  ): Map<Date, ClubPracticeEvent[]> {
+    const grouped = new Map<Date, ClubPracticeEvent[]>();
+
+    // 日付ごとにまとめる
+    for (const ev of events) {
+      const d = new Date(ev.date.getFullYear(), ev.date.getMonth(), ev.date.getDate()); // normalize
+      const list = grouped.get(d);
+      if (list) {
+        list.push(ev);
+      } else {
+        grouped.set(d, [ev]);
+      }
+    }
+
+    const parseStart = (s: string): number => {
+      const m = s.match(/(\d{2})(\d{2})-\d{2}\d{2}/);
+      return m ? parseInt(m[1], 10) * 60 + parseInt(m[2], 10) : Infinity;
+    };
+
+    for (const [d, list] of grouped) {
+      list.sort((a, b) => parseStart(a.timeRange) - parseStart(b.timeRange));
+    }
+
+    return new Map([...grouped.entries()].sort((a, b) => a[0].getTime() - b[0].getTime()));
+  }
+
 
   public get<K extends EventTypeKey>(
     type: K,

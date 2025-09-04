@@ -119,9 +119,28 @@ export class Notify {
       = this.calendar.get(EventType.ClubPractice, this.tomorrow, twoWeekLater);
     if (!practices.length) return;
 
-    const practiceMsg = practices
-      .map(({ date, location, timeRange, practiceType, personInCharge }) => {
-        return `・${date.getMonth() + 1}/${date.getDate()}(${WEEK_DAYS[date.getDay()]})${timeRange}${location.shortenBuildingName}${practiceType}\n　${personInCharge}`;
+    const grouped = practices.reduce((acc, ev) => {
+      const key = `${ev.date.getFullYear()}-${ev.date.getMonth()}-${ev.date.getDate()}`;
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(ev);
+      return acc;
+    }, {} as Record<string, ClubPracticeEvent[]>);
+
+    const sortedKeys = Object.keys(grouped).sort(
+      (a, b) => new Date(a).getTime() - new Date(b).getTime()
+    );
+
+    const practiceMsg = sortedKeys
+      .map(key => {
+        const events = grouped[key];
+        const { date } = events[0];
+        const header = `${date.getMonth() + 1}/${date.getDate()}(${WEEK_DAYS[date.getDay()]})`;
+        const details = events
+          .map(({ timeRange, location, practiceType, personInCharge }) =>
+            `・${location.shortenBuildingName} ${practiceType}${timeRange}\n　${personInCharge}`
+          )
+          .join("\n");
+        return `${header}\n${details}`;
       })
       .join("\n\n");
 
@@ -138,6 +157,7 @@ export class Notify {
 
     this.line.pushText(to, message);
   }
+
 
   // ==================================================================================
   // 今日の練習・札分け

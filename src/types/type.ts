@@ -40,6 +40,7 @@ export interface ClubPracticeEvent extends BaseEvent {
   practiceType: string;
   timeRange: string;
   personInCharge: string;
+  description?: string;
 }
 
 export interface InternalDeadlineEvent extends BaseEvent {
