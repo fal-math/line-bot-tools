@@ -43,8 +43,13 @@ const store = new Map<string, string>([
   ],
 ]);
 
-// Minimal GAS mocks
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const resetStore = () => store.clear();
+
+export const setStore = (entries: [string, string][]) => {
+  entries.forEach(([k, v]) => store.set(k, v));
+};
+
+// ScriptProperties モック
 (global as any).PropertiesService = {
   getScriptProperties() {
     return {
@@ -57,38 +62,61 @@ const store = new Map<string, string>([
   },
 };
 
-// 使う可能性がある最低限のダミー
+// Utilities モック
 (global as any).Utilities = {
   getUuid: () => '00000000-0000-0000-0000-000000000000',
 };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(global as any).UrlFetchApp = {
-  fetch: () => ({ getResponseCode: () => 200, getContentText: () => '' }),
-};
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(global as any).GmailApp = { search: () => [], getUserLabelByName: () => null };
 
-// CalendarApp
-type FakeEvent = {
+// UrlFetchApp モック
+(global as any).UrlFetchApp = {
+  fetch: jest.fn().mockReturnValue({
+    getResponseCode: () => 200,
+    getContentText: () => '',
+  }),
+};
+
+// GmailApp モック
+(global as any).GmailApp = {
+  search: jest.fn().mockReturnValue([]),
+  getUserLabelByName: jest.fn().mockReturnValue(null),
+};
+
+// ===================================================================================
+// CalendarApp モック
+// ===================================================================================
+
+export type FakeEvent = {
   getTitle: () => string;
   getStartTime: () => Date;
   getEndTime: () => Date;
+  getLocation: () => string;
   getDescription?: () => string;
-  getLocation?: () => string;
+  isAllDayEvent?: () => boolean;
+  getTag?: () => string;
 };
 
-// 既定は「空配列を返す」ダミー。各テストで上書き可能にする。
-let eventsProvider: () => FakeEvent[] = () => [];
+const calendarEventsMap: Record<string, () => FakeEvent[]> = {};
 
-// テストから eventsProvider を差し替えたい場合用のフック（必要なら使ってください）
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(global as any).__setCalendarEvents = (fn: () => FakeEvent[]) => {
-  eventsProvider = fn;
+/**
+ * 特定の Calendar ID にイベントリスト（関数）を割り当てる
+ */
+(global as any).__setCalendarEvents = (id: string, fn: () => FakeEvent[]) => {
+  calendarEventsMap[id] = fn;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/**
+ * CalendarApp.getCalendarById().getEvents(start, end) のモック
+ */
 (global as any).CalendarApp = {
-  getCalendarById: (_id: string) => ({
-    getEvents: (_start: Date, _end: Date) => eventsProvider(),
+  getCalendarById: (id: string) => ({
+    getEvents: (start: Date, end: Date) => {
+      const all = calendarEventsMap[id]?.() ?? [];
+      return all.filter((ev) => {
+        const s = ev.getStartTime();
+        return s >= start && s < end; // [start, end)
+      });
+    },
   }),
 };
+
+export const jstDate = (s: string) => new Date(s.replace('Z', '') + '+09:00');

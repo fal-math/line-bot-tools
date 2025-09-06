@@ -74,7 +74,7 @@ export class CalendarService {
         return {
           date: new Date(event.getStartTime().getTime()),
           title: title.trim(),
-          targetClasses: StringUtils.formatKarutaClass(classStr),
+          targetClasses: StringUtils.formatKarutaClass(classStr ?? ''),
           location: event.getLocation(),
         } as MatchEvent;
       },
