@@ -28,9 +28,9 @@ export class StringUtils {
    * @param input 級を表す文字列(ABC, G以上, etc..)
    * @returns KarutaClassの配列
    */
-  static formatKarutaClass(input: string): KarutaClass[] {
+  static formatStrictKarutaClass(input: string): KarutaClass[] {
     if (!input) return [];
-    const text = input.trim();
+    const text = input.trim().replace("級", "");
 
     // 「X以上」のパターンを優先処理
     const m = text.match(/^([A-G])以上$/);
@@ -46,6 +46,15 @@ export class StringUtils {
     return unique
       .map(c => KarutaClass[c])
       .sort((a, b) => ALL_CLASSES.indexOf(a) - ALL_CLASSES.indexOf(b));
+  }
+
+  /**
+   * @param input 級を表す文字列(ABC, G以上, etc..)
+   * @returns KarutaClassの配列 or 文字列
+   */
+  static formatKarutaClass(input: string): KarutaClass[] | string {
+    const regex = /^(?:[A-G](?:級)?(?:以上)?)+$/;
+    return regex.test(input) ? this.formatStrictKarutaClass(input) : input
   }
 
   /**

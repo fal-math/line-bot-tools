@@ -1,4 +1,5 @@
 import { ClassMap, PracticeLocations } from '../types/type';
+import { ConfigValidator } from './configValidator';
 
 const userProps = PropertiesService.getScriptProperties();
 
@@ -10,7 +11,9 @@ const userProps = PropertiesService.getScriptProperties();
  */
 function getRequiredProp_(key: string): string {
   const value = userProps.getProperty(key);
-  if (!value) throw new Error(`Missing required property: ${key}`);
+  if (value === null || value === undefined || value.trim() === '') {
+    throw new Error(`[Config] 必須プロパティが未設定です: ${key}`);
+  }
   return value;
 }
 
@@ -36,7 +39,8 @@ function getJsonProp_<T>(key: string): T {
   try {
     return JSON.parse(raw) as T;
   } catch (e) {
-    throw new Error(`Invalid JSON for property ${key}: ${e}`);
+    const msg = e instanceof Error ? e.message : String(e);
+    throw new Error(`[Config] JSON 解析に失敗しました: ${key} (${msg})`);
   }
 }
 
@@ -116,5 +120,20 @@ const Config = {
   MANAGERS_PORTAL_URL,
   PRACTICE_LOCATIONS,
 } as const;
+
+/**
+ * 起動時バリデーション
+ * - 例外が投げられた場合はデプロイ直後に気づける
+ * - DEBUG_MODE でも検証は走らせる（本番差し替え忘れ検知のため）
+ */
+function validateAllConfig_(): void {
+  ConfigValidator.requireNonEmptyString(LineConfig.channelToken, 'LineConfig.channelToken');
+  ConfigValidator.validateLineGroupIds(LineConfig.id);
+  ConfigValidator.validateCalendarConfig(CalendarConfig);
+  ConfigValidator.validateChouseisanConfig(ChouseisanConfig);
+}
+
+// モジュールロード時に一度だけ実行
+validateAllConfig_();
 
 export default Config;
