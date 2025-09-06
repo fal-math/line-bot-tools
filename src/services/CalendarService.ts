@@ -101,7 +101,7 @@ export class CalendarService {
     for (const ev of events) {
       const classes: KarutaClass[] = Array.isArray(ev.targetClasses)
         ? ev.targetClasses
-        : StringUtils.formatKarutaClass(ev.targetClasses);
+        : StringUtils.formatStrictKarutaClass(ev.targetClasses);
 
       for (const kc of classes) {
         result[kc].push(ev);

@@ -31,7 +31,6 @@ export interface ExternalPracticeEvent extends BaseEvent {
   location: string;
   mapUrl?: string;
   timeRange?: string;
-  targetClasses: KarutaClass[];
   description?: string;
 }
 

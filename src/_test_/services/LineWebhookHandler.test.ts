@@ -1,69 +1,5 @@
-// —————— ここを一番上に追加 ——————
-/**
- * GAS 環境のモック
- */
-; (global as any).PropertiesService = {
-  getScriptProperties: () => ({
-    getProperty: (key: string) => {
-      switch (key) {
-        case 'LINE_CHANNEL_TOKEN': return 'dummy_token'
-        case "LINE_CHANNEL_ACCESS_TOKEN": return "xxx"
-        case "LINE_USER_ID_MAINTAINER": return "xxx"
-        case "LINE_GROUP_ID_TAIKAI_MOUSHIKOMI": return "xxx"
-        case "LINE_GROUP_ID_UNNEI_HOMBU": return "xxx"
-        case "LINE_GROUP_ID_UNNEI_SHIFT": return "xxx"
-        case "LINE_GROUP_ID_ZENTAI": return "xxx"
-        case "LINE_GROUP_ID_TEST": return "xxx"
-        case "GOOGLE_CALENDAR_ID_TAIKAI": return "xxx"
-        case "GOOGLE_CALENDAR_ID_KAIRENSHU": return "xxx"
-        case "GOOGLE_CALENDAR_ID_KAISHIME": return "xxx"
-        case "GOOGLE_CALENDAR_ID_HONSHIME": return "xxx"
-        case "GOOGLE_CALENDAR_ID_OUTER": return "xxx"
-        case "DRIVE_URL": return "xxx"
-        case "CALENDAR_URL": return "xxx"
-        case "ATTENDANCE_ADDRESS": return "xxx"
-        case 'CHOUSEISAN_URLS':
-          return `{
-  "A": "https://example.com/",
-  "B": "https://example.com/",
-  "C": "https://example.com/",
-  "D": "https://example.com/",
-  "E": "https://example.com/",
-  "F": "https://example.com/",
-  "G": "https://example.com/"
-}`;
-        case 'CHOUSEISAN_CSVS':
-          return `{
-  "A": "https://example.com/",
-  "B": "https://example.com/",
-  "C": "https://example.com/",
-  "D": "https://example.com/",
-  "E": "https://example.com/",
-  "F": "https://example.com/",
-  "G": "https://example.com/"
-}`;
-        case "PRACTICE_LOCATIONS": return `{
-        "神社":{
-          "clubName": "ちはやふる富士見",
-          "mapUrl": "https://maps.app.goo.gl/T96oux6vfJAtBQWNA",
-          "buildingName": "針ケ谷氷川神社 社務所 (東武東上線 みずほ台駅15分)",
-          "shortenBuildingName": "神社"
-      }}`;
-        default:
-          return ''
-      }
-    }
-  })
-}
-
-  // 必要に応じて他の GAS サービスもモック
-  ; (global as any).ContentService = {
-    createTextOutput: (s: string) => ({
-      setMimeType: (_: any) => ({ /* chain ok */ })
-    })
-  }
-
 import { LineWebhookHandler } from '../../services/LineWebhookHandler';
+import { ExternalPracticeEvent } from '../../types/type';
 import { DateUtils } from '../../util/DateUtils';
 
 describe('LineWebhookHandler.parseExternalPractice', () => {
@@ -97,16 +33,15 @@ describe('LineWebhookHandler.parseExternalPractice', () => {
       '場所：和光市民館'
     ].join('\n');
 
-    const result = (handler as any).parseExternalPractice(input);
+    const result: { event: ExternalPracticeEvent; deadline: Date }
+      = (handler as any).parseExternalPractice(input);
     expect(result).not.toBeNull();
-    expect((result as any).date).toEqual(dateA);
-    expect((result as any).start).toEqual(dateA);
-    expect((result as any).end).toEqual(dateA);
-    expect((result as any).deadline).toEqual(dateB);
-    expect((result as any).timeRange).toBe('0900-1900');
-    expect((result as any).practiceName).toBe('和光練');
-    expect((result as any).targetClasses).toBe('ABC/G以上');
-    expect((result as any).location).toBe('和光市民館');
+    expect(result.event.date).toEqual(dateA);
+    expect(result.deadline).toEqual(dateB);
+    expect(result.event.timeRange).toBe('0900-1900');
+    expect(result.event.title).toBe('和光練');
+    expect(result.event.targetClasses).toBe('ABC/G以上');
+    expect(result.event.location).toBe('和光市民館');
   });
 
   it('異常系: 必須フィールドが欠けていると null を返す', () => {
