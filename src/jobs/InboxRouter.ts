@@ -1,8 +1,8 @@
 import Config from '../config/config';
-import { InboxRoute } from "../types/type";
-import { INBOX_ROUTES } from "../config/inboxRoutes";
-import { LineService } from "../services/LineService";
-import { StringUtils } from "../util/StringUtils";
+import { InboxRoute } from '../types/type';
+import { INBOX_ROUTES } from '../config/inboxRoutes';
+import { LineService } from '../services/LineService';
+import { StringUtils } from '../util/StringUtils';
 
 class TemplateRenderer {
   static render(tpl: string, dict: Record<string, string>): string {
@@ -16,7 +16,7 @@ class MessageCleaner {
   }
   static normalizePlainBody(
     raw: string,
-    opts: { stripCss: boolean; stripBannerInfo: boolean },
+    opts: { stripCss: boolean; stripBannerInfo: boolean }
   ): string {
     let out = raw ?? '';
     if (opts.stripCss) out = StringUtils.stripCss(out);
@@ -30,32 +30,30 @@ class GmailAddressParser {
     if (!s) return [];
     return s
       .split(',')
-      .map(t => t.trim().toLowerCase())
-      .map(t => (t.includes('<') ? t.replace(/^.*<([^>]+)>.*/, '$1') : t))
+      .map((t) => t.trim().toLowerCase())
+      .map((t) => (t.includes('<') ? t.replace(/^.*<([^>]+)>.*/, '$1') : t))
       .filter(Boolean);
   }
 }
 export class InboxRouter {
   constructor(
     private readonly line: LineService = new LineService(),
-    private readonly routes: InboxRoute[] = INBOX_ROUTES,
-  ) { }
+    private readonly routes: InboxRoute[] = INBOX_ROUTES
+  ) {}
 
   private shouldSkip(route: InboxRoute, subject: string, body: string): boolean {
     // allowPairs が未定義または空 → 全部許可
     if (!route.allowPairs || route.allowPairs.length === 0) {
       return false; // スキップしない
     }
-    const matched = route.allowPairs.some(pair => {
+    const matched = route.allowPairs.some((pair) => {
       const subjectMatch = subject.includes(pair.subject);
       const bodyMatch = body.includes(pair.body);
       return subjectMatch && bodyMatch;
     });
 
     if (!matched) {
-      Logger.log(
-        `ホワイトリスト不一致: 件名="${subject}" / 本文冒頭="${body.slice(0, 30)}..."`
-      );
+      Logger.log(`ホワイトリスト不一致: 件名="${subject}" / 本文冒頭="${body.slice(0, 30)}..."`);
       return true; // 転送・返信をスキップ
     }
     return false; // ホワイトリスト条件なし or 一致
@@ -69,7 +67,7 @@ export class InboxRouter {
     const threads = GmailApp.search(query);
     if (!threads.length) return;
 
-    GmailApp.getMessagesForThreads(threads).forEach(messages => {
+    GmailApp.getMessagesForThreads(threads).forEach((messages) => {
       const msg = messages[messages.length - 1];
       const route = this.resolveRoute(msg, this.routes);
       if (!route) {
@@ -78,13 +76,10 @@ export class InboxRouter {
       }
 
       const subject = msg.getSubject() ?? '';
-      const body = MessageCleaner.normalizePlainBody(
-        msg.getPlainBody(),
-        {
-          stripCss: route.stripCss !== false,
-          stripBannerInfo: route.stripBannerInfo !== false,
-        },
-      );
+      const body = MessageCleaner.normalizePlainBody(msg.getPlainBody(), {
+        stripCss: route.stripCss !== false,
+        stripBannerInfo: route.stripBannerInfo !== false,
+      });
 
       // --- ワードチェック ---
       if (this.shouldSkip(route, subject, body)) {
@@ -117,14 +112,14 @@ export class InboxRouter {
 
   // --- クエリ構築 ---
   private buildUnreadQuery(routes: InboxRoute[]): string {
-    const toQuery = routes.map(r => `to:${r.address}`).join(' OR ');
+    const toQuery = routes.map((r) => `to:${r.address}`).join(' OR ');
     return `( ${toQuery} ) is:unread`;
   }
 
   // --- ルート解決 ---
   private resolveRoute(
     message: GoogleAppsScript.Gmail.GmailMessage,
-    routes: InboxRoute[],
+    routes: InboxRoute[]
   ): InboxRoute | null {
     const toList = GmailAddressParser.parseList(message.getTo());
     const ccList = GmailAddressParser.parseList(message.getCc());
@@ -140,7 +135,7 @@ export class InboxRouter {
   private buildLineNotice(
     message: GoogleAppsScript.Gmail.GmailMessage,
     route: InboxRoute,
-    body: string,
+    body: string
   ): string {
     const receivedAt = Utilities.formatDate(message.getDate(), 'Asia/Tokyo', 'MM/dd HH:mm:ss');
 
@@ -167,20 +162,16 @@ export class InboxRouter {
   }
 
   // --- 自動返信（命名: replyToSender） ---
-  private replyToSender(
-    message: GoogleAppsScript.Gmail.GmailMessage,
-    route: InboxRoute,
-  ): void {
+  private replyToSender(message: GoogleAppsScript.Gmail.GmailMessage, route: InboxRoute): void {
     const receivedAt = Utilities.formatDate(message.getDate(), 'Asia/Tokyo', 'MM/dd HH:mm:ss');
     const body = TemplateRenderer.render(
-      route.autoReplyTemplate ??
-      '遅刻・欠席のご連絡を受け付けました。※本メールは自動送信です。',
+      route.autoReplyTemplate ?? '遅刻・欠席のご連絡を受け付けました。※本メールは自動送信です。',
       {
         subject: message.getSubject() ?? '',
         receivedAt,
         from: message.getFrom() ?? '',
         to: message.getTo() ?? '',
-      },
+      }
     );
     const replyFrom = route.autoReplyFrom || route.address;
     message.reply(body, { from: replyFrom });

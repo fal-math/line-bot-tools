@@ -17,8 +17,8 @@ export class Notify {
   constructor(
     private readonly line: LineService = new LineService(),
     private readonly calendar: CalendarService = new CalendarService(),
-    private readonly chouseisan: ChouseisanService = new ChouseisanService(),
-  ) { }
+    private readonly chouseisan: ChouseisanService = new ChouseisanService()
+  ) {}
 
   // ==================================================================================
   // 受付〆アナウンス（当日 21 時）
@@ -30,12 +30,17 @@ export class Notify {
     if (internalDeadlineEvents.length === 0) return;
 
     const attendanceSummaries = this.chouseisan.getSummary(start, end);
-    let message: string = "";
-    for (const [kClass, registrations] of Object.entries(attendanceSummaries) as [KarutaClass, Registration[]][]) {
+    let message: string = '';
+    for (const [kClass, registrations] of Object.entries(attendanceSummaries) as [
+      KarutaClass,
+      Registration[]
+    ][]) {
       if (registrations.length > 0) {
         message += `${KARUTA_CLASS_COLOR[kClass]}${kClass}級\n`;
-        registrations.forEach(ev => {
-          message += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(ev.deadline)}〆切）\n`;
+        registrations.forEach((ev) => {
+          message += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(
+            ev.deadline
+          )}〆切）\n`;
           if (ev.participants.undecided.length > 0) {
             message += `❓未回答:\n`;
             message += ev.participants.undecided.join('\n') + '\n';
@@ -44,7 +49,7 @@ export class Notify {
         message += `\n`;
       }
     }
-    if (message == "") return;
+    if (message == '') return;
 
     const header = `{receiver}さん\n本日〆切の大会があります。未回答者に声掛けをお願いします。\n\n`;
     const substitution = {
@@ -62,15 +67,20 @@ export class Notify {
   public chouseisanWeekly(to: string): void {
     const summaries = this.chouseisan.getSummary(this.oneWeekAgo, this.oneWeekLater);
 
-    let lastWeek = "";
-    let thisWeek = "";
-    for (const [kClass, registrations] of Object.entries(summaries) as [KarutaClass, Registration[]][]) {
+    let lastWeek = '';
+    let thisWeek = '';
+    for (const [kClass, registrations] of Object.entries(summaries) as [
+      KarutaClass,
+      Registration[]
+    ][]) {
       lastWeek += `${KARUTA_CLASS_COLOR[kClass]}${kClass}級\n`;
       thisWeek += `${KARUTA_CLASS_COLOR[kClass]}${kClass}級\n`;
       if (registrations.length > 0) {
-        registrations.forEach(ev => {
+        registrations.forEach((ev) => {
           let body = ``;
-          body += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(ev.deadline)}〆切）\n`;
+          body += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(
+            ev.deadline
+          )}〆切）\n`;
           body += `⭕参加:\n`;
           if (ev.participants.attending.length > 0) {
             body += ev.participants.attending.join('\n') + '\n';
@@ -79,8 +89,11 @@ export class Notify {
             body += `❓未回答:\n`;
             body += ev.participants.undecided.join('\n') + '\n';
           }
-          if (this.oneWeekAgo <= ev.deadline && ev.deadline < this.today) { lastWeek += body }
-          else if (this.today <= ev.deadline && ev.deadline <= this.oneWeekLater) { thisWeek += body }
+          if (this.oneWeekAgo <= ev.deadline && ev.deadline < this.today) {
+            lastWeek += body;
+          } else if (this.today <= ev.deadline && ev.deadline <= this.oneWeekLater) {
+            thisWeek += body;
+          }
         });
       }
     }
@@ -98,7 +111,7 @@ export class Notify {
     if (events.length === 0) return;
 
     const header = `{maintainer}さん\n大会本〆リマインダーです。以下の大会の申込を確認してください。\n\n`;
-    const schedule = events.map(ev => ev.getTitle()).join('\n');
+    const schedule = events.map((ev) => ev.getTitle()).join('\n');
     const substitution = {
       maintainer: {
         type: 'mention',
@@ -115,8 +128,11 @@ export class Notify {
   // ==================================================================================
   public weeklyPractice(to: string): void {
     const twoWeekLater = DateUtils.addDays(this.today, 2 * this.weekdays + 1);
-    const practices: ClubPracticeEvent[]
-      = this.calendar.get(EventType.ClubPractice, this.tomorrow, twoWeekLater);
+    const practices: ClubPracticeEvent[] = this.calendar.get(
+      EventType.ClubPractice,
+      this.tomorrow,
+      twoWeekLater
+    );
     if (!practices.length) return;
 
     const grouped = practices.reduce((acc, ev) => {
@@ -131,88 +147,91 @@ export class Notify {
     );
 
     const practiceMsg = sortedKeys
-      .map(key => {
+      .map((key) => {
         const events = grouped[key];
         const { date } = events[0];
         const header = `${date.getMonth() + 1}/${date.getDate()}(${WEEK_DAYS[date.getDay()]})`;
         const details = events
-          .map(({ timeRange, location, practiceType, personInCharge }) =>
-            `・${location.shortenBuildingName} ${practiceType}${timeRange}\n　${personInCharge}`
+          .map(
+            ({ timeRange, location, practiceType, personInCharge }) =>
+              `・${location.shortenBuildingName} ${practiceType}${timeRange}\n　${personInCharge}`
           )
-          .join("\n");
+          .join('\n');
         return `${header}\n${details}`;
       })
-      .join("\n\n");
+      .join('\n\n');
 
     const message = [
-      "■今週来週の担当■",
-      "",
+      '■今週来週の担当■',
+      '',
       practiceMsg,
-      "",
-      "全体LINEの参加ポチも忘れずにお願いします！",
-      "",
-      "=運営ポータル=",
+      '',
+      '全体LINEの参加ポチも忘れずにお願いします！',
+      '',
+      '=運営ポータル=',
       Config.MANAGERS_PORTAL_URL,
-    ].join("\n");
+    ].join('\n');
 
     this.line.pushText(to, message);
   }
-
 
   // ==================================================================================
   // 今日の練習・札分け
   // ==================================================================================
   public todayPractice(to: string): void {
-    const practices: ClubPracticeEvent[]
-      = this.calendar.get(EventType.ClubPractice, this.today, this.tomorrow);
+    const practices: ClubPracticeEvent[] = this.calendar.get(
+      EventType.ClubPractice,
+      this.today,
+      this.tomorrow
+    );
     if (!practices.length) return;
 
     const practiceMsg = practices
       .map(({ location, timeRange, practiceType }) => {
         return `・${location.shortenBuildingName}(${location.clubName})\n　${timeRange} ${practiceType}`;
       })
-      .join("\n");
+      .join('\n');
 
     const { clubCardsStr, myCardsStr } = new CardShufffleService().do();
 
     // const { message: wbgtAlert } = new WbgtService().getMessage();
 
     const message = [
-      "■今日の練習■",
+      '■今日の練習■',
       practiceMsg,
-      "",
-      "=会札=",
+      '',
+      '=会札=',
       clubCardsStr,
-      "",
-      "=マイ札=",
+      '',
+      '=マイ札=',
       myCardsStr,
-      "",
-      "=アルファベットの札分け=",
-      "札の長さでグループ分けされています。",
-      "  AB : 1・2枚札(むすめふさほせ・うつしもゆ・あいあしあけ)、",
-      "  CDE : 2字、",
-      "  FGH : 3字、",
-      "  IJ : 4・5・6字の札。",
-      "",
-      "=記号の札分け=",
-      "音でグループ分けされています。",
-      "  ◯ あいう、さしすせ、な（34枚）",
-      "  △ かきこ、たちつ、みむめも（33枚）",
-      "  ◆ お、はひふほ、やゆよ、わ（33枚）",
-      "記号で札分けし、10枚ずつ自陣に持ち試合をすると20枚ミニゲームができます。",
-      "同じ記号内の33枚(34枚)を全て読むと空札数もちょうどよいです。",
-      "",
-      "=運営ポータル=",
+      '',
+      '=アルファベットの札分け=',
+      '札の長さでグループ分けされています。',
+      '  AB : 1・2枚札(むすめふさほせ・うつしもゆ・あいあしあけ)、',
+      '  CDE : 2字、',
+      '  FGH : 3字、',
+      '  IJ : 4・5・6字の札。',
+      '',
+      '=記号の札分け=',
+      '音でグループ分けされています。',
+      '  ◯ あいう、さしすせ、な（34枚）',
+      '  △ かきこ、たちつ、みむめも（33枚）',
+      '  ◆ お、はひふほ、やゆよ、わ（33枚）',
+      '記号で札分けし、10枚ずつ自陣に持ち試合をすると20枚ミニゲームができます。',
+      '同じ記号内の33枚(34枚)を全て読むと空札数もちょうどよいです。',
+      '',
+      '=運営ポータル=',
       Config.MANAGERS_PORTAL_URL,
       // "",
       // wbgtAlert,
-    ].join("\n");
+    ].join('\n');
 
     this.line.pushText(to, message);
   }
 
   public sendDebugBanner(): void {
     if (!Config.DEBUG_MODE) return;
-    this.line.pushError("[line-bot-tooks]\nATTENTION: DEBUG MODE IS ON.")
+    this.line.pushError('[line-bot-tooks]\nATTENTION: DEBUG MODE IS ON.');
   }
 }

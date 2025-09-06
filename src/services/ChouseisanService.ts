@@ -13,20 +13,21 @@ export class ChouseisanService {
    * CSV を取得してプレーンテキストとして返す
    */
   private fetchCsv(url: string): string {
-    return UrlFetchApp
-      .fetch(url, { headers: { accept: 'text/plain' } })
-      .getContentText('UTF-8');
+    return UrlFetchApp.fetch(url, { headers: { accept: 'text/plain' } }).getContentText('UTF-8');
   }
 
   /**
    * CSV 文字列を ChouseisanEvent の配列にパース
    */
   private formatData(rawCsv: string): Registration[] {
-    const rows = rawCsv.trim().split(/\r?\n/).map(line => line.split(','));
+    const rows = rawCsv
+      .trim()
+      .split(/\r?\n/)
+      .map((line) => line.split(','));
     const members = this.extractMembers(rows);
     const events: Registration[] = [];
 
-    rows.forEach(row => {
+    rows.forEach((row) => {
       const ev = this.parseRow(row, members);
       if (ev) events.push(ev);
     });
@@ -38,18 +39,17 @@ export class ChouseisanService {
    * CSV のヘッダー行から参加者名リストを抽出
    */
   private extractMembers(rows: string[][]): string[] {
-    const header = rows.find(r => r[0] === '日程');
+    const header = rows.find((r) => r[0] === '日程');
     return header ? header.slice(1) : [];
   }
 
   /**
    * 1 行分のデータを ChouseisanEvent に変換
    */
-  private parseRow(
-    row: string[], members: string[]
-  ): Registration | null {
+  private parseRow(row: string[], members: string[]): Registration | null {
     const [first, ...rest] = row;
-    const regex = /^\(?(\d{1,2}\/\d{1,2})(?:[日月火水木金土](?:祝)?)?\.(.+?)\(〆(\d{1,2}\/\d{1,2})(?:[日月火水木金土](?:祝)?)?\)$/;
+    const regex =
+      /^\(?(\d{1,2}\/\d{1,2})(?:[日月火水木金土](?:祝)?)?\.(.+?)\(〆(\d{1,2}\/\d{1,2})(?:[日月火水木金土](?:祝)?)?\)$/;
     const m = first.match(regex);
     if (!m) {
       Logger.log(`Invalid row format: ${first}`);
@@ -74,24 +74,17 @@ export class ChouseisanService {
   /**
    * 締切範囲でフィルタ
    */
-  private filterByDeadline(
-    events: Registration[],
-    start: Date,
-    end: Date
-  ): Registration[] {
-    return events.filter(ev => ev.deadline >= start && ev.deadline <= end);
+  private filterByDeadline(events: Registration[], start: Date, end: Date): Registration[] {
+    return events.filter((ev) => ev.deadline >= start && ev.deadline <= end);
   }
 
   /**
    * 各クラスごとに締切をチェックし、Registration列を返す
    */
-  public getSummary(
-    start: Date,
-    end: Date
-  ): ClassMap<Registration[]> {
+  public getSummary(start: Date, end: Date): ClassMap<Registration[]> {
     const result = {} as ClassMap<Registration[]>;
 
-    (Object.keys(this.csvMap) as KarutaClass[]).forEach(kClass => {
+    (Object.keys(this.csvMap) as KarutaClass[]).forEach((kClass) => {
       const rawCsv = this.fetchCsv(this.csvMap[kClass]);
       const events = this.formatData(rawCsv);
       const filtered = this.filterByDeadline(events, start, end);
@@ -105,37 +98,31 @@ export class ChouseisanService {
     const spreadsheetId = Config.Chouseisan.spreadsheetId;
     const ss = SpreadsheetApp.openById(spreadsheetId);
 
-    (Object.keys(this.csvMap) as KarutaClass[]).forEach(kClass => {
+    (Object.keys(this.csvMap) as KarutaClass[]).forEach((kClass) => {
       const rawCsv = this.fetchCsv(this.csvMap[kClass]);
 
       const parsed: string[][] = Utilities.parseCsv(rawCsv);
       const dataWithoutHeader = parsed.slice(2);
-      const transposed: string[][] = dataWithoutHeader.length > 0
-        ? dataWithoutHeader[0].map((_, i) =>
-          dataWithoutHeader.map(row => row[i] ?? '')
-        )
-        : [];
-
+      const transposed: string[][] =
+        dataWithoutHeader.length > 0
+          ? dataWithoutHeader[0].map((_, i) => dataWithoutHeader.map((row) => row[i] ?? ''))
+          : [];
 
       if (transposed.length === 0) return;
 
       const maxCols = transposed.reduce((m, row) => Math.max(m, row.length), 0);
 
       // 足りないセルは空文字でパディング
-      const normalized = transposed.map(row =>
-        row.length < maxCols
-          ? row.concat(Array(maxCols - row.length).fill(''))
-          : row
+      const normalized = transposed.map((row) =>
+        row.length < maxCols ? row.concat(Array(maxCols - row.length).fill('')) : row
       );
 
-      const sheetName = `${DateUtils.formatYMD(new Date()).replace(/-/g, "")}${kClass}`;
+      const sheetName = `${DateUtils.formatYMD(new Date()).replace(/-/g, '')}${kClass}`;
       let sheet = ss.getSheetByName(sheetName);
       if (!sheet) sheet = ss.insertSheet(sheetName);
       else sheet.clearContents();
 
-      sheet
-        .getRange(1, 1, normalized.length, maxCols)
-        .setValues(normalized);
+      sheet.getRange(1, 1, normalized.length, maxCols).setValues(normalized);
     });
   }
 }

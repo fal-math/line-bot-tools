@@ -5,7 +5,7 @@ const userProps = PropertiesService.getScriptProperties();
 
 /**
  * プロパティ値を取得し、存在しなければ例外を投げる
- * 
+ *
  * @param key プロパティ名
  * @returns プロパティの値
  */
@@ -27,7 +27,7 @@ function getRequiredProp_(key: string): string {
 export function getOptionalProp_(key: string): string | undefined {
   // GAS のスクリプトプロパティから取得
   const raw = userProps.getProperty(key);
-  if (raw === null || raw === "") return undefined;
+  if (raw === null || raw === '') return undefined;
   return raw;
 }
 
@@ -62,52 +62,52 @@ function getPracticeLocations_(): PracticeLocations {
 }
 
 export const LineConfig = {
-  channelToken: getRequiredProp_("LINE_CHANNEL_ACCESS_TOKEN"),
+  channelToken: getRequiredProp_('LINE_CHANNEL_ACCESS_TOKEN'),
   id: {
-    apply: getRequiredProp_("LINE_GROUP_ID_TAIKAI_MOUSHIKOMI"),
-    operations: getRequiredProp_("LINE_GROUP_ID_UNNEI_HOMBU"),
-    shift: getRequiredProp_("LINE_GROUP_ID_UNNEI_SHIFT"),
-    reserve: getRequiredProp_("LINE_GROUP_ID_RESERVE"),
-    all: getRequiredProp_("LINE_GROUP_ID_ZENTAI"),
-    test: getRequiredProp_("LINE_GROUP_ID_TEST"),
-    userT: getRequiredProp_("LINE_USER_ID_T"),
-    userF: getRequiredProp_("LINE_USER_ID_F"),
-    userI: getRequiredProp_("LINE_USER_ID_I"),
-    userK: getRequiredProp_("LINE_USER_ID_K"),
+    apply: getRequiredProp_('LINE_GROUP_ID_TAIKAI_MOUSHIKOMI'),
+    operations: getRequiredProp_('LINE_GROUP_ID_UNNEI_HOMBU'),
+    shift: getRequiredProp_('LINE_GROUP_ID_UNNEI_SHIFT'),
+    reserve: getRequiredProp_('LINE_GROUP_ID_RESERVE'),
+    all: getRequiredProp_('LINE_GROUP_ID_ZENTAI'),
+    test: getRequiredProp_('LINE_GROUP_ID_TEST'),
+    userT: getRequiredProp_('LINE_USER_ID_T'),
+    userF: getRequiredProp_('LINE_USER_ID_F'),
+    userI: getRequiredProp_('LINE_USER_ID_I'),
+    userK: getRequiredProp_('LINE_USER_ID_K'),
   } as const,
 };
 
 export const CalendarConfig = {
-  url: getRequiredProp_("CALENDAR_URL"),
+  url: getRequiredProp_('CALENDAR_URL'),
   id: {
-    match: getRequiredProp_("GOOGLE_CALENDAR_ID_TAIKAI"),
-    clubPractice: getRequiredProp_("GOOGLE_CALENDAR_ID_KAIRENSHU"),
-    internalDeadline: getRequiredProp_("GOOGLE_CALENDAR_ID_KAISHIME"),
-    actualDeadline: getRequiredProp_("GOOGLE_CALENDAR_ID_HONSHIME"),
-    externalPractice: getRequiredProp_("GOOGLE_CALENDAR_ID_OUTER"),
-  }
+    match: getRequiredProp_('GOOGLE_CALENDAR_ID_TAIKAI'),
+    clubPractice: getRequiredProp_('GOOGLE_CALENDAR_ID_KAIRENSHU'),
+    internalDeadline: getRequiredProp_('GOOGLE_CALENDAR_ID_KAISHIME'),
+    actualDeadline: getRequiredProp_('GOOGLE_CALENDAR_ID_HONSHIME'),
+    externalPractice: getRequiredProp_('GOOGLE_CALENDAR_ID_OUTER'),
+  },
 } as const;
 
 export const ChouseisanConfig = {
-  urls: getJsonProp_<ClassMap<string>>("CHOUSEISAN_URLS"),
-  csvs: getJsonProp_<ClassMap<string>>("CHOUSEISAN_CSVS"),
-  spreadsheetId: getRequiredProp_("SPREADSHEET_ID")
-}
+  urls: getJsonProp_<ClassMap<string>>('CHOUSEISAN_URLS'),
+  csvs: getJsonProp_<ClassMap<string>>('CHOUSEISAN_CSVS'),
+  spreadsheetId: getRequiredProp_('SPREADSHEET_ID'),
+};
 
 export const MailConfig = {
-  attendance: getRequiredProp_("ATTENDANCE_ADDRESS"),
+  attendance: getRequiredProp_('ATTENDANCE_ADDRESS'),
   reserve: {
-    Kamiochiai: getRequiredProp_("RESERVE_KAMIOCHIAI_ADDRESS"),
-    Kishicho: getRequiredProp_("RESERVE_KISHICHO_ADDRESS"),
-    Bessho: getRequiredProp_("RESERVE_BESSHO_ADDRESS"),
-    Sashiougi: getRequiredProp_("RESERVE_SASHIOUGI_ADDRESS"),
-    Tokiwa: getRequiredProp_("RESERVE_TOKIWA_ADDRESS")
-  }
-}
+    Kamiochiai: getRequiredProp_('RESERVE_KAMIOCHIAI_ADDRESS'),
+    Kishicho: getRequiredProp_('RESERVE_KISHICHO_ADDRESS'),
+    Bessho: getRequiredProp_('RESERVE_BESSHO_ADDRESS'),
+    Sashiougi: getRequiredProp_('RESERVE_SASHIOUGI_ADDRESS'),
+    Tokiwa: getRequiredProp_('RESERVE_TOKIWA_ADDRESS'),
+  },
+};
 
-export const DEBUG_MODE = (getOptionalProp_("DEBUG_MODE") || "false") === "true";
-export const DRIVE_URL = getRequiredProp_("DRIVE_URL");
-export const MANAGERS_PORTAL_URL = getRequiredProp_("MANAGERS_PORTAL_URL");
+export const DEBUG_MODE = (getOptionalProp_('DEBUG_MODE') || 'false') === 'true';
+export const DRIVE_URL = getRequiredProp_('DRIVE_URL');
+export const MANAGERS_PORTAL_URL = getRequiredProp_('MANAGERS_PORTAL_URL');
 export const PRACTICE_LOCATIONS = getPracticeLocations_();
 
 const Config = {

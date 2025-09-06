@@ -2,7 +2,14 @@ import Config from '../config/config';
 import { CalendarService, EventType } from '../services/CalendarService';
 import { ChouseisanService } from '../services/ChouseisanService';
 import { LineService } from '../services/LineService';
-import { ClassMap, ClubPracticeEvent, ExternalPracticeEvent, KarutaClass, MatchEvent, Registration } from '../types/type';
+import {
+  ClassMap,
+  ClubPracticeEvent,
+  ExternalPracticeEvent,
+  KarutaClass,
+  MatchEvent,
+  Registration,
+} from '../types/type';
 import { DateUtils, WEEK_DAYS } from '../util/DateUtils';
 import { KARUTA_CLASS_COLOR } from '../util/StringUtils';
 
@@ -12,25 +19,24 @@ export class Announcer {
   private oneWeekLater = DateUtils.addDays(this.today, this.weekdays);
   private twoWeekLater = DateUtils.addDays(this.today, 2 * this.weekdays);
 
-  private kaishimeMessage =
-    [
-      '[大会]',
-      '各大会情報については、級別のLINEノート(画面右上≡)を参照してください。',
-      '⚠️申込入力URL(調整さん)では、⭕️か❌を期限内にご入力ください。',
-      '空欄や△は検討中と判断します。',
-      '',
-      '[外部練]',
-      '申込は、LINEイベントから(会の練習参加と同様)です。',
-      `_________`,
-    ].join('\n');
+  private kaishimeMessage = [
+    '[大会]',
+    '各大会情報については、級別のLINEノート(画面右上≡)を参照してください。',
+    '⚠️申込入力URL(調整さん)では、⭕️か❌を期限内にご入力ください。',
+    '空欄や△は検討中と判断します。',
+    '',
+    '[外部練]',
+    '申込は、LINEイベントから(会の練習参加と同様)です。',
+    `_________`,
+  ].join('\n');
 
   constructor(
     private readonly today: Date = DateUtils.startOfDay(new Date()),
     private readonly testMode: boolean = false,
     private readonly line: LineService = new LineService(),
     private readonly calendar: CalendarService = new CalendarService(),
-    private readonly chouseisan: ChouseisanService = new ChouseisanService(),
-  ) { }
+    private readonly chouseisan: ChouseisanService = new ChouseisanService()
+  ) {}
 
   private buildDeadlineSummaryByClass(start: Date, end: Date): string | null {
     const internalDeadlineEvents = this.calendar.get(EventType.InternalDeadline, start, end);
@@ -39,13 +45,18 @@ export class Announcer {
 
     const attendanceSummaries = this.chouseisan.getSummary(start, end);
     const chouseisanSummary = {} as ClassMap<string>;
-    for (const [kClass, registrations] of Object.entries(attendanceSummaries) as [KarutaClass, Registration[]][]) {
+    for (const [kClass, registrations] of Object.entries(attendanceSummaries) as [
+      KarutaClass,
+      Registration[]
+    ][]) {
       if (registrations.length === 0) {
-        chouseisanSummary[kClass] = "";
+        chouseisanSummary[kClass] = '';
       } else {
         let body = ``;
-        registrations.forEach(ev => {
-          body += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(ev.deadline)}〆切）\n`;
+        registrations.forEach((ev) => {
+          body += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(
+            ev.deadline
+          )}〆切）\n`;
           body += `⭕参加:\n`;
           if (ev.participants.attending.length > 0) {
             body += ev.participants.attending.join('\n') + '\n';
@@ -61,12 +72,15 @@ export class Announcer {
 
     const sections: string[] = [];
 
-    for (const [kClass, summaryText] of Object.entries(chouseisanSummary) as [KarutaClass, string][]) {
+    for (const [kClass, summaryText] of Object.entries(chouseisanSummary) as [
+      KarutaClass,
+      string
+    ][]) {
       const events = groupedEvents[kClass] || [];
 
       const externalPracticeText = events
-        .filter(ev => ev.isExternalPractice)
-        .map(ev => `[外部練]${ev.title}`)
+        .filter((ev) => ev.isExternalPractice)
+        .map((ev) => `[外部練]${ev.title}`)
         .join('\n');
 
       const fullText = [summaryText, externalPracticeText].filter(Boolean).join('\n');
@@ -93,7 +107,7 @@ export class Announcer {
       '次の大会・外部練は、本日21時に受付を締め切ります。',
       '',
       this.kaishimeMessage,
-      message
+      message,
     ].join('\n');
 
     this.line.pushText(to, base);
@@ -114,15 +128,13 @@ export class Announcer {
       'ぜひ積極的に参加をご検討ください◎',
       '',
       this.kaishimeMessage,
-      message
+      message,
     ].join('\n');
 
     this.line.pushText(to, base);
   }
 
-  private formatClubPracticeSummary(
-    infos: ClubPracticeEvent[]
-  ): {
+  private formatClubPracticeSummary(infos: ClubPracticeEvent[]): {
     clubPracticesString: string;
     practiceLocationsString: string;
   } {
@@ -131,36 +143,34 @@ export class Announcer {
         const month = date.getMonth() + 1;
         const day = date.getDate();
         const weekday = WEEK_DAYS[date.getDay()];
-        const target = Array.isArray(targetClasses) ? targetClasses.join("") : targetClasses;
+        const target = Array.isArray(targetClasses) ? targetClasses.join('') : targetClasses;
 
         return [
           `・${month}/${day}（${weekday}） ${timeRange}`,
           `　${location.shortenBuildingName}${practiceType}`,
           `　対象：${target}`,
-        ].join("\n");
-      }).join("\n");
+        ].join('\n');
+      })
+      .join('\n');
 
-    const uniqueLocs = Array.from(
-      new Set(infos.map(info => info.location.shortenBuildingName))
-    );
+    const uniqueLocs = Array.from(new Set(infos.map((info) => info.location.shortenBuildingName)));
     const practiceLocationsString = uniqueLocs
-      .map(shortName => {
+      .map((shortName) => {
         const { buildingName, mapUrl } = Config.PRACTICE_LOCATIONS[shortName];
         return `${buildingName}\n${mapUrl}`;
-      }).join("\n");
+      })
+      .join('\n');
 
     return { clubPracticesString, practiceLocationsString };
   }
 
-  private formatExternalPracticeSummary(
-    infos: ExternalPracticeEvent[]
-  ): string {
+  private formatExternalPracticeSummary(infos: ExternalPracticeEvent[]): string {
     return infos
       .map(({ date, timeRange, title, targetClasses, location, description }) => {
         const month = date.getMonth() + 1;
         const day = date.getDate();
         const weekday = WEEK_DAYS[date.getDay()];
-        const target = Array.isArray(targetClasses) ? targetClasses.join("") : targetClasses;
+        const target = Array.isArray(targetClasses) ? targetClasses.join('') : targetClasses;
 
         return [
           `・${month}/${day}（${weekday}） ${timeRange}`,
@@ -168,22 +178,24 @@ export class Announcer {
           `　対象：${target}`,
           location ? `　場所：${location}` : null,
           description ? `　備考：${description.replace(/\n/g, '\n　')}\n` : null,
-        ].filter(Boolean).join("\n");
-      }).join("\n");
+        ]
+          .filter(Boolean)
+          .join('\n');
+      })
+      .join('\n');
   }
 
-  private formatMatchSummary(
-    infos: MatchEvent[]
-  ): string {
+  private formatMatchSummary(infos: MatchEvent[]): string {
     return infos
       .map(({ date, title, targetClasses, location }) => {
         const month = date.getMonth() + 1;
         const day = date.getDate();
         const weekday = WEEK_DAYS[date.getDay()];
-        const target = Array.isArray(targetClasses) ? targetClasses.join("") : targetClasses;
+        const target = Array.isArray(targetClasses) ? targetClasses.join('') : targetClasses;
 
         return `${month}/${day}（${weekday}）${title}${target}`;
-      }).join("\n");
+      })
+      .join('\n');
   }
 
   // ==================================================================================
@@ -191,10 +203,14 @@ export class Announcer {
   // ==================================================================================
   public weekly(to: string): void {
     const clubPractices = this.calendar.get(EventType.ClubPractice, this.today, this.oneWeekLater);
-    const { clubPracticesString, practiceLocationsString }
-      = this.formatClubPracticeSummary(clubPractices);
+    const { clubPracticesString, practiceLocationsString } =
+      this.formatClubPracticeSummary(clubPractices);
 
-    const externalPractices = this.calendar.get(EventType.ExternalPractice, this.today, this.oneWeekLater)
+    const externalPractices = this.calendar.get(
+      EventType.ExternalPractice,
+      this.today,
+      this.oneWeekLater
+    );
     let externalPracticesString = '';
     if (externalPractices.length > 0) {
       externalPracticesString = [
@@ -205,7 +221,7 @@ export class Announcer {
       ].join('\n');
     }
 
-    const matches = this.calendar.get(EventType.Match, this.today, this.twoWeekLater)
+    const matches = this.calendar.get(EventType.Match, this.today, this.twoWeekLater);
     const matchesString = this.formatMatchSummary(matches);
 
     const lines = [
@@ -241,7 +257,7 @@ export class Announcer {
       Config.Calendar.url,
     ];
     if (this.testMode) {
-      lines.unshift("[テスト投稿]");
+      lines.unshift('[テスト投稿]');
     }
 
     this.line.pushText(to, lines.join('\n'));

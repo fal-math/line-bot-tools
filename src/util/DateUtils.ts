@@ -1,6 +1,6 @@
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-export const WEEK_DAYS = ["日", "月", "火", "水", "木", "金", "土"];
+export const WEEK_DAYS = ['日', '月', '火', '水', '木', '金', '土'];
 /**
  * 日付ユーティリティクラス
  */
@@ -56,7 +56,7 @@ export class DateUtils {
    * @returns パース結果の Date
    */
   static parseMD(md: string, today: Date = new Date()): Date {
-    const HALF_YEAR_DAYS = 183
+    const HALF_YEAR_DAYS = 183;
     const [month, day] = md.split('/').map(Number);
     const y = today.getFullYear();
     const candidate = new Date(y, month - 1, day);

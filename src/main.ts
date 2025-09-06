@@ -16,7 +16,7 @@ function announceWeekly() {
 }
 
 function announceWeeklyTest() {
-  const tomorrow = DateUtils.addDays(new Date(),1);
+  const tomorrow = DateUtils.addDays(new Date(), 1);
   return new Announcer(tomorrow, true).weekly(lineId.test);
 }
 
@@ -76,14 +76,14 @@ function doPost(e: GoogleAppsScript.Events.DoPost) {
         new LineWebhookHandler().handle(text, to);
       }
     }
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: 'ok' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ status: 'ok' })).setMimeType(
+      ContentService.MimeType.JSON
+    );
   } catch (err) {
     console.error('doPost error', err);
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: 'error' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error' })).setMimeType(
+      ContentService.MimeType.JSON
+    );
   }
 }
 

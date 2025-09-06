@@ -6,8 +6,8 @@
  * を検証するユニットテスト例です。
  */
 
-import { LineConfig } from "../../config/config";
-import { LineService } from "../../services/LineService";
+import { LineConfig } from '../../config/config';
+import { LineService } from '../../services/LineService';
 
 declare const global: Record<string, any>; // テスト環境用に global を再宣言
 
@@ -46,4 +46,3 @@ describe('services/line.pushTextV2', () => {
     expect(options.contentType).toBe('application/json');
   });
 });
-

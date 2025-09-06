@@ -1,4 +1,3 @@
-
 /**
  * 設定値（ScriptProperties 等）を起動時に検証するユーティリティ。
  * 外部ライブラリ無し・例外メッセージは「どのキーが欠落/不正か」を明示。
@@ -53,7 +52,13 @@ export class ConfigValidator {
     const o = this.requireObject<Record<string, unknown>>(obj, keyPath);
     this.requireNonEmptyString(o['url'], `${keyPath}.url`);
     const id = this.requireObject<Record<string, unknown>>(o['id'], `${keyPath}.id`);
-    const required = ['match', 'clubPractice', 'internalDeadline', 'actualDeadline', 'externalPractice'];
+    const required = [
+      'match',
+      'clubPractice',
+      'internalDeadline',
+      'actualDeadline',
+      'externalPractice',
+    ];
     for (const k of required) this.requireNonEmptyString(id[k], `${keyPath}.id.${k}`);
   }
 
@@ -72,7 +77,10 @@ export class ConfigValidator {
       this.requireNonEmptyString(loc['clubName'], `${keyPath}.${name}.clubName`);
       this.requireNonEmptyString(loc['mapUrl'], `${keyPath}.${name}.mapUrl`);
       this.requireNonEmptyString(loc['buildingName'], `${keyPath}.${name}.buildingName`);
-      this.requireNonEmptyString(loc['shortenBuildingName'], `${keyPath}.${name}.shortenBuildingName`);
+      this.requireNonEmptyString(
+        loc['shortenBuildingName'],
+        `${keyPath}.${name}.shortenBuildingName`
+      );
     }
   }
 }

@@ -1,4 +1,4 @@
-import { WbgtService } from "../../services/WbgtService";
+import { WbgtService } from '../../services/WbgtService';
 
 const sampleCsv = `,,2025062121,2025062124,2025062203,2025062206,2025062209,2025062212,2025062215,2025062218,2025062221,2025062224,2025062303,2025062306,2025062309,2025062312,2025062315,2025062318,2025062321,2025062324
 43056,2025/06/21 19:25,240,230,230,230,270,290,310,270,260,250,240,260,280,290,290,270,260,250`;
@@ -35,21 +35,16 @@ describe('WbgtAlert クラスのテスト', () => {
 
   it('extractDailyValues で時刻ごとの値を 10 で割って返す', () => {
     const daily: Record<number, number | null> = (alert as any).extractDaily(parsed);
-    expect(daily[9]).toBe(27);   
-    expect(daily[12]).toBe(29);  
-    expect(daily[15]).toBe(31);  
-    expect(daily[18]).toBe(27);  
+    expect(daily[9]).toBe(27);
+    expect(daily[12]).toBe(29);
+    expect(daily[15]).toBe(31);
+    expect(daily[18]).toBe(27);
   });
 
   it('formatDailyValuesString が「09時：26」形式で出力される', () => {
     const formatted: string = (alert as any).formatDailyValues(parsed);
     const lines = formatted.split('\n');
-    expect(lines).toEqual([
-      '09時：27',
-      '12時：29',
-      '15時：31',
-      '18時：27',
-    ]);
+    expect(lines).toEqual(['09時：27', '12時：29', '15時：31', '18時：27']);
   });
 
   describe('getMessage の振る舞い', () => {

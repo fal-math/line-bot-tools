@@ -17,7 +17,10 @@ export class CardShufffleService {
    */
   private mixAndSort(base: number[], all: number[], pickBase: number, pickRest: number): number[] {
     const fromBase = this.chooseAndSort(pickBase, base);
-    const fromRest = this.chooseAndSort(pickRest, all.filter(n => !base.includes(n)));
+    const fromRest = this.chooseAndSort(
+      pickRest,
+      all.filter((n) => !base.includes(n))
+    );
     return [...fromBase, ...fromRest].sort((a, b) => a - b);
   }
 
@@ -37,8 +40,8 @@ export class CardShufffleService {
     numLists.push(this.mixAndSort(numLists[2], this.nums, 2, 3));
 
     const clubCardLists = numLists.map((list, idx) => {
-      const set = idx < 3 ? this.charSets[idx] : this.charSets[(idx - 3)];
-      return list.map(i => set[i]);
+      const set = idx < 3 ? this.charSets[idx] : this.charSets[idx - 3];
+      return list.map((i) => set[i]);
     });
 
     const myCardsLists: number[][] = [];
@@ -49,13 +52,13 @@ export class CardShufffleService {
     myCardsLists.push(this.mixAndSort(myCardsLists[2], this.nums, 2, 3));
     myCardsLists.push(this.mixAndSort(myCardsLists[3], this.nums, 2, 3));
 
-    const order = ["一の位", "十の位"];
+    const order = ['一の位', '十の位'];
     const clubCardsStr = clubCardLists
       .map((lst, i) => `  ${i + 1}試合目: ${lst.join(', ')}`)
-      .join("\n");
+      .join('\n');
     const myCardsStr = myCardsLists
       .map((lst, i) => `  ${i + 1}試合目: ${order[i % 2]}が${lst.join(', ')}`)
-      .join("\n");
+      .join('\n');
 
     return { clubCardsStr, myCardsStr };
   }

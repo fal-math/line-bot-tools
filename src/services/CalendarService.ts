@@ -1,6 +1,14 @@
 import Config from '../config/config';
-import { MatchEvent, ExternalPracticeEvent, InternalDeadlineEvent, ClubPracticeEvent, BaseEvent, ClassMap, KarutaClass } from "../types/type";
-import { StringUtils } from "../util/StringUtils";
+import {
+  MatchEvent,
+  ExternalPracticeEvent,
+  InternalDeadlineEvent,
+  ClubPracticeEvent,
+  BaseEvent,
+  ClassMap,
+  KarutaClass,
+} from '../types/type';
+import { StringUtils } from '../util/StringUtils';
 
 export const EventType = {
   ClubPractice: 'clubPractice',
@@ -8,7 +16,7 @@ export const EventType = {
   Match: 'match',
   InternalDeadline: 'internalDeadline',
 } as const;
-export type EventTypeKey = typeof EventType[keyof typeof EventType];
+export type EventTypeKey = (typeof EventType)[keyof typeof EventType];
 
 interface EventConfig<T> {
   calendarId: string;
@@ -39,9 +47,9 @@ export class CalendarService {
           timeRange: StringUtils.removeBracketSymbols(timeRange.trim()),
           targetClasses: StringUtils.removeBracketSymbols(targetClasses.trim()),
           personInCharge: StringUtils.removeBracketSymbols(person.trim()),
-          description: StringUtils.removeBracketSymbols(description.trim())
+          description: StringUtils.removeBracketSymbols(description.trim()),
         } as ClubPracticeEvent;
-      }
+      },
     },
     [EventType.ExternalPractice]: {
       calendarId: Config.Calendar.id.externalPractice,
@@ -53,10 +61,10 @@ export class CalendarService {
           title: title.trim(),
           timeRange: timeRange.trim(),
           targetClasses: StringUtils.formatKarutaClass(classStr),
-          location: event.getLocation().split(",")[0],
+          location: event.getLocation().split(',')[0],
           description: StringUtils.htmlToPlainText(event.getDescription()),
         } as ExternalPracticeEvent;
-      }
+      },
     },
     [EventType.Match]: {
       calendarId: Config.Calendar.id.match,
@@ -69,7 +77,7 @@ export class CalendarService {
           targetClasses: StringUtils.formatKarutaClass(classStr),
           location: event.getLocation(),
         } as MatchEvent;
-      }
+      },
     },
     [EventType.InternalDeadline]: {
       calendarId: Config.Calendar.id.internalDeadline,
@@ -83,20 +91,15 @@ export class CalendarService {
           isMatch: !title.includes('外部'),
           isExternalPractice: title.includes('外部'),
         } as InternalDeadlineEvent;
-      }
-    }
+      },
+    },
   };
 
-  static groupByClass<T extends BaseEvent>(
-    events: T[]
-  ): ClassMap<T[]> {
-    const result = (Object.values(KarutaClass) as KarutaClass[]).reduce(
-      (acc, klass) => {
-        acc[klass] = [];
-        return acc;
-      },
-      {} as ClassMap<T[]>
-    );
+  static groupByClass<T extends BaseEvent>(events: T[]): ClassMap<T[]> {
+    const result = (Object.values(KarutaClass) as KarutaClass[]).reduce((acc, klass) => {
+      acc[klass] = [];
+      return acc;
+    }, {} as ClassMap<T[]>);
 
     for (const ev of events) {
       const classes: KarutaClass[] = Array.isArray(ev.targetClasses)
@@ -110,14 +113,12 @@ export class CalendarService {
     return result;
   }
   /**
-  * ClubPracticeEvent[] を日付ごとにまとめて、同じ日付内は開始時間順にソートする
-  *
-  * @param events ClubPracticeEvent[]
-  * @returns Map<Date, ClubPracticeEvent[]> （日付キーは 00:00 に正規化）
-  */
-  static groupAndSortPractices(
-    events: ClubPracticeEvent[]
-  ): Map<Date, ClubPracticeEvent[]> {
+   * ClubPracticeEvent[] を日付ごとにまとめて、同じ日付内は開始時間順にソートする
+   *
+   * @param events ClubPracticeEvent[]
+   * @returns Map<Date, ClubPracticeEvent[]> （日付キーは 00:00 に正規化）
+   */
+  static groupAndSortPractices(events: ClubPracticeEvent[]): Map<Date, ClubPracticeEvent[]> {
     const grouped = new Map<Date, ClubPracticeEvent[]>();
 
     // 日付ごとにまとめる
@@ -143,19 +144,12 @@ export class CalendarService {
     return new Map([...grouped.entries()].sort((a, b) => a[0].getTime() - b[0].getTime()));
   }
 
-
-  public get<K extends EventTypeKey>(
-    type: K,
-    start: Date,
-    end: Date
-  ): EventMap[K][] {
+  public get<K extends EventTypeKey>(type: K, start: Date, end: Date): EventMap[K][] {
     const cfg = this.configs[type] as EventConfig<EventMap[K]>;
-    const rawEvents = CalendarApp
-      .getCalendarById(cfg.calendarId)
-      .getEvents(start, end);
+    const rawEvents = CalendarApp.getCalendarById(cfg.calendarId).getEvents(start, end);
 
     return rawEvents
-      .map(ev => {
+      .map((ev) => {
         const m = ev.getTitle().trim().match(cfg.regex);
         return m ? cfg.parser(m, ev) : null;
       })
@@ -163,21 +157,22 @@ export class CalendarService {
   }
 
   /**
-    * 外部練習イベントを登録する
-    *
-    * @param params.start    開始日時 (Date)
-    * @param params.end      終了日時 (Date)
-    * @param params.summary  イベントタイトル
-    * @param params.location イベント場所
-    * @param params.description 説明 (〆切など)
-    * @returns CalendarApp.CalendarEvent
-    */
-  public createCalenderEvent(params: {
-    start: Date;
-    summary: string;
-    location?: string;
-    description?: string;
-  },
+   * 外部練習イベントを登録する
+   *
+   * @param params.start    開始日時 (Date)
+   * @param params.end      終了日時 (Date)
+   * @param params.summary  イベントタイトル
+   * @param params.location イベント場所
+   * @param params.description 説明 (〆切など)
+   * @returns CalendarApp.CalendarEvent
+   */
+  public createCalenderEvent(
+    params: {
+      start: Date;
+      summary: string;
+      location?: string;
+      description?: string;
+    },
     calendarId: string
   ): GoogleAppsScript.Calendar.CalendarEvent {
     const calendar = CalendarApp.getCalendarById(calendarId);
@@ -185,14 +180,10 @@ export class CalendarService {
       throw new Error(`Calendar not found: ${calendarId}`);
     }
     // イベント作成
-    const event = calendar.createAllDayEvent(
-      params.summary,
-      params.start,
-      {
-        location: params.location,
-        description: params.description,
-      }
-    );
+    const event = calendar.createAllDayEvent(params.summary, params.start, {
+      location: params.location,
+      description: params.description,
+    });
     return event;
   }
 }

@@ -21,7 +21,7 @@ const store = new Map<string, string>([
   ['CALENDAR_URL', 'xxx'],
   ['SPREADSHEET_ID', 'xxx'],
   ['MANAGERS_PORTAL_URL', 'xxx'],
-  ["ATTENDANCE_ADDRESS", "xxx"],
+  ['ATTENDANCE_ADDRESS', 'xxx'],
   ['RESERVE_KAMIOCHIAI_ADDRESS', 'xxx'],
   ['RESERVE_KISHICHO_ADDRESS', 'xxx'],
   ['RESERVE_BESSHO_ADDRESS', 'xxx'],
@@ -30,14 +30,17 @@ const store = new Map<string, string>([
 
   ['CHOUSEISAN_URLS', JSON.stringify({ A: 'urlA', B: 'urlB' })],
   ['CHOUSEISAN_CSVS', JSON.stringify({ A: 'csvA', B: 'csvB' })],
-  ['PRACTICE_LOCATIONS', JSON.stringify({
-    '富士見': {
-      clubName: 'ちはやふる富士見',
-      mapUrl: 'https://example.com/map',
-      buildingName: '富士見公民館',
-      shortenBuildingName: '富士見'
-    }
-  })],
+  [
+    'PRACTICE_LOCATIONS',
+    JSON.stringify({
+      富士見: {
+        clubName: 'ちはやふる富士見',
+        mapUrl: 'https://example.com/map',
+        buildingName: '富士見公民館',
+        shortenBuildingName: '富士見',
+      },
+    }),
+  ],
 ]);
 
 // Minimal GAS mocks
@@ -54,13 +57,14 @@ const store = new Map<string, string>([
   },
 };
 
-
 // 使う可能性がある最低限のダミー
 (global as any).Utilities = {
   getUuid: () => '00000000-0000-0000-0000-000000000000',
 };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-(global as any).UrlFetchApp = { fetch: () => ({ getResponseCode: () => 200, getContentText: () => '' }) };
+(global as any).UrlFetchApp = {
+  fetch: () => ({ getResponseCode: () => 200, getContentText: () => '' }),
+};
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).GmailApp = { search: () => [], getUserLabelByName: () => null };
 
@@ -78,10 +82,12 @@ let eventsProvider: () => FakeEvent[] = () => [];
 
 // テストから eventsProvider を差し替えたい場合用のフック（必要なら使ってください）
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(global as any).__setCalendarEvents = (fn: () => FakeEvent[]) => { eventsProvider = fn; };
+(global as any).__setCalendarEvents = (fn: () => FakeEvent[]) => {
+  eventsProvider = fn;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-;(global as any).CalendarApp = {
+(global as any).CalendarApp = {
   getCalendarById: (_id: string) => ({
     getEvents: (_start: Date, _end: Date) => eventsProvider(),
   }),

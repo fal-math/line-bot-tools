@@ -30,11 +30,12 @@ describe('LineWebhookHandler.parseExternalPractice', () => {
       '練習名(例.和光練)：和光練',
       '対象級(例.ABC/G以上)：ABC/G以上',
       '〆切(例.8/20)：8/20',
-      '場所：和光市民館'
+      '場所：和光市民館',
     ].join('\n');
 
-    const result: { event: ExternalPracticeEvent; deadline: Date }
-      = (handler as any).parseExternalPractice(input);
+    const result: { event: ExternalPracticeEvent; deadline: Date } = (
+      handler as any
+    ).parseExternalPractice(input);
     expect(result).not.toBeNull();
     expect(result.event.date).toEqual(dateA);
     expect(result.deadline).toEqual(dateB);
@@ -52,7 +53,7 @@ describe('LineWebhookHandler.parseExternalPractice', () => {
       '練習名(例.和光練)：和光練',
       '対象級(例.ABC/G以上)：ABC/G以上',
       '〆切(例.8/20)：8/20',
-      '場所：和光市民館'
+      '場所：和光市民館',
     ].join('\n');
 
     expect((handler as any).parseExternalPractice(inputMissingTime)).toBeNull();
@@ -67,7 +68,7 @@ describe('LineWebhookHandler.parseExternalPractice', () => {
       '練習名(例.和光練)：和光練',
       '対象級(例.ABC/G以上)：ABC/G以上',
       '〆切(例.8/20)：8/20',
-      '場所：和光市民館'
+      '場所：和光市民館',
     ].join('\n');
 
     expect((handler as any).parseExternalPractice(inputBadDate)).toBeNull();

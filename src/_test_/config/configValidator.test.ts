@@ -1,4 +1,4 @@
-import { ConfigValidator } from "../../config/configValidator";
+import { ConfigValidator } from '../../config/configValidator';
 
 describe('ConfigValidator', () => {
   it('requireNonEmptyString: OK', () => {

@@ -1,20 +1,20 @@
-import { ClassMap, KarutaClass } from "../types/type";
+import { ClassMap, KarutaClass } from '../types/type';
 
 const ALL_CLASSES = Object.values(KarutaClass) as KarutaClass[];
 export const KARUTA_CLASS_COLOR: ClassMap<string> = {
-  A: "🟧",
-  B: "🟦",
-  C: "🟩",
-  D: "🟨",
-  E: "🟦",
-  F: "🟥",
-  G: "🟪",
-}
+  A: '🟧',
+  B: '🟦',
+  C: '🟩',
+  D: '🟨',
+  E: '🟦',
+  F: '🟥',
+  G: '🟪',
+};
 
 export class StringUtils {
   static stripCss(text: string): string {
-    return text.replace(/([^\{]+)\s*\{[^}]*}/g, '').replace(/[\n\r]*\s*[\n\r]+/g, '\n')
-  };
+    return text.replace(/([^\{]+)\s*\{[^}]*}/g, '').replace(/[\n\r]*\s*[\n\r]+/g, '\n');
+  }
 
   static htmlToPlainText(html: string): string {
     return html
@@ -30,7 +30,7 @@ export class StringUtils {
    */
   static formatStrictKarutaClass(input: string): KarutaClass[] {
     if (!input) return [];
-    const text = input.trim().replace("級", "");
+    const text = input.trim().replace('級', '');
 
     // 「X以上」のパターンを優先処理
     const m = text.match(/^([A-G])以上$/);
@@ -44,7 +44,7 @@ export class StringUtils {
     const chars = text.match(/[A-G]/g) ?? [];
     const unique = Array.from(new Set(chars)) as (keyof typeof KarutaClass)[];
     return unique
-      .map(c => KarutaClass[c])
+      .map((c) => KarutaClass[c])
       .sort((a, b) => ALL_CLASSES.indexOf(a) - ALL_CLASSES.indexOf(b));
   }
 
@@ -54,7 +54,7 @@ export class StringUtils {
    */
   static formatKarutaClass(input: string): KarutaClass[] | string {
     const regex = /^(?:[A-G](?:級)?(?:以上)?)+$/;
-    return regex.test(input) ? this.formatStrictKarutaClass(input) : input
+    return regex.test(input) ? this.formatStrictKarutaClass(input) : input;
   }
 
   /**
@@ -63,8 +63,8 @@ export class StringUtils {
    * - 角括弧: [] ［］
    * - 波括弧: {} ｛｝
    * - 山括弧: 〈〉 《》
-   * - 山括弧小: ＜＞ 
-   * - 二重山括弧: 【】 
+   * - 山括弧小: ＜＞
+   * - 二重山括弧: 【】
    * - 二重山括弧（小）: 《》
    * - 和製引用符: 「」 『』
    * - 半角山括弧: <>
@@ -73,10 +73,6 @@ export class StringUtils {
    * @returns カッコ文字のみ除去した文字列
    */
   static removeBracketSymbols(input: string): string {
-    return input.replace(
-      /[()\[\]{}〈〉《》<>＜＞【】（）［］｛｝「」『』]/g,
-      ''
-    );
+    return input.replace(/[()\[\]{}〈〉《》<>＜＞【】（）［］｛｝「」『』]/g, '');
   }
 }
-

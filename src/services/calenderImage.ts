@@ -1,6 +1,5 @@
 import Config from '../config/config';
-import { ExternalPracticeEvent, ClubPracticeEvent, ImageUrls } from "../types/type";
-
+import { ExternalPracticeEvent, ClubPracticeEvent, ImageUrls } from '../types/type';
 
 // export function generateMonthlyCalendar_(
 //   year: number = new Date().getFullYear(),
@@ -87,7 +86,7 @@ import { ExternalPracticeEvent, ClubPracticeEvent, ImageUrls } from "../types/ty
 //   const dateBoxH = 50;
 //   const bodyRows = 5;
 
-//   // カレンダータイトル 
+//   // カレンダータイトル
 //   const slideTitle = slide.insertTextBox(
 //     title,
 //     margin, 0,
@@ -187,7 +186,6 @@ import { ExternalPracticeEvent, ClubPracticeEvent, ImageUrls } from "../types/ty
 //     .reduce((acc, v) => acc + v, 0);
 // }
 
-
 // function formatToMatchInfo_(
 //   event: GoogleAppsScript.Calendar.CalendarEvent
 // ): MatchInfo | null {
@@ -206,10 +204,10 @@ import { ExternalPracticeEvent, ClubPracticeEvent, ImageUrls } from "../types/ty
 // }
 
 // /**
-//  * 
-//  * @param presentationId 
-//  * @param title 
-//  * @returns 
+//  *
+//  * @param presentationId
+//  * @param title
+//  * @returns
 //  */
 // function getSlideAsPng_(presentationId: string, title: string) {
 

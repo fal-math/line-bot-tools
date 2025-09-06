@@ -18,9 +18,9 @@ export const WbgtConfig = {
 
 export class WbgtService {
   /** CSV URL */
-  private url = "https://www.wbgt.env.go.jp/prev15WG/dl/yohou_43241.csv";
+  private url = 'https://www.wbgt.env.go.jp/prev15WG/dl/yohou_43241.csv';
 
-  constructor() { }
+  constructor() {}
   /**
    * 4/23〜10/22 の期間内のみフォーマット済み文字列を返す
    * 期間外は空文字
@@ -35,15 +35,15 @@ export class WbgtService {
     const body = this.formatDailyValues(parsed);
 
     const header = [
-      "■今日の暑さ指数(WBGT)・屋外■",
+      '■今日の暑さ指数(WBGT)・屋外■',
       body,
-      "",
-      "=値の読み方=",
-      "↑で提供されている値は屋外の値のため、参考程度にしてください",
-      "31以上:運動は原則中止",
-      "28-31:厳重警戒, 10～20分おきに休憩をとり水分・塩分の補給を行う",
-      "25-28:警戒, 積極的に休憩をとり適宜、水分・塩分を補給する",
-      "21-25:注意, 運動の合間に積極的に水分・塩分を補給する",
+      '',
+      '=値の読み方=',
+      '↑で提供されている値は屋外の値のため、参考程度にしてください',
+      '31以上:運動は原則中止',
+      '28-31:厳重警戒, 10～20分おきに休憩をとり水分・塩分の補給を行う',
+      '25-28:警戒, 積極的に休憩をとり適宜、水分・塩分を補給する',
+      '21-25:注意, 運動の合間に積極的に水分・塩分を補給する',
     ];
 
     return { message: header.join('\n'), values: parsed };
@@ -60,8 +60,8 @@ export class WbgtService {
 
   private parseCsv(csv: string): Parsed {
     const [header, data] = csv.trim().split('\n');
-    const colsH = header.split(',').map(s => s.trim());
-    const colsD = data.split(',').map(s => s.trim());
+    const colsH = header.split(',').map((s) => s.trim());
+    const colsD = data.split(',').map((s) => s.trim());
 
     const id = +colsD[0];
     const baseTime = new Date(colsD[1].replace(/-/g, '/'));
@@ -85,7 +85,7 @@ export class WbgtService {
   private extractDaily(parsed: Parsed) {
     const { HOURS } = WbgtConfig;
     return HOURS.reduce<Record<number, number | null>>((acc, h) => {
-      const m = parsed.measurements.find(x => x.time.getHours() === h);
+      const m = parsed.measurements.find((x) => x.time.getHours() === h);
       // 提供データはWBGT値*10の形式
       acc[h] = m ? m.predicted / 10 : null;
       return acc;
@@ -95,8 +95,6 @@ export class WbgtService {
   private formatDailyValues(parsed: Parsed): string {
     const { HOURS } = WbgtConfig;
     const daily = this.extractDaily(parsed);
-    return HOURS
-      .map(h => `${String(h).padStart(2, '0')}時：${daily[h] ?? '-'}`)
-      .join('\n');
+    return HOURS.map((h) => `${String(h).padStart(2, '0')}時：${daily[h] ?? '-'}`).join('\n');
   }
 }

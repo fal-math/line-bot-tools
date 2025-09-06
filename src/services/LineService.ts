@@ -1,7 +1,7 @@
 import { DEBUG_MODE, LineConfig } from '../config/config';
 
 export class LineService {
-  constructor(private token: string = LineConfig.channelToken) { }
+  constructor(private token: string = LineConfig.channelToken) {}
   pushText(to: string, text: string, substitution?: object, retryKey?: string): void {
     if (DEBUG_MODE) {
       Logger.log(`[DEBUG] to=${to}\n${text}`);
