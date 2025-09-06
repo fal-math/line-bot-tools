@@ -55,12 +55,13 @@ export class DateUtils {
    * @param md 月日文字列（例: "7/12"）
    * @returns パース結果の Date
    */
-  static parseMD(md: string): Date {
+  static parseMD(md: string, today: Date = new Date()): Date {
+    const HALF_YEAR_DAYS = 183
     const [month, day] = md.split('/').map(Number);
-    const y = new Date().getFullYear();
+    const y = today.getFullYear();
     const candidate = new Date(y, month - 1, day);
     // 今日から過去183日以上前なら翌年として扱う
-    if (new Date().getTime() - candidate.getTime() > 183 * DAY_MS) {
+    if (today.getTime() - candidate.getTime() > HALF_YEAR_DAYS * DAY_MS) {
       candidate.setFullYear(y + 1);
     }
     return candidate;
