@@ -1,7 +1,7 @@
 import { LineService } from '../services/LineService';
 import { CalendarService } from '../services/CalendarService';
 import { DateUtils } from '../util/DateUtils';
-import Config from '../config';
+import Config from '../config/config';
 
 export class LineWebhookHandler {
   private line = new LineService();

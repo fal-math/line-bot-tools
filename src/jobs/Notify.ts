@@ -1,4 +1,4 @@
-import Config from '../config';
+import Config from '../config/config';
 import { ClubPracticeEvent, KarutaClass, Registration } from '../types/type';
 import { CalendarService, EventType } from '../services/CalendarService';
 import { CardShufffleService } from '../services/CardShuffle';

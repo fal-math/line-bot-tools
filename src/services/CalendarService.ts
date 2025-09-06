@@ -1,4 +1,4 @@
-import Config from "../config";
+import Config from '../config/config';
 import { MatchEvent, ExternalPracticeEvent, InternalDeadlineEvent, ClubPracticeEvent, BaseEvent, ClassMap, KarutaClass } from "../types/type";
 import { StringUtils } from "../util/StringUtils";
 

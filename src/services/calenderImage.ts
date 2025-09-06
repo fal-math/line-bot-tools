@@ -1,4 +1,4 @@
-import Config from "../config";
+import Config from '../config/config';
 import { ExternalPracticeEvent, ClubPracticeEvent, ImageUrls } from "../types/type";
 
 

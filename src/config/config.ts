@@ -1,4 +1,4 @@
-import { ClassMap, PracticeLocations } from "./types/type";
+import { ClassMap, PracticeLocations } from '../types/type';
 
 const userProps = PropertiesService.getScriptProperties();
 

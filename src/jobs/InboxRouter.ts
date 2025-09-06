@@ -1,4 +1,4 @@
-import Config from "../config";
+import Config from '../config/config';
 import { InboxRoute } from "../types/type";
 import { INBOX_ROUTES } from "../config/inboxRoutes";
 import { LineService } from "../services/LineService";

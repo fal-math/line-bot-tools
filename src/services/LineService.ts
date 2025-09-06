@@ -1,4 +1,4 @@
-import { DEBUG_MODE, LineConfig } from "../config";
+import { DEBUG_MODE, LineConfig } from '../config/config';
 
 export class LineService {
   constructor(private token: string = LineConfig.channelToken) { }

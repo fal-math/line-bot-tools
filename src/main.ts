@@ -1,4 +1,4 @@
-import { LineConfig } from './config';
+import { LineConfig } from './config/config';
 import { Announcer } from './jobs/Announcer';
 import { Notify } from './jobs/Notify';
 import { setupTriggers_ } from './jobs/setupTriggers';

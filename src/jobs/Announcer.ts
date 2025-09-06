@@ -1,4 +1,4 @@
-import Config from '../config';
+import Config from '../config/config';
 import { CalendarService, EventType } from '../services/CalendarService';
 import { ChouseisanService } from '../services/ChouseisanService';
 import { LineService } from '../services/LineService';

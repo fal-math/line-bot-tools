@@ -1,4 +1,4 @@
-import Config from "../config";
+import Config from '../config/config';
 import { InboxRoute } from "../types/type";
 
 function makeReserveRoute(label: string, address: string, lineId: string): InboxRoute {
