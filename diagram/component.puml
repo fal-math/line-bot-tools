@@ -1,0 +1,90 @@
+@startuml
+' ===== スタイル =====
+top to bottom direction
+skinparam linetype ortho
+
+skinparam component {
+  BackgroundColor<<job>> #E6F0FF
+  BorderColor<<job>> #4A78C2
+  BackgroundColor<<service>> #e6fff0
+  BorderColor<<service>> #4ac290
+  BackgroundColor<<External>> #F4F4F4
+  BorderColor<<External>> #888
+  BackgroundColor<<DataStore>> #FFF7E6
+  BorderColor<<DataStore>> #C38B29
+}
+skinparam ArrowColor #666
+skinparam ArrowFontColor #333
+skinparam ArrowThickness 1
+
+' ===== レイヤ構造（任意）=====
+package "src"{
+  package "jobs" {
+    [Announcer] <<job>>
+    [InboxRouter] <<job>>
+    [Notify] <<job>>
+  }
+
+  package "services" {
+    [CalendarService] <<service>>
+    [CardShuffle] <<service>>
+    [ChouseisanService] <<service>>
+    [LineService] <<service>>
+    [LineWebhookHandler] <<service>>
+  }
+}
+
+package "External Systems" {
+  [Gmail] <<External>>
+  [Addy.io] <<External>>
+  [Google Calendar] <<External>>
+  [LINE Messaging API] <<External>>
+  [Chouseisan] <<External>>
+  [Saitama City Reserve System] <<External>>
+}
+
+' ===== 縦方向の依存関係 =====
+[Announcer] -d-> [CalendarService] : call
+[InboxRouter] -d-> [LineService] : call
+[Notify] -d-> [LineWebhookHandler] : call
+
+[InboxRouter] -d-> [Gmail] : read
+[LineService] -d-> [LINE Messaging API] : send
+[LineWebhookHandler] -d-> [LINE Messaging API] : read
+[ChouseisanService] -d-> [Chouseisan] : read
+[CalendarService] -d-> [Google Calendar] : read
+
+[Saitama City Reserve System] -u-> [Addy.io] : send mail
+[Addy.io] -u-> [Gmail] : forward mail
+
+
+' ===== 関係（方向＝データ/制御の主流れ）=====
+' Attendance: Gmail参照 → LINE通知
+' Announcer: カレンダー集計 → LINE定期配信
+' [Announcer Class] -down-> [Google Calendar] : read\n(会練/対戦予定)
+' [Announcer Class] -right-> [LINE Messaging Class] : send\n(週報/当日案内)
+
+' ' Calendar: 外部カレンダー統合・キャッシュ
+' [Calendar Class] -down-> [Google Calendar] : read
+' [Calendar Class] -right-> [Firestore/Sheets] : cache\n(正規化/索引)
+
+' ' Chouseisan: 出欠取得 → 整形 → LINE共有
+' [Chouseisan Class] -down-> [Chouseisan] : read\n(イベントCSV/URL)
+' [Chouseisan Class] -right-> [LINE Messaging Class] : send\n(出欠一覧/締切通知)
+
+' ' WbgtAlert: 気象/暑さ指数取得 → LINE警報
+' [WbgtAlert Class] -down-> [OpenWeather/WBGT] : read\n(Class fetch)
+' [WbgtAlert Class] -right-> [LINE Messaging Class] : send\n(警戒/中止基準)
+
+' ' 内部Class間の依存（必要なら）
+' [Announcer Class] ..> [Calendar Class] : use\n(整形済み予定取得)
+' [Chouseisan Function] ..> [Firestore/Sheets] : read/write\n(履歴/集計)
+
+' ===== 凡例 =====
+legend right
+<<job>>      自作の業務Function
+<<class>>      自作のservice class
+<<External>> 外部サービス
+矢印ラベル   主な操作（read/send/cache など）
+endlegend
+@enduml
