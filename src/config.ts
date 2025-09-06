@@ -63,11 +63,13 @@ export const LineConfig = {
     apply: getRequiredProp_("LINE_GROUP_ID_TAIKAI_MOUSHIKOMI"),
     operations: getRequiredProp_("LINE_GROUP_ID_UNNEI_HOMBU"),
     shift: getRequiredProp_("LINE_GROUP_ID_UNNEI_SHIFT"),
+    reserve: getRequiredProp_("LINE_GROUP_ID_RESERVE"),
     all: getRequiredProp_("LINE_GROUP_ID_ZENTAI"),
     test: getRequiredProp_("LINE_GROUP_ID_TEST"),
     userT: getRequiredProp_("LINE_USER_ID_T"),
     userF: getRequiredProp_("LINE_USER_ID_F"),
     userI: getRequiredProp_("LINE_USER_ID_I"),
+    userK: getRequiredProp_("LINE_USER_ID_K"),
   } as const,
 };
 
@@ -88,20 +90,30 @@ export const ChouseisanConfig = {
   spreadsheetId: getRequiredProp_("SPREADSHEET_ID")
 }
 
+export const MailConfig = {
+  attendance: getRequiredProp_("ATTENDANCE_ADDRESS"),
+  reserve: {
+    Kamiochiai: getRequiredProp_("RESERVE_KAMIOCHIAI_ADDRESS"),
+    Kishicho: getRequiredProp_("RESERVE_KISHICHO_ADDRESS"),
+    Bessho: getRequiredProp_("RESERVE_BESSHO_ADDRESS"),
+    Sashiougi: getRequiredProp_("RESERVE_SASHIOUGI_ADDRESS"),
+    Tokiwa: getRequiredProp_("RESERVE_TOKIWA_ADDRESS")
+  }
+}
+
 export const DEBUG_MODE = (getOptionalProp_("DEBUG_MODE") || "false") === "true";
 export const DRIVE_URL = getRequiredProp_("DRIVE_URL");
 export const MANAGERS_PORTAL_URL = getRequiredProp_("MANAGERS_PORTAL_URL");
-export const ATTENDANCE_ADDRESS = getRequiredProp_("ATTENDANCE_ADDRESS");
 export const PRACTICE_LOCATIONS = getPracticeLocations_();
 
 const Config = {
   Line: LineConfig,
   Calendar: CalendarConfig,
   Chouseisan: ChouseisanConfig,
+  Mail: MailConfig,
   DEBUG_MODE,
   DRIVE_URL,
   MANAGERS_PORTAL_URL,
-  ATTENDANCE_ADDRESS,
   PRACTICE_LOCATIONS,
 } as const;
 

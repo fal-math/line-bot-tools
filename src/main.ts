@@ -2,7 +2,7 @@ import { LineConfig } from './config';
 import { Announcer } from './jobs/Announcer';
 import { Notify } from './jobs/Notify';
 import { setupTriggers_ } from './jobs/setupTriggers';
-import { Attendance } from './jobs/Attendance';
+import { InboxRouter } from './jobs/InboxRouter';
 import { LineWebhookHandler } from './services/LineWebhookHandler';
 import { ChouseisanService } from './services/ChouseisanService';
 import { DateUtils } from './util/DateUtils';
@@ -29,7 +29,7 @@ function announceDeadlineNextWeek() {
 }
 
 function notifyDeadlineToday() {
-  return new Notify().deadlineToday(lineId.apply, lineId.userF);
+  return new Notify().deadlineToday(lineId.apply, lineId.userK);
 }
 
 function notifyFinalToday() {
@@ -53,7 +53,7 @@ function notifyDebugMode() {
 }
 
 function attandanceHandler() {
-  return new Attendance().do(lineId.operations);
+  return new InboxRouter().processUnread();
 }
 
 function backupChouseisan() {

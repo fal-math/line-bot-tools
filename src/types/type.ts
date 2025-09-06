@@ -85,3 +85,26 @@ export interface ImageUrls {
   original: string;
   preview: string;
 }
+
+// ========== Mail Forwarding Helpers ==========
+
+export type InboxRoute = {
+  /** 対象の受信アドレス（Gmail の送信エイリアス含む）。小文字記載推奨 */
+  address: string;
+  /** LINE の送り先（複数可） */
+  lineRecipients: string[];
+  /** LINE 通知テンプレ（{subject},{receivedAt},{from},{to},{cc},{body} が使える） */
+  lineNoticeTemplate?: string;
+  /** 自動返信するか */
+  enableAutoReply?: boolean;
+  /** 自動返信テンプレ（{subject},{receivedAt},{from},{to} が使える） */
+  autoReplyTemplate?: string;
+  /** 自動返信の From（未指定なら address を使用） */
+  autoReplyFrom?: string;
+  /** CSS や <style> の除去を行うか（既定: true） */
+  stripCss?: boolean;
+  /** <!--banner-info--> … <!--banner-info--> ブロックを除去するか（既定: true） */
+  stripBannerInfo?: boolean;
+  /** 件名・本文ペアでホワイトリストを指定 */
+  allowPairs?: { subject: string; body: string }[];
+};

@@ -48,7 +48,6 @@ export class StringUtils {
       .sort((a, b) => ALL_CLASSES.indexOf(a) - ALL_CLASSES.indexOf(b));
   }
 
-
   /**
    * 文字列からよく使われるカッコ文字をすべて除去する
    * - 丸括弧: () （）

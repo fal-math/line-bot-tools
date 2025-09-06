@@ -25,7 +25,7 @@ export class Announcer {
     ].join('\n');
 
   constructor(
-    private readonly today: Date = new Date(),
+    private readonly today: Date = DateUtils.startOfDay(new Date()),
     private readonly testMode: boolean = false,
     private readonly line: LineService = new LineService(),
     private readonly calendar: CalendarService = new CalendarService(),
@@ -225,7 +225,7 @@ export class Announcer {
       '',
       '📧会練遅刻欠席連絡',
       'あらかじめ遅参が分かっている時、または当日の遅刻欠席する時の連絡メールアドレス',
-      Config.ATTENDANCE_ADDRESS,
+      Config.Mail.attendance,
       '⚠️下記を必ず記載⚠️',
       '題名：名前と級',
       '本文：参加する練習会場、用件(遅刻の場合、到着予定時刻)',
