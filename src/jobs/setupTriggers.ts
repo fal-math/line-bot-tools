@@ -71,7 +71,7 @@ export function setupTriggers_(): void {
     .create();
 
   /** 遅刻欠席連絡: 毎分 */
-  ScriptApp.newTrigger('inboxRouterProccesser')
+  ScriptApp.newTrigger('inboxRouterProcesser')
     .timeBased()
     .everyMinutes(1)
     .create();
