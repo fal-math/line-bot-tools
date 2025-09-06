@@ -52,7 +52,7 @@ function notifyDebugMode() {
   return new Notify().sendDebugBanner();
 }
 
-function attandanceHandler() {
+function inboxRouterProccesser() {
   return new InboxRouter().processUnread();
 }
 

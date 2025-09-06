@@ -79,7 +79,7 @@ class Main {
   +NotifyFinalToday(): void
   +NotifyTodayPractice(): void
   +NotifyChouseisanWeekly(): void
-  +attandanceHandler(): void
+  +inboxRouterProccesser(): void
   +doPost(e: GoogleAppsScript.Events.DoPost): void
   ' +sendMonthlyCalendar(): void
   +setupTriggers(): void
