@@ -1,5 +1,5 @@
 import { CalendarService, EventType } from '../../services/CalendarService';
-import { ClubPracticeEvent, ExternalPracticeEvent, InternalDeadlineEvent } from '../../types/type';
+import { ClubPracticeEvent, ExPracticeEvent, InternalDeadlineEvent } from '../../types/type';
 import { jstDate, resetStore } from '../../_test_/setup.gas';
 import { StringUtils } from '../../util/StringUtils';
 import { DateUtils } from '../../util/DateUtils';
@@ -80,7 +80,7 @@ describe('CalendarService#get in JST', () => {
     const result = service.get(EventType.ExternalPractice, start, end);
 
     expect(result).toHaveLength(1);
-    const ev = result[0] as ExternalPracticeEvent;
+    const ev = result[0] as ExPracticeEvent;
 
     expect(ev.date.getTime()).toBe(start.getTime());
     expect(ev.title).toBe('交流会');

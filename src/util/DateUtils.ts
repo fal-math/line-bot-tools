@@ -77,4 +77,13 @@ export class DateUtils {
     const d = date.getDate();
     return `${m}/${d}`;
   }
+
+  /**
+   * Date を "M/D(D)" 形式の文字列にフォーマットして返す
+   * @param date 対象の Date
+   * @returns フォーマット済み文字列（例: "7/12(火)"）
+   */
+  static formatMDD(d: Date, dayLabels: readonly string[] = WEEK_DAYS): string {
+    return `${this.formatMD(d)}(${dayLabels[d.getDay()]})`;
+  }
 }

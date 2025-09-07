@@ -1,7 +1,7 @@
 import Config from '../config/config';
 import {
   MatchEvent,
-  ExternalPracticeEvent,
+  ExPracticeEvent,
   InternalDeadlineEvent,
   ClubPracticeEvent,
   BaseEvent,
@@ -25,7 +25,7 @@ interface EventConfig<T> {
 }
 export interface EventMap {
   [EventType.ClubPractice]: ClubPracticeEvent;
-  [EventType.ExternalPractice]: ExternalPracticeEvent;
+  [EventType.ExternalPractice]: ExPracticeEvent;
   [EventType.Match]: MatchEvent;
   [EventType.InternalDeadline]: InternalDeadlineEvent;
 }
@@ -63,7 +63,7 @@ export class CalendarService {
           targetClasses: StringUtils.formatKarutaClass(classStr),
           location: event.getLocation().split(',')[0],
           description: StringUtils.htmlToPlainText(event.getDescription()),
-        } as ExternalPracticeEvent;
+        } as ExPracticeEvent;
       },
     },
     [EventType.Match]: {
@@ -81,7 +81,7 @@ export class CalendarService {
     },
     [EventType.InternalDeadline]: {
       calendarId: Config.Calendar.id.internalDeadline,
-      regex: /^〆([A-G]+)\|(.+)$/,
+      regex: /^〆(.+)\|(.+)$/,
       parser: (m, event) => {
         const [_, classStr, title] = m;
         return {

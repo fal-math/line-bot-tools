@@ -1,5 +1,5 @@
 import Config from '../config/config';
-import { ExternalPracticeEvent, ClubPracticeEvent, ImageUrls } from '../types/type';
+import { ExPracticeEvent, ClubPracticeEvent, ImageUrls } from '../types/type';
 
 // export function generateMonthlyCalendar_(
 //   year: number = new Date().getFullYear(),

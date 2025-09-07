@@ -4,8 +4,9 @@ import { CalendarService, EventType } from '../services/CalendarService';
 import { CardShufffleService } from '../services/CardShuffle';
 import { ChouseisanService } from '../services/ChouseisanService';
 import { LineService } from '../services/LineService';
-import { DateUtils, WEEK_DAYS } from '../util/DateUtils';
+import { DateUtils } from '../util/DateUtils';
 import { KARUTA_CLASS_COLOR } from '../util/StringUtils';
+import { Message } from '../messageTemplates/Message';
 
 export class Notify {
   private weekdays = 7;
@@ -23,42 +24,26 @@ export class Notify {
   // ==================================================================================
   // 受付〆アナウンス（当日 21 時）
   // ==================================================================================
-  public deadlineToday(to: string, mentionee: string): void {
-    const start = this.today;
-    const end = this.tomorrow;
-    const internalDeadlineEvents = this.calendar.get(EventType.InternalDeadline, start, end);
+  public deadlineToday(lineTo: string, mentionee: string): void {
+    const from = this.today;
+    const to = this.tomorrow;
+    const internalDeadlineEvents = this.calendar.get(EventType.InternalDeadline, from, to);
     if (internalDeadlineEvents.length === 0) return;
 
-    const attendanceSummaries = this.chouseisan.getSummary(start, end);
-    let message: string = '';
-    for (const [kClass, registrations] of Object.entries(attendanceSummaries) as [
-      KarutaClass,
-      Registration[]
-    ][]) {
-      if (registrations.length > 0) {
-        message += `${KARUTA_CLASS_COLOR[kClass]}${kClass}級\n`;
-        registrations.forEach((ev) => {
-          message += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(
-            ev.deadline
-          )}〆切）\n`;
-          if (ev.participants.undecided.length > 0) {
-            message += `❓未回答:\n`;
-            message += ev.participants.undecided.join('\n') + '\n';
-          }
-        });
-        message += `\n`;
-      }
-    }
-    if (message == '') return;
+    const attendanceSummaries = this.chouseisan.getSummary(from, to);
+    const message = Message.deadlineMatch(attendanceSummaries, {
+      header: `{receiver}さん\n本日〆切の大会があります。未回答者に声掛けをお願いします。\n\n`,
+      showAttending: false,
+    });
+    if (!message) return;
 
-    const header = `{receiver}さん\n本日〆切の大会があります。未回答者に声掛けをお願いします。\n\n`;
     const substitution = {
       receiver: {
         type: 'mention',
         mentionee: { type: 'user', userId: mentionee },
       },
     } as const;
-    this.line.pushText(to, header + message, substitution);
+    this.line.pushText(lineTo, message, substitution);
   }
 
   // ==================================================================================
@@ -135,42 +120,11 @@ export class Notify {
     );
     if (!practices.length) return;
 
-    const grouped = practices.reduce((acc, ev) => {
-      const key = `${ev.date.getFullYear()}-${ev.date.getMonth()}-${ev.date.getDate()}`;
-      if (!acc[key]) acc[key] = [];
-      acc[key].push(ev);
-      return acc;
-    }, {} as Record<string, ClubPracticeEvent[]>);
-
-    const sortedKeys = Object.keys(grouped).sort(
-      (a, b) => new Date(a).getTime() - new Date(b).getTime()
-    );
-
-    const practiceMsg = sortedKeys
-      .map((key) => {
-        const events = grouped[key];
-        const { date } = events[0];
-        const header = `${date.getMonth() + 1}/${date.getDate()}(${WEEK_DAYS[date.getDay()]})`;
-        const details = events
-          .map(
-            ({ timeRange, location, practiceType, personInCharge }) =>
-              `・${location.shortenBuildingName} ${practiceType}${timeRange}\n　${personInCharge}`
-          )
-          .join('\n');
-        return `${header}\n${details}`;
-      })
-      .join('\n\n');
-
-    const message = [
-      '■今週来週の担当■',
-      '',
-      practiceMsg,
-      '',
-      '全体LINEの参加ポチも忘れずにお願いします！',
-      '',
-      '=運営ポータル=',
-      Config.MANAGERS_PORTAL_URL,
-    ].join('\n');
+    const practiceMessage = Message.clubPractice(practices, {
+      header: '🔵今週来週の担当🔵\n全体LINEの参加ポチも忘れずにお願いします！',
+      showTargetClasses: false,
+    });
+    const message = [practiceMessage, '', '=運営ポータル=', Config.MANAGERS_PORTAL_URL].join('\n');
 
     this.line.pushText(to, message);
   }
@@ -185,19 +139,15 @@ export class Notify {
       this.tomorrow
     );
     if (!practices.length) return;
-
-    const practiceMsg = practices
-      .map(({ location, timeRange, practiceType }) => {
-        return `・${location.shortenBuildingName}(${location.clubName})\n　${timeRange} ${practiceType}`;
-      })
-      .join('\n');
+    const practiceMsg = Message.clubPractice(practices, {
+      header: '🔵今日の練習🔵',
+      showTargetClasses: false,
+      showPersonInCharge: true,
+    });
 
     const { clubCardsStr, myCardsStr } = new CardShufffleService().do();
 
-    // const { message: wbgtAlert } = new WbgtService().getMessage();
-
     const message = [
-      '■今日の練習■',
       practiceMsg,
       '',
       '=会札=',
@@ -223,8 +173,6 @@ export class Notify {
       '',
       '=運営ポータル=',
       Config.MANAGERS_PORTAL_URL,
-      // "",
-      // wbgtAlert,
     ].join('\n');
 
     this.line.pushText(to, message);

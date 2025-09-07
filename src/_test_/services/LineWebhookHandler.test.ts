@@ -1,5 +1,5 @@
 import { LineWebhookHandler } from '../../services/LineWebhookHandler';
-import { ExternalPracticeEvent } from '../../types/type';
+import { ExPracticeEvent } from '../../types/type';
 import { DateUtils } from '../../util/DateUtils';
 
 describe('LineWebhookHandler.parseExternalPractice', () => {
@@ -33,7 +33,7 @@ describe('LineWebhookHandler.parseExternalPractice', () => {
       '場所：和光市民館',
     ].join('\n');
 
-    const result: { event: ExternalPracticeEvent; deadline: Date } = (
+    const result: { event: ExPracticeEvent; deadline: Date } = (
       handler as any
     ).parseExternalPractice(input);
     expect(result).not.toBeNull();

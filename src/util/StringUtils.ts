@@ -10,6 +10,7 @@ export const KARUTA_CLASS_COLOR: ClassMap<string> = {
   F: '🟥',
   G: '🟪',
 };
+export const SEPARATOR = '__________';
 
 export class StringUtils {
   static stripCss(text: string): string {
@@ -55,6 +56,14 @@ export class StringUtils {
   static formatKarutaClass(input: string): KarutaClass[] | string {
     const regex = /^(?:[A-G](?:級)?(?:以上)?)+$/;
     return regex.test(input) ? this.formatStrictKarutaClass(input) : input;
+  }
+
+  /**
+   * @param input KarutaClassの配列 or 文字列
+   * @returns 級を表す文字列(ABC, etc..)
+   */
+  static stringfyKarutaClass(input: KarutaClass[] | string) {
+    return Array.isArray(input) ? input.join('') : input;
   }
 
   /**

@@ -2,7 +2,7 @@ import { LineService } from '../services/LineService';
 import { CalendarService } from '../services/CalendarService';
 import { DateUtils } from '../util/DateUtils';
 import Config from '../config/config';
-import { ExternalPracticeEvent } from '../types/type';
+import { ExPracticeEvent } from '../types/type';
 
 export class LineWebhookHandler {
   private line = new LineService();
@@ -55,7 +55,7 @@ export class LineWebhookHandler {
             summary: `外部${parsed.event.title}${parsed.event.timeRange} ${
               parsed.event.targetClasses
             }:${DateUtils.formatMD(parsed.deadline)}〆(参加ポチ)`,
-            description: `〆切：${parsed.deadline.toLocaleDateString()}`,
+            description: `〆切：${DateUtils.formatMDD(parsed.event.date)}`,
           },
           Config.Calendar.id.externalPractice
         );
@@ -68,7 +68,7 @@ export class LineWebhookHandler {
             start: parsed.deadline,
             summary: `〆${parsed.event.targetClasses}|外部${
               parsed.event.title
-            }${parsed.event.date.toLocaleDateString()}`,
+            }${DateUtils.formatMDD(parsed.event.date)}`,
             description: `グループLINE内「イベント」から参加ポチ`,
           },
           Config.Calendar.id.internalDeadline
@@ -92,7 +92,7 @@ export class LineWebhookHandler {
   }
 
   private parseExternalPractice(text: string): {
-    event: ExternalPracticeEvent;
+    event: ExPracticeEvent;
     deadline: Date;
   } | null {
     // 行ごとに key：value を抽出
