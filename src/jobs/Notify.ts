@@ -232,6 +232,6 @@ export class Notify {
 
   public sendDebugBanner(): void {
     if (!Config.DEBUG_MODE) return;
-    this.line.pushError('[line-bot-tooks]\nATTENTION: DEBUG MODE IS ON.');
+    this.line.pushError('[line-bot-tools]\nATTENTION: DEBUG MODE IS ON.');
   }
 }
