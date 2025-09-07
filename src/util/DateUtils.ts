@@ -1,10 +1,11 @@
-const DAY_MS = 24 * 60 * 60 * 1000;
-
+export const DAY_MS = 24 * 60 * 60 * 1000;
 export const WEEK_DAYS = ['日', '月', '火', '水', '木', '金', '土'];
+
 /**
  * 日付ユーティリティクラス
  */
 export class DateUtils {
+  static DAY_MS: number;
   /**
    * 指定日の 00:00:00 に設定した Date オブジェクトを返す
    * @param d 対象日付（省略時は現在日付）

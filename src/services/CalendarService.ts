@@ -38,8 +38,12 @@ export class CalendarService {
       regex: /^(.+?)\.(.+?)(\d{3,4}-\d{3,4})(.+?)\((.+?)\)(.*)$/,
       parser: (m, event) => {
         const [_, shortLoc, practiceType, timeRange, targetClasses, person, description] = m;
-        const loc = Config.PRACTICE_LOCATIONS[shortLoc];
-        if (!loc) return null;
+        const loc = Config.PRACTICE_LOCATIONS[shortLoc] ?? {
+          shortenBuildingName: shortLoc,
+          clubName: 'undefined',
+          mapUrl: '',
+          buildingName: shortLoc,
+        };
         return {
           date: new Date(event.getStartTime().getTime()),
           location: loc,

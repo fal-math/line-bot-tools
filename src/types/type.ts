@@ -26,12 +26,20 @@ export interface MatchEvent extends BaseEvent {
   targetClasses: KarutaClass[];
 }
 
+export enum ExPracticeCategory {
+  Godo = '合同練',
+  KM = 'KM練',
+  Wako = '和光練',
+  Other = 'その他',
+}
+
 export interface ExPracticeEvent extends BaseEvent {
   title: string;
   location: string;
   mapUrl?: string;
   timeRange?: string;
   description?: string;
+  category: ExPracticeCategory;
 }
 
 export interface ClubPracticeEvent extends BaseEvent {

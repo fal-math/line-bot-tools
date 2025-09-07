@@ -60,3 +60,25 @@ describe('formatKarutaClass', () => {
     expect(StringUtils.formatKarutaClass(text)).toStrictEqual(text);
   });
 });
+
+describe('toHalfWidth', () => {
+  it('半角英数字はそのまま残す', () => {
+    expect(StringUtils.toHalfWidth('ABC123')).toBe('ABC123');
+  });
+
+  it('全角英数字を半角に変換する', () => {
+    expect(StringUtils.toHalfWidth('ＡＢＣ１２３')).toBe('ABC123');
+  });
+
+  it('漢字・ひらがな・カタカナはそのまま残す', () => {
+    expect(StringUtils.toHalfWidth('漢字かなカナ')).toBe('漢字かなカナ');
+  });
+
+  it('混在している場合は英数字だけ変換する', () => {
+    expect(StringUtils.toHalfWidth('今日は２０２５年９月７日')).toBe('今日は2025年9月7日');
+  });
+
+  it('記号はそのまま残す（！＠＃は対象外）', () => {
+    expect(StringUtils.toHalfWidth('！＠＃')).toBe('！＠＃');
+  });
+});

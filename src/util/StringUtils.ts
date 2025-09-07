@@ -1,6 +1,5 @@
 import { ClassMap, KarutaClass } from '../types/type';
 
-const ALL_CLASSES = Object.values(KarutaClass) as KarutaClass[];
 export const KARUTA_CLASS_COLOR: ClassMap<string> = {
   A: '🟧',
   B: '🟦',
@@ -13,6 +12,15 @@ export const KARUTA_CLASS_COLOR: ClassMap<string> = {
 export const SEPARATOR = '__________';
 
 export class StringUtils {
+  /**
+   * 全角英数字を半角英数字に変換する関数
+   * @param str 変換したい文字列
+   * @returns 変換済み文字列
+   */
+  static toHalfWidth(str: string): string {
+    return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0));
+  }
+
   static stripCss(text: string): string {
     return text.replace(/([^\{]+)\s*\{[^}]*}/g, '').replace(/[\n\r]*\s*[\n\r]+/g, '\n');
   }
@@ -32,6 +40,7 @@ export class StringUtils {
   static formatStrictKarutaClass(input: string): KarutaClass[] {
     if (!input) return [];
     const text = input.trim().replace('級', '');
+    const ALL_CLASSES = Object.values(KarutaClass) as KarutaClass[];
 
     // 「X以上」のパターンを優先処理
     const m = text.match(/^([A-G])以上$/);
@@ -77,7 +86,6 @@ export class StringUtils {
    * - 二重山括弧（小）: 《》
    * - 和製引用符: 「」 『』
    * - 半角山括弧: <>
-   *
    * @param input 元の文字列
    * @returns カッコ文字のみ除去した文字列
    */

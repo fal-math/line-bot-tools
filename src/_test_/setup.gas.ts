@@ -22,6 +22,7 @@ const store = new Map<string, string>([
   ['SPREADSHEET_ID', 'xxx'],
   ['MANAGERS_PORTAL_URL', 'xxx'],
   ['ATTENDANCE_ADDRESS', 'xxx'],
+  ['GODOREN_ADDRESS', 'xxx'],
   ['RESERVE_KAMIOCHIAI_ADDRESS', 'xxx'],
   ['RESERVE_KISHICHO_ADDRESS', 'xxx'],
   ['RESERVE_BESSHO_ADDRESS', 'xxx'],

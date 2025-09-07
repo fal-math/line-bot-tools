@@ -8,7 +8,7 @@ import {
   MatchEvent,
   Registration,
 } from '../types/type';
-import { DateUtils } from '../util/DateUtils';
+import { DateUtils, DAY_MS } from '../util/DateUtils';
 import { KARUTA_CLASS_COLOR, StringUtils } from '../util/StringUtils';
 import { MessageBase, DAY_LABELS_JA, compareByDateThenStart } from './MessageBase';
 
@@ -198,7 +198,7 @@ export class Message {
   private static daysDiff(a: Date, b: Date): number {
     const d0 = DateUtils.startOfDay(a).getTime();
     const d1 = DateUtils.startOfDay(b).getTime();
-    return Math.round((d1 - d0) / 86400000);
+    return Math.round((d1 - d0) / DAY_MS);
   }
 
   private static build<T extends { date: Date }>(

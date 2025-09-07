@@ -103,6 +103,7 @@ export const MailConfig = {
     Sashiougi: getRequiredProp_('RESERVE_SASHIOUGI_ADDRESS'),
     Tokiwa: getRequiredProp_('RESERVE_TOKIWA_ADDRESS'),
   },
+  godorenAddress: getRequiredProp_('GODOREN_ADDRESS'),
 };
 
 export const DEBUG_MODE = (getOptionalProp_('DEBUG_MODE') || 'false') === 'true';
