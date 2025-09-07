@@ -1,4 +1,4 @@
-import { Message } from '../../messageTemplates/Message';
+import { Message } from '../../message/Message';
 import { ClubPracticeEvent } from '../../types/type';
 
 function ev(

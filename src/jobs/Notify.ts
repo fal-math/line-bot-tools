@@ -6,7 +6,7 @@ import { ChouseisanService } from '../services/ChouseisanService';
 import { LineService } from '../services/LineService';
 import { DateUtils } from '../util/DateUtils';
 import { KARUTA_CLASS_COLOR } from '../util/StringUtils';
-import { Message } from '../messageTemplates/Message';
+import { Message } from '../message/Message';
 
 export class Notify {
   private weekdays = 7;

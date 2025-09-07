@@ -5,7 +5,6 @@ export const WEEK_DAYS = ['日', '月', '火', '水', '木', '金', '土'];
  * 日付ユーティリティクラス
  */
 export class DateUtils {
-  static DAY_MS: number;
   /**
    * 指定日の 00:00:00 に設定した Date オブジェクトを返す
    * @param d 対象日付（省略時は現在日付）
@@ -87,4 +86,53 @@ export class DateUtils {
   static formatMDD(d: Date, dayLabels: readonly string[] = WEEK_DAYS): string {
     return `${this.formatMD(d)}(${dayLabels[d.getDay()]})`;
   }
+
+  /**
+   * timeRange"0900-1200"から, 開始時刻を0時からの経過分数で取得
+   * @param timeRange "0900-1200"のような文字列
+   * @returns 開始時刻の0時からの経過分数
+   */
+  static parseStartMinutes(timeRange: string): number {
+    // "9:00-12:00" / "0900-1200" / "9-12" 等を許容
+    const m = timeRange?.match?.(/(\d{1,2})(?::?(\d{2}))?/);
+    if (!m) return Number.MAX_SAFE_INTEGER;
+    const h = parseInt(m[1], 10);
+    const min = m[2] ? parseInt(m[2], 10) : 0;
+    return h * 60 + min;
+  }
+
+  /**
+   * DateとtimeRangeを持つ2つのデータを比較し, 大小関係を返す
+   * @param a 日付Dateと時間帯timeRange
+   * @param b 日付Dateと時間帯timeRange
+   * @returns aの方が早ければ負の数, 同じなら0, 遅ければ正の数
+   */
+  static compareByDateThenStart(
+    a: { date: Date; timeRange?: string },
+    b: { date: Date; timeRange?: string }
+  ): number {
+    const ad = a.date.getTime(),
+      bd = b.date.getTime();
+    if (ad !== bd) return ad - bd;
+    const am = this.parseStartMinutes(a.timeRange ?? '');
+    const bm = this.parseStartMinutes(b.timeRange ?? '');
+    if (am !== bm) return am - bm;
+    return 0;
+  }
+
+  /**
+   * 同じ日付のイベントをグループ化する
+   * @param evs eventの配列
+   * @returns (日付,eventの配列)のマップ
+   */
+  // static groupByYmd<T extends { date: Date }>(evs: T[]): Map<string, T[]> {
+  // const m = new Map<string, T[]>();
+  // for (const ev of evs) {
+  //   const k = DateUtils.formatYMD(ev.date);
+  //   const arr = m.get(k);
+  //   if (arr) arr.push(ev);
+  //   else m.set(k, [ev]);
+  // }
+  // return m;
+  // }
 }

@@ -1,5 +1,5 @@
 import Config from '../config/config';
-import { Message } from '../messageTemplates/Message';
+import { Message } from '../message/Message';
 import { CalendarService, EventType } from '../services/CalendarService';
 import { ChouseisanService } from '../services/ChouseisanService';
 import { LineService } from '../services/LineService';

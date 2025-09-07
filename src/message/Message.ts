@@ -8,9 +8,9 @@ import {
   MatchEvent,
   Registration,
 } from '../types/type';
-import { DateUtils, DAY_MS } from '../util/DateUtils';
+import { DateUtils, DAY_MS, WEEK_DAYS } from '../util/DateUtils';
 import { KARUTA_CLASS_COLOR, StringUtils } from '../util/StringUtils';
-import { MessageBase, DAY_LABELS_JA, compareByDateThenStart } from './MessageBase';
+import { MessageBase } from './MessageBase';
 
 type BaseOpts = {
   header?: string;
@@ -174,8 +174,7 @@ export class Message {
 
   /* ========== ここから下は最小限の共通実装（private） ========== */
   private static norm(o: BaseOpts): Required<BaseOpts> {
-    const labels =
-      Array.isArray(o.dayLabels) && o.dayLabels.length === 7 ? o.dayLabels : DAY_LABELS_JA;
+    const labels = Array.isArray(o.dayLabels) && o.dayLabels.length === 7 ? o.dayLabels : WEEK_DAYS;
     return {
       header: o.header ?? '',
       bullet: o.bullet ?? '・',
@@ -207,7 +206,7 @@ export class Message {
     render: (ev: T, msg: MessageBase) => void
   ): string {
     if (!events?.length) return '';
-    const sorted = [...events].sort(compareByDateThenStart);
+    const sorted = [...events].sort(DateUtils.compareByDateThenStart);
 
     const msg = new MessageBase().add(o.header);
     let prev = '';
