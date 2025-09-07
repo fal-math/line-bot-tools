@@ -1,8 +1,9 @@
 import { DEBUG_MODE, LineConfig } from '../config/config';
+import { SubstitutionMap } from '../types/type';
 
 export class LineService {
   constructor(private token: string = LineConfig.channelToken) {}
-  pushText(to: string, text: string, substitution?: object, retryKey?: string): void {
+  pushText(to: string, text: string, substitution?: SubstitutionMap, retryKey?: string): void {
     if (DEBUG_MODE) {
       Logger.log(`[DEBUG] to=${to}\n${text}`);
       return;

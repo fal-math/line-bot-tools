@@ -1,5 +1,5 @@
 import Config from '../config/config';
-import { ClubPracticeEvent, KarutaClass, Registration } from '../types/type';
+import { ClubPracticeEvent, KarutaClass, Registration, SubstitutionMap } from '../types/type';
 import { CalendarService, EventType } from '../services/CalendarService';
 import { CardShufffleService } from '../services/CardShuffle';
 import { ChouseisanService } from '../services/ChouseisanService';
@@ -42,7 +42,7 @@ export class Notify {
         type: 'mention',
         mentionee: { type: 'user', userId: mentionee },
       },
-    } as const;
+    } as SubstitutionMap;
     this.line.pushText(lineTo, message, substitution);
   }
 
@@ -102,7 +102,7 @@ export class Notify {
         type: 'mention',
         mentionee: { type: 'user', userId: mentionee },
       },
-    } as const;
+    } as SubstitutionMap;
 
     this.line.pushText(to, header + schedule, substitution);
   }
