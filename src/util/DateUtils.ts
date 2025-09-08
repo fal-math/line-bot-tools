@@ -114,8 +114,8 @@ export class DateUtils {
     const ad = a.date.getTime(),
       bd = b.date.getTime();
     if (ad !== bd) return ad - bd;
-    const am = this.parseStartMinutes(a.timeRange ?? '');
-    const bm = this.parseStartMinutes(b.timeRange ?? '');
+    const am = DateUtils.parseStartMinutes(a.timeRange ?? '');
+    const bm = DateUtils.parseStartMinutes(b.timeRange ?? '');
     if (am !== bm) return am - bm;
     return 0;
   }

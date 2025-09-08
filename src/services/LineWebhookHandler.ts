@@ -1,13 +1,16 @@
 import Config from '../config/config';
 import { CalendarService } from '../services/CalendarService';
 import { LineService } from '../services/LineService';
-import { ExPracticeCategory, ExPracticeEvent } from '../types/type';
+import { ExPracticeEvent } from '../types/type';
 import { DateUtils } from '../util/DateUtils';
 import { StringUtils } from '../util/StringUtils';
+import { SpreadsheetConfigService } from './SpreadsheetConfigService';
 
 export class LineWebhookHandler {
   private line = new LineService();
   private calendar = new CalendarService();
+  private sheetName = '外部練';
+  private config = new SpreadsheetConfigService(Config.CONFIG_SPREADSHEET_ID, this.sheetName);
 
   private key = {
     date: '日付',
@@ -23,13 +26,15 @@ export class LineWebhookHandler {
     time: '時間: 「0900-1900」の形式',
     title: '練習名: 「◯◯練」の形式が推奨',
     location: '場所: 特になし',
-    targetClasses: '対象級:\n例1→ABC、\n例2→E以上、\n例3→G級①②③以上',
+    targetClasses: '対象級: 例→ABC、\n例→E以上、\n例→G級①②③以上',
     deadline: '〆切: 「◯/☓」の形式。例→9/13',
-    category: `種別: 下記のどれかを選んでください。\n${Object.values(ExPracticeCategory).join('/')}`,
+    category: '',
   };
 
   public handle(text: string, to: string) {
     if (text === '外部練追加') {
+      const categoryList = [...this.config.names(), 'その他'];
+      const categoryText = `種別:\n下記のどれかを選んでください。\n${categoryList.join('/')}`;
       this.line.pushText(
         to,
         [
@@ -47,16 +52,15 @@ export class LineWebhookHandler {
         to,
         [
           '↑埋めて返信してください↑',
-          '',
-          '記載上の注意',
+          '※記載上の注意',
           `${this.keyDescription.date}`,
           `${this.keyDescription.time}`,
           `${this.keyDescription.title}`,
           `${this.keyDescription.location}`,
           `${this.keyDescription.targetClasses}`,
           `${this.keyDescription.deadline}`,
-          `${this.keyDescription.category}`,
-        ].join('\n')
+          categoryText,
+        ].join('\n\n')
       );
       return;
     }
@@ -71,38 +75,7 @@ export class LineWebhookHandler {
         return;
       }
 
-      let calendarDescription = '';
-      switch (parsed.event.category) {
-        case ExPracticeCategory.Godo:
-          calendarDescription = [
-            '⏰📞当日欠席・遅刻の連絡',
-            '主催者:山梨さん',
-            Config.Mail.godorenAddress,
-            '⚠️下記を必ず記載⚠️',
-            '所属(ちはやふる富士見)、',
-            '名前、',
-            '用件(遅刻の場合、到着予定時刻)',
-            '※失礼のないように！ ',
-          ].join('\n');
-          break;
-        case ExPracticeCategory.KM:
-          calendarDescription = [
-            '⏰📞当日欠席・遅刻の連絡',
-            '・当日15時まで',
-            '　→調整さんの修正のみでOK (LINE連絡など不要)',
-            '・当日15時以降',
-            '　→直前の欠席＆遅刻は、KM練の全体LINEに連絡',
-          ].join('\n');
-          break;
-        case ExPracticeCategory.Wako:
-          calendarDescription = [
-            '⏰📞当日欠席・遅刻の連絡',
-            '河野さんと髙田(祐)さんへLINEをしてください。',
-          ].join('\n');
-          break;
-        default:
-          break;
-      }
+      const calendarDescription = this.config.getDescription(parsed.event.category);
 
       try {
         this.calendar.createCalenderEvent(
@@ -138,13 +111,13 @@ export class LineWebhookHandler {
         to,
         [
           `✅ 外部練習・締切日を登録しました`,
-          `日付：${parsed.event.date.toLocaleDateString()}`,
-          `時間：${parsed.event.timeRange}`,
-          `練習名：${parsed.event.title}`,
-          `対象級：${parsed.event.targetClasses}`,
-          `〆切：${parsed.deadline.toLocaleDateString()}`,
-          `場所:${parsed.event.location}`,
-          `種別:${parsed.event.category}`,
+          `日付: ${parsed.event.date.toLocaleDateString()}`,
+          `時間: ${parsed.event.timeRange}`,
+          `練習名: ${parsed.event.title}`,
+          `対象級: ${parsed.event.targetClasses}`,
+          `〆切: ${parsed.deadline.toLocaleDateString()}`,
+          `場所: ${parsed.event.location}`,
+          `種別: ${parsed.event.category}`,
         ].join('\n')
       );
       return;
@@ -157,20 +130,21 @@ export class LineWebhookHandler {
   } | null {
     // 行ごとに key：value を抽出
     const lines = text
+      .replace('：', ':')
       .split('\n')
       .map((l) => l.trim())
-      .filter((l) => l.includes('：') && !l.startsWith('★'));
+      .filter((l) => l.includes(':') && !l.startsWith('★'));
     const data: Record<string, string> = {};
     for (const line of lines) {
-      const [key, ...rest] = line.split('：');
-      data[key] = rest.join('：').trim();
+      const [key, ...rest] = line.split(':');
+      data[key] = rest.join(':').trim();
     }
 
     const dateStr = data[this.key.date];
     const deadlineStr = data[this.key.deadline];
     const timeRange = data[this.key.time];
     const title = data[this.key.title];
-    const targetClasses = data[this.key.targetClasses]; // 任意
+    const targetClasses = data[this.key.targetClasses];
     const location = data[this.key.location];
     const category = data[this.key.category];
 
@@ -183,11 +157,6 @@ export class LineWebhookHandler {
     } catch {
       return null;
     }
-
-    function isExPracticeCategory(value: unknown): value is ExPracticeCategory {
-      return Object.values(ExPracticeCategory).includes(value as ExPracticeCategory);
-    }
-    if (!isExPracticeCategory(category)) return null;
 
     return {
       event: {

@@ -93,11 +93,8 @@ export class ChouseisanService {
 
     return result;
   }
-
-  public backupChouseisanCsv(): void {
-    const spreadsheetId = Config.Chouseisan.spreadsheetId;
-    const ss = SpreadsheetApp.openById(spreadsheetId);
-
+  public getMatrix(): Record<KarutaClass, string[][]> {
+    let result = {} as Record<KarutaClass, string[][]>;
     (Object.keys(this.csvMap) as KarutaClass[]).forEach((kClass) => {
       const rawCsv = this.fetchCsv(this.csvMap[kClass]);
 
@@ -107,22 +104,8 @@ export class ChouseisanService {
         dataWithoutHeader.length > 0
           ? dataWithoutHeader[0].map((_, i) => dataWithoutHeader.map((row) => row[i] ?? ''))
           : [];
-
-      if (transposed.length === 0) return;
-
-      const maxCols = transposed.reduce((m, row) => Math.max(m, row.length), 0);
-
-      // 足りないセルは空文字でパディング
-      const normalized = transposed.map((row) =>
-        row.length < maxCols ? row.concat(Array(maxCols - row.length).fill('')) : row
-      );
-
-      const sheetName = `${DateUtils.formatYMD(new Date()).replace(/-/g, '')}${kClass}`;
-      let sheet = ss.getSheetByName(sheetName);
-      if (!sheet) sheet = ss.insertSheet(sheetName);
-      else sheet.clearContents();
-
-      sheet.getRange(1, 1, normalized.length, maxCols).setValues(normalized);
+      result[kClass] = transposed;
     });
+    return result;
   }
 }

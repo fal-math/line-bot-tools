@@ -91,7 +91,7 @@ export const CalendarConfig = {
 export const ChouseisanConfig = {
   urls: getJsonProp_<ClassMap<string>>('CHOUSEISAN_URLS'),
   csvs: getJsonProp_<ClassMap<string>>('CHOUSEISAN_CSVS'),
-  spreadsheetId: getRequiredProp_('SPREADSHEET_ID'),
+  spreadsheetId: getRequiredProp_('BACKUP_SPREADSHEET_ID'),
 };
 
 export const MailConfig = {
@@ -103,13 +103,13 @@ export const MailConfig = {
     Sashiougi: getRequiredProp_('RESERVE_SASHIOUGI_ADDRESS'),
     Tokiwa: getRequiredProp_('RESERVE_TOKIWA_ADDRESS'),
   },
-  godorenAddress: getRequiredProp_('GODOREN_ADDRESS'),
 };
 
 export const DEBUG_MODE = (getOptionalProp_('DEBUG_MODE') || 'false') === 'true';
 export const DRIVE_URL = getRequiredProp_('DRIVE_URL');
 export const MANAGERS_PORTAL_URL = getRequiredProp_('MANAGERS_PORTAL_URL');
 export const PRACTICE_LOCATIONS = getPracticeLocations_();
+export const CONFIG_SPREADSHEET_ID = getRequiredProp_('CONFIG_SPREADSHEET_ID');
 
 const Config = {
   Line: LineConfig,
@@ -120,6 +120,7 @@ const Config = {
   DRIVE_URL,
   MANAGERS_PORTAL_URL,
   PRACTICE_LOCATIONS,
+  CONFIG_SPREADSHEET_ID,
 } as const;
 
 /**

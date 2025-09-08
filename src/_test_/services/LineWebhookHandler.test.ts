@@ -1,5 +1,5 @@
 import { LineWebhookHandler } from '../../services/LineWebhookHandler';
-import { ExPracticeCategory, ExPracticeEvent } from '../../types/type';
+import { ExPracticeEvent } from '../../types/type';
 import { DateUtils } from '../../util/DateUtils';
 
 describe('LineWebhookHandler.parseExternalPractice', () => {
@@ -44,7 +44,7 @@ describe('LineWebhookHandler.parseExternalPractice', () => {
     expect(result.event.title).toBe('和光練');
     expect(result.event.targetClasses).toBe('ABC/G以上');
     expect(result.event.location).toBe('和光市民館');
-    expect(result.event.category).toBe(ExPracticeCategory.Wako);
+    expect(result.event.category).toBe('和光練');
   });
 
   it('異常系: 必須フィールドが欠けていると null を返す', () => {
@@ -76,5 +76,30 @@ describe('LineWebhookHandler.parseExternalPractice', () => {
     ].join('\n');
 
     expect((handler as any).parseExternalPractice(inputBadDate)).toBeNull();
+  });
+});
+
+describe('parseExternalPractice + category resolution', () => {
+  const handler = new LineWebhookHandler() as any;
+  const bodyHalf = [
+    '★外部練追加フォーマット★',
+    '日付： 9/13',
+    '時間： 0900-1900',
+    '練習名： 和光練',
+    '場所： 和光市総合センター',
+    '対象級： ABC',
+    '〆切： 9/10',
+    '種別： 合同練', // name 指定
+  ].join('\n');
+
+  it('parses with full-width colon', () => {
+    const parsed = handler.parseExternalPractice(bodyHalf);
+    expect(parsed).not.toBeNull();
+    expect(parsed!.event.category).toBe('合同練');
+  });
+
+  it('resolves category by tag or name', () => {
+    const cfgByName = handler.config.getByName('合同練');
+    expect(cfgByName?.description).toMatch('山田さん');
   });
 });

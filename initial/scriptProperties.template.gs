@@ -20,6 +20,7 @@ function scriptProperties() {
       "DRIVE_URL": "https://example.com",
       "CALENDAR_URL": "https://example.com",
       "SPREADSHEET_ID": "xxx",
+      "CONFIG_SPREADSHEET_ID":"xxx",
       "MANAGERS_PORTAL_URL": "https://example.com",
       "ATTENDANCE_ADDRESS": "aaa@example.com",
       "CHOUSEISAN_URLS": `{

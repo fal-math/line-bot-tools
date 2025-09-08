@@ -19,10 +19,10 @@ const store = new Map<string, string>([
   ['GOOGLE_CALENDAR_ID_OUTER', 'xxx'],
   ['DRIVE_URL', 'xxx'],
   ['CALENDAR_URL', 'xxx'],
-  ['SPREADSHEET_ID', 'xxx'],
+  ['BACKUP_SPREADSHEET_ID', 'xxx'],
+  ['CONFIG_SPREADSHEET_ID', 'xxx'],
   ['MANAGERS_PORTAL_URL', 'xxx'],
   ['ATTENDANCE_ADDRESS', 'xxx'],
-  ['GODOREN_ADDRESS', 'xxx'],
   ['RESERVE_KAMIOCHIAI_ADDRESS', 'xxx'],
   ['RESERVE_KISHICHO_ADDRESS', 'xxx'],
   ['RESERVE_BESSHO_ADDRESS', 'xxx'],
@@ -82,6 +82,19 @@ export const setStore = (entries: [string, string][]) => {
   getUserLabelByName: jest.fn().mockReturnValue(null),
 };
 
+(global as any).SpreadsheetApp = {
+  openById: (id: string) => ({
+    getSheetByName: (name: string) => ({
+      getDataRange: () => ({
+        getDisplayValues: () => [
+          ['name', 'description'],
+          ['合同練', '欠席連絡は山田さんメールに！'],
+          ['和光練', '欠席連絡は永野さんにLINE！'],
+        ],
+      }),
+    }),
+  }),
+};
 // ===================================================================================
 // CalendarApp モック
 // ===================================================================================

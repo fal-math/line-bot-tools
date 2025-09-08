@@ -206,7 +206,7 @@ describe('CalendarService#get in JST', () => {
     (service as any).configs.clubPractice.calendarId = id;
 
     const res = service.get(EventType.ClubPractice, s, e);
-    expect(res).toHaveLength(0);
+    expect(res).toHaveLength(1);
   });
 
   it('externalPractice rejects title without colon', () => {

@@ -13,6 +13,11 @@ export type ClassMap<T> = {
   [K in KarutaClass]: T;
 };
 
+export type PracticeConfigRow = {
+  name: string;      
+  description: string;
+};
+
 // ========== Calendar Events ==========
 export interface BaseEvent {
   date: Date;
@@ -26,20 +31,13 @@ export interface MatchEvent extends BaseEvent {
   targetClasses: KarutaClass[];
 }
 
-export enum ExPracticeCategory {
-  Godo = '合同練',
-  KM = 'KM練',
-  Wako = '和光練',
-  Other = 'その他',
-}
-
 export interface ExPracticeEvent extends BaseEvent {
   title: string;
   location: string;
   mapUrl?: string;
   timeRange?: string;
   description?: string;
-  category: ExPracticeCategory;
+  category: string;
 }
 
 export interface ClubPracticeEvent extends BaseEvent {
