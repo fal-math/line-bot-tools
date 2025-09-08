@@ -3,8 +3,8 @@ import { Announcer } from './jobs/Announcer';
 import { Notify } from './jobs/Notify';
 import { setupTriggers_ } from './jobs/setupTriggers';
 import { InboxRouter } from './jobs/InboxRouter';
+import { Backup } from './jobs/Backup';
 import { LineWebhookHandler } from './services/LineWebhookHandler';
-import { ChouseisanService } from './services/ChouseisanService';
 import { DateUtils } from './util/DateUtils';
 
 // リマインドなび
@@ -57,7 +57,7 @@ function inboxRouterProcesser() {
 }
 
 function backupChouseisan() {
-  return new ChouseisanService().backupChouseisanCsv();
+  return new Backup().chouseisanCsv();
 }
 
 // TODO: monthly calendar render
