@@ -27,34 +27,37 @@ export class Announcer {
    * @param from 〆切を取得したい期間の開始日
    * @param to 〆切を取得したい期間の終了日
    */
-  public deadlineFromTo(lineTo: string, from: Date, to: Date): void {
+  public deadlineFromTo(lineTo: string, from: Date, to: Date, deadlineLabel: string): void {
     // 外部練
     const internalDeadlineEvents = this.calendar.get(EventType.InternalDeadline, from, to);
-    let deadlineExPracticeMessage = '';
-    if (internalDeadlineEvents.length > 0) {
-      deadlineExPracticeMessage = Message.deadlineExPractice(internalDeadlineEvents, {
+    const { hasExPractice, message: exPracticeMessage } = Message.deadlineExPractice(
+      internalDeadlineEvents,
+      {
         header: [
-          '🔔近日の〆切(外部練)🔔',
+          `🔔${deadlineLabel}の外部練〆切🔔`,
           '外部練申込は、LINEイベントから(会の練習参加と同様)です。',
         ].join('\n'),
-      });
-    }
+      }
+    );
 
     // 大会
-    const attendanceSummaries = this.chouseisan.getSummary(from, to);
-    let deadlineMatchMessage = Message.deadlineMatch(attendanceSummaries, {
+    const { summary } = this.chouseisan.getSummary(from, to);
+    const { hasMatch, message: matchMessage } = Message.deadlineMatch(summary, {
       header: [
-        '🔔近日の〆切(大会)🔔',
+        `🔔${deadlineLabel}の大会〆切🔔`,
         '各大会情報については、級別のLINEノート(画面右上≡)を参照してください。',
         '申込入力URL(調整さん)では、⭕️か❌を期限内にご入力ください。',
         '',
       ].join('\n'),
     });
 
-    if (internalDeadlineEvents.length === 0 && !deadlineMatchMessage) return;
+    if (!hasExPractice && !hasMatch) return;
 
-    const base = [deadlineExPracticeMessage, deadlineMatchMessage].join('\n\n\n');
-    this.line.pushText(lineTo, base);
+    const parts: string[] = [];
+    if (hasExPractice && exPracticeMessage) parts.push(exPracticeMessage);
+    if (hasMatch && matchMessage) parts.push(matchMessage);
+
+    this.line.pushText(lineTo, parts.join('\n\n\n'));
   }
 
   /**
@@ -62,7 +65,7 @@ export class Announcer {
    * @param to メッセージの送信先(LINE)
    */
   public deadlineToday(to: string): void {
-    this.deadlineFromTo(to, this.today, this.tomorrow);
+    this.deadlineFromTo(to, this.today, this.tomorrow, '本日');
   }
 
   /**
@@ -70,7 +73,7 @@ export class Announcer {
    * @param to メッセージの送信先(LINE)
    */
   public deadlineNextWeek(to: string): void {
-    this.deadlineFromTo(to, this.today, this.oneWeekLater);
+    this.deadlineFromTo(to, this.today, this.oneWeekLater, '近日');
   }
 
   /**
@@ -107,7 +110,7 @@ export class Announcer {
       this.oneWeekLater
     );
     const externalPracticeMessage = Message.exPractice(externalPractices, {
-      header: '🟠今週の外部練(要事前申込)🟠',
+      header: '🟠今週の外部練🟠',
       showDescription: true,
     });
     let externalPracticesString = '';

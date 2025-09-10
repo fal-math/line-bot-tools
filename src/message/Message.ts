@@ -1,10 +1,10 @@
 import Config from '../config/config';
 import {
-  KarutaClass,
   ClassMap,
   ClubPracticeEvent,
   ExPracticeEvent,
   InternalDeadlineEvent,
+  KarutaClass,
   MatchEvent,
   Registration,
 } from '../types/type';
@@ -40,7 +40,7 @@ export class Message {
   static deadlineMatch(
     itemMap: ClassMap<Registration[]>,
     opts: DeadlineMatchMessageOptions = {}
-  ): string | null {
+  ): { hasMatch: boolean; message: string } {
     const o = {
       ...this.norm({
         header: opts.header ?? '🔔近日の〆切(大会)🔔',
@@ -52,7 +52,7 @@ export class Message {
     };
 
     const chouseisanSummary = {} as ClassMap<string>;
-    let isEmpty = true;
+    let hasMatch = false;
     for (const [kClass, registrations] of Object.entries(itemMap) as [
       KarutaClass,
       Registration[]
@@ -60,7 +60,7 @@ export class Message {
       if (registrations.length === 0) {
         chouseisanSummary[kClass] = '';
       } else {
-        isEmpty = false;
+        hasMatch = true;
         let body = ``;
         registrations.forEach((ev) => {
           body += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(
@@ -80,7 +80,6 @@ export class Message {
         chouseisanSummary[kClass] = body;
       }
     }
-    if (isEmpty) return null;
 
     const msg = new MessageBase().add(o.header);
     for (const [kClass, summaryText] of Object.entries(chouseisanSummary) as [
@@ -94,14 +93,14 @@ export class Message {
       msg.add(`${header}`).blank().add(`${fullText}`);
     }
 
-    return msg.toString().length > 0 ? msg.toString() : null;
+    return { hasMatch, message: msg.toString() };
   }
 
   static deadlineExPractice(
     items: InternalDeadlineEvent[],
     opts: DeadlineMessageOptions = {}
-  ): string {
-    if (!items?.length) return '';
+  ): { hasExPractice: boolean; message: string } {
+    if (!items?.length) return { hasExPractice: false, message: '' };
 
     const o = this.normWithToday({
       header: opts.header ?? '🔔近日の〆切(外部練)🔔',
@@ -114,6 +113,7 @@ export class Message {
     const sorted = [...items]
       .filter((it) => it.isExternalPractice)
       .sort((a, b) => a.date.getTime() - b.date.getTime());
+    if (sorted.length === 0) return { hasExPractice: false, message: '' };
 
     const msg = new MessageBase().add(o.header);
     for (const it of sorted) {
@@ -122,7 +122,7 @@ export class Message {
         ddays === 0 ? '本日〆切' : ddays > 0 ? `〆切まであと${ddays}日` : `期限超過${-ddays}日`;
       msg.blank().add(`【${tag}】`).bullet(it.title, o.bullet);
     }
-    return msg.toString();
+    return { hasExPractice: true, message: msg.toString() };
   }
 
   static clubPractice(events: ClubPracticeEvent[], opts: ClubPracticeMessageOptions = {}): string {
@@ -152,7 +152,7 @@ export class Message {
       msg.add(`時間: ${ev.timeRange}`);
       if (o.showTargetClasses && ev.targetClasses?.length)
         msg.add(`対象: ${StringUtils.stringfyKarutaClass(ev.targetClasses)}`);
-      if ((opts.showDescription ?? true) && ev.description) msg.add(`備考: ${ev.description}`);
+      if ((opts.showDescription ?? true) && ev.description) msg.add(`${ev.description}`);
     });
   }
 

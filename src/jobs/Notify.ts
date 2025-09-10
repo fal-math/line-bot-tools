@@ -30,8 +30,9 @@ export class Notify {
     const internalDeadlineEvents = this.calendar.get(EventType.InternalDeadline, from, to);
     if (internalDeadlineEvents.length === 0) return;
 
-    const attendanceSummaries = this.chouseisan.getSummary(from, to);
-    const message = Message.deadlineMatch(attendanceSummaries, {
+    const { summary, isEmpty } = this.chouseisan.getSummary(from, to);
+    if (isEmpty) return;
+    const {message} = Message.deadlineMatch(summary, {
       header: `{receiver}さん\n本日〆切の大会があります。未回答者に声掛けをお願いします。\n\n`,
       showAttending: false,
     });
@@ -50,11 +51,12 @@ export class Notify {
   // 調整さんまとめのみ
   // ==================================================================================
   public chouseisanWeekly(to: string): void {
-    const summaries = this.chouseisan.getSummary(this.oneWeekAgo, this.oneWeekLater);
+    const { summary, isEmpty } = this.chouseisan.getSummary(this.oneWeekAgo, this.oneWeekLater);
+    if (isEmpty) return;
 
     let lastWeek = '';
     let thisWeek = '';
-    for (const [kClass, registrations] of Object.entries(summaries) as [
+    for (const [kClass, registrations] of Object.entries(summary) as [
       KarutaClass,
       Registration[]
     ][]) {

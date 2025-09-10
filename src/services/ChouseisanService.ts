@@ -75,23 +75,28 @@ export class ChouseisanService {
    * 締切範囲でフィルタ
    */
   private filterByDeadline(events: Registration[], start: Date, end: Date): Registration[] {
-    return events.filter((ev) => ev.deadline >= start && ev.deadline <= end);
+    return events.filter((ev) => ev.deadline >= start && ev.deadline < end);
   }
 
   /**
    * 各クラスごとに締切をチェックし、Registration列を返す
    */
-  public getSummary(start: Date, end: Date): ClassMap<Registration[]> {
-    const result = {} as ClassMap<Registration[]>;
+  public getSummary(
+    start: Date,
+    end: Date
+  ): { summary: ClassMap<Registration[]>; isEmpty: boolean } {
+    const summary = {} as ClassMap<Registration[]>;
+    let isEmpty = true;
 
     (Object.keys(this.csvMap) as KarutaClass[]).forEach((kClass) => {
       const rawCsv = this.fetchCsv(this.csvMap[kClass]);
       const events = this.formatData(rawCsv);
       const filtered = this.filterByDeadline(events, start, end);
-      result[kClass] = filtered;
+      if (filtered.length > 0) isEmpty = false;
+      summary[kClass] = filtered;
     });
 
-    return result;
+    return { summary, isEmpty };
   }
   public getMatrix(): Record<KarutaClass, string[][]> {
     let result = {} as Record<KarutaClass, string[][]>;
