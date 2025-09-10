@@ -1,5 +1,5 @@
 import { DEBUG_MODE, LineConfig } from '../config/config';
-import { SubstitutionMap } from '../types/type';
+import { ImageUrls, SubstitutionMap } from '../types/type';
 
 export class LineService {
   constructor(private token: string = LineConfig.channelToken) {}
@@ -57,9 +57,9 @@ export class LineService {
     });
   }
 
-  pushImage(to: string, original: string, preview: string, retryKey?: string): void {
+  pushImage(to: string, image: ImageUrls, retryKey?: string): void {
     if (DEBUG_MODE) {
-      Logger.log(`[DEBUG] \noriginal=${original}\npreview=${preview}`);
+      Logger.log(`[DEBUG] \noriginal=${image.original}\npreview=${image.preview}`);
       return;
     }
 
@@ -68,8 +68,8 @@ export class LineService {
       messages: [
         {
           type: 'image',
-          originalContentUrl: original,
-          previewImageUrl: preview,
+          originalContentUrl: image.original,
+          previewImageUrl: image.preview,
         },
       ],
     };

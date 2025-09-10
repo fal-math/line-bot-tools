@@ -2,6 +2,7 @@ import Config from '../config/config';
 import { Message } from '../message/Message';
 import { CalendarService, EventType } from '../services/CalendarService';
 import { ChouseisanService } from '../services/ChouseisanService';
+import { DriveService } from '../services/DriveService';
 import { LineService } from '../services/LineService';
 import { ClubPracticeEvent } from '../types/type';
 import { DateUtils } from '../util/DateUtils';
@@ -18,7 +19,8 @@ export class Announcer {
     private readonly testMode: boolean = false,
     private readonly line: LineService = new LineService(),
     private readonly calendar: CalendarService = new CalendarService(),
-    private readonly chouseisan: ChouseisanService = new ChouseisanService()
+    private readonly chouseisan: ChouseisanService = new ChouseisanService(),
+    private readonly drive: DriveService = new DriveService()
   ) {}
 
   /**
@@ -86,7 +88,7 @@ export class Announcer {
     const practiceLocationsString = uniqueLocs
       .map((shortName) => {
         const { buildingName, mapUrl } = Config.PRACTICE_LOCATIONS[shortName];
-        return `・${buildingName}\n　${mapUrl}`;
+        return `・${buildingName}\n${mapUrl}`;
       })
       .join('\n');
     return practiceLocationsString;
@@ -160,6 +162,10 @@ export class Announcer {
     }
 
     this.line.pushText(to, lines.join('\n'));
+
+    const clubPracticeTypeImageId = '1nVYjeTLb57LtbV6kNd3lcCPpCtuM0tar';
+    const image = this.drive.getImageUrls(clubPracticeTypeImageId);
+    if (image) this.line.pushImage(to, image);
   }
 }
 
