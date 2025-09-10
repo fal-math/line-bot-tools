@@ -1,7 +1,7 @@
 import Config from '../config/config';
 import { InboxRoute } from '../types/type';
 
-function makeReserveRoute(label: string, address: string, lineId: string): InboxRoute {
+function makeReserveRoute_(label: string, address: string, lineId: string): InboxRoute {
   return {
     address,
     lineRecipients: [lineId],
@@ -33,9 +33,9 @@ export const INBOX_ROUTES: InboxRoute[] = [
     enableAutoReply: true,
     autoReplyTemplate: '遅刻・欠席のご連絡を受け付けました。※本メールは自動送信です。',
   },
-  makeReserveRoute('常盤', Config.Mail.reserve.Tokiwa, Config.Line.id.reserve),
-  makeReserveRoute('別所', Config.Mail.reserve.Bessho, Config.Line.id.reserve),
-  makeReserveRoute('指扇', Config.Mail.reserve.Sashiougi, Config.Line.id.reserve),
-  makeReserveRoute('上落合', Config.Mail.reserve.Kamiochiai, Config.Line.id.reserve),
-  makeReserveRoute('岸町', Config.Mail.reserve.Kishicho, Config.Line.id.reserve),
+  makeReserveRoute_('常盤', Config.Mail.reserve.Tokiwa, Config.Line.id.reserve),
+  makeReserveRoute_('別所', Config.Mail.reserve.Bessho, Config.Line.id.reserve),
+  makeReserveRoute_('指扇', Config.Mail.reserve.Sashiougi, Config.Line.id.reserve),
+  makeReserveRoute_('上落合', Config.Mail.reserve.Kamiochiai, Config.Line.id.reserve),
+  makeReserveRoute_('岸町', Config.Mail.reserve.Kishicho, Config.Line.id.reserve),
 ];
