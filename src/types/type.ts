@@ -14,7 +14,7 @@ export type ClassMap<T> = {
 };
 
 export type PracticeConfigRow = {
-  name: string;      
+  name: string;
   description: string;
 };
 
@@ -38,6 +38,7 @@ export interface ExPracticeEvent extends BaseEvent {
   timeRange?: string;
   description?: string;
   category: string;
+  deadline: Date;
 }
 
 export interface ClubPracticeEvent extends BaseEvent {

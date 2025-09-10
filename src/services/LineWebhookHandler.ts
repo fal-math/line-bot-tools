@@ -69,22 +69,22 @@ export class LineWebhookHandler {
       this.line.pushText(to, '外部練追加作業を行います。少々お待ちください。');
 
       text = StringUtils.toHalfWidth(text);
-      const parsed = this.parseExternalPractice(text);
-      if (!parsed) {
+      const exPracrtice = this.parseExternalPractice(text);
+      if (!exPracrtice) {
         this.line.pushText(to, 'フォーマットが正しくありません。再度ご確認ください。');
         return;
       }
 
-      const calendarDescription = this.config.getDescription(parsed.event.category);
+      const calendarDescription = this.config.getDescription(exPracrtice.category);
 
       try {
         this.calendar.createCalenderEvent(
           {
-            start: parsed.event.date,
-            location: parsed.event.location,
-            summary: `外部${parsed.event.title}${parsed.event.timeRange} ${
-              parsed.event.targetClasses
-            }:${DateUtils.formatMD(parsed.deadline)}〆`,
+            start: exPracrtice.date,
+            location: exPracrtice.location,
+            summary: `外部${exPracrtice.title}${exPracrtice.timeRange} ${
+              exPracrtice.targetClasses
+            }:${DateUtils.formatMD(exPracrtice.deadline)}〆`,
             description: calendarDescription,
           },
           Config.Calendar.id.externalPractice
@@ -95,10 +95,10 @@ export class LineWebhookHandler {
       try {
         this.calendar.createCalenderEvent(
           {
-            start: parsed.deadline,
-            summary: `〆${parsed.event.targetClasses}|外部${
-              parsed.event.title
-            }${DateUtils.formatMDD(parsed.event.date)}`,
+            start: exPracrtice.deadline,
+            summary: `〆${exPracrtice.targetClasses}|外部${exPracrtice.title}${DateUtils.formatMDD(
+              exPracrtice.date
+            )}`,
             description: `グループLINE内「イベント」から参加ポチ\nKM練は調整さん入力も忘れずに！`,
           },
           Config.Calendar.id.internalDeadline
@@ -111,26 +111,23 @@ export class LineWebhookHandler {
         to,
         [
           `✅ 外部練習・締切日を登録しました`,
-          `日付: ${parsed.event.date.toLocaleDateString()}`,
-          `時間: ${parsed.event.timeRange}`,
-          `練習名: ${parsed.event.title}`,
-          `対象級: ${parsed.event.targetClasses}`,
-          `〆切: ${parsed.deadline.toLocaleDateString()}`,
-          `場所: ${parsed.event.location}`,
-          `種別: ${parsed.event.category}`,
+          `日付: ${DateUtils.formatMDD(exPracrtice.date)}`,
+          `時間: ${exPracrtice.timeRange}`,
+          `練習名: ${exPracrtice.title}`,
+          `対象級: ${exPracrtice.targetClasses}`,
+          `〆切: ${DateUtils.formatMDD(exPracrtice.deadline)}`,
+          `場所: ${exPracrtice.location}`,
+          `種別: ${exPracrtice.category}`,
         ].join('\n')
       );
       return;
     }
   }
 
-  private parseExternalPractice(text: string): {
-    event: ExPracticeEvent;
-    deadline: Date;
-  } | null {
+  private parseExternalPractice(text: string): ExPracticeEvent | null {
     // 行ごとに key：value を抽出
     const lines = text
-      .replace('：', ':')
+      .replace(/：/g, ':')
       .split('\n')
       .map((l) => l.trim())
       .filter((l) => l.includes(':') && !l.startsWith('★'));
@@ -159,14 +156,12 @@ export class LineWebhookHandler {
     }
 
     return {
-      event: {
-        date,
-        title,
-        location,
-        timeRange,
-        targetClasses,
-        category,
-      },
+      date,
+      title,
+      location,
+      timeRange,
+      targetClasses,
+      category,
       deadline,
     };
   }

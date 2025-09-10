@@ -8,6 +8,7 @@ import {
   ClassMap,
   KarutaClass,
 } from '../types/type';
+import { DateUtils } from '../util/DateUtils';
 import { StringUtils } from '../util/StringUtils';
 
 export const EventType = {
@@ -57,9 +58,9 @@ export class CalendarService {
     },
     [EventType.ExternalPractice]: {
       calendarId: Config.Calendar.id.externalPractice,
-      regex: /^(.+?)(\d{3,4}-\d{3,4})\s*([^:]+):(.+)$/,
+      regex: /^(.+?)(\d{3,4}-\d{3,4})\s*([^:]+):(\d{1,2}\/\d{1,2})〆.*$/,
       parser: (m, event) => {
-        const [_, title, timeRange, classStr] = m;
+        const [_, title, timeRange, classStr, deadlineStr] = m;
         return {
           date: new Date(event.getStartTime().getTime()),
           title: title.trim(),
@@ -67,6 +68,7 @@ export class CalendarService {
           targetClasses: StringUtils.formatKarutaClass(classStr),
           location: event.getLocation().split(',')[0],
           description: StringUtils.htmlToPlainText(event.getDescription()),
+          deadline: DateUtils.parseMD(deadlineStr),
         } as ExPracticeEvent;
       },
     },

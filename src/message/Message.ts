@@ -25,6 +25,7 @@ export type ClubPracticeMessageOptions = BaseOpts & {
 
 export type ExPracticeMessageOptions = BaseOpts & {
   showDescription?: boolean;
+  today?: Date; // Δ日計算用。省略時は new Date()
 };
 
 export type MatchMessageOptions = BaseOpts;
@@ -141,14 +142,24 @@ export class Message {
   }
 
   static exPractice(events: ExPracticeEvent[], opts: ExPracticeMessageOptions = {}): string {
-    const o = this.norm({
+    const o = this.normWithToday({
       header: opts.header ?? '🟠外部練習のお知らせ🟠',
       bullet: opts.bullet ?? '・',
       showTargetClasses: opts.showTargetClasses ?? true,
       dayLabels: opts.dayLabels,
+      today: opts.today,
     });
+
     return this.build(events, o, (ev, msg) => {
-      msg.bullet(`${ev.title}`, o.bullet);
+      msg.bullet(`${StringUtils.removeLeading(ev.title, '外部')}`, o.bullet);
+      const ddays = this.daysDiff(o.today, ev.deadline);
+      const tag =
+        ddays === 0
+          ? '本日〆切！'
+          : ddays > 0
+          ? `〆切:${DateUtils.formatMDD(ev.deadline)}`
+          : `※締切済`;
+      msg.add(tag);
       msg.add(`時間: ${ev.timeRange}`);
       if (o.showTargetClasses && ev.targetClasses?.length)
         msg.add(`対象: ${StringUtils.stringfyKarutaClass(ev.targetClasses)}`);

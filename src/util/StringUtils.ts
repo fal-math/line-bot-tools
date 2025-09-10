@@ -21,6 +21,19 @@ export class StringUtils {
     return str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0));
   }
 
+  /**
+   * 文字列の先頭が指定のものの場合、取り除く
+   * @param input 入力
+   * @param removed 取り除く文字列
+   * @returns 除去済み文字列
+   */
+  static removeLeading(input: string, removed: string): string {
+    if (removed !== '' && input.startsWith(removed)) {
+      return input.slice(removed.length);
+    }
+    return input;
+  }
+
   static stripCss(text: string): string {
     return text.replace(/([^\{]+)\s*\{[^}]*}/g, '').replace(/[\n\r]*\s*[\n\r]+/g, '\n');
   }

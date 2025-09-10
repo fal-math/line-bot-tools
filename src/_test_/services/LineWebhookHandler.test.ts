@@ -34,17 +34,15 @@ describe('LineWebhookHandler.parseExternalPractice', () => {
       '種別：和光練',
     ].join('\n');
 
-    const result: { event: ExPracticeEvent; deadline: Date } = (
-      handler as any
-    ).parseExternalPractice(input);
+    const result: ExPracticeEvent = (handler as any).parseExternalPractice(input);
     expect(result).not.toBeNull();
-    expect(result.event.date).toEqual(dateA);
+    expect(result.date).toEqual(dateA);
     expect(result.deadline).toEqual(dateB);
-    expect(result.event.timeRange).toBe('0900-1900');
-    expect(result.event.title).toBe('和光練');
-    expect(result.event.targetClasses).toBe('ABC/G以上');
-    expect(result.event.location).toBe('和光市民館');
-    expect(result.event.category).toBe('和光練');
+    expect(result.timeRange).toBe('0900-1900');
+    expect(result.title).toBe('和光練');
+    expect(result.targetClasses).toBe('ABC/G以上');
+    expect(result.location).toBe('和光市民館');
+    expect(result.category).toBe('和光練');
   });
 
   it('異常系: 必須フィールドが欠けていると null を返す', () => {
@@ -95,7 +93,13 @@ describe('parseExternalPractice + category resolution', () => {
   it('parses with full-width colon', () => {
     const parsed = handler.parseExternalPractice(bodyHalf);
     expect(parsed).not.toBeNull();
-    expect(parsed!.event.category).toBe('合同練');
+    expect(parsed!.category).toBe('合同練');
+  });
+
+  it('parses with half-width colon', () => {
+    const parsed = handler.parseExternalPractice(bodyHalf.replace(/：/g,":"));
+    expect(parsed).not.toBeNull();
+    expect(parsed!.category).toBe('合同練');
   });
 
   it('resolves category by tag or name', () => {
