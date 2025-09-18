@@ -1,4 +1,4 @@
-import { ClassMap, PracticeLocations } from '../types/type';
+import { ClassMap, Venue } from '../types/type';
 import { ConfigValidator } from './configValidator';
 
 const userProps = PropertiesService.getScriptProperties();
@@ -42,23 +42,6 @@ function getJsonProp_<T>(key: string): T {
     const msg = e instanceof Error ? e.message : String(e);
     throw new Error(`[Config] JSON 解析に失敗しました: ${key} (${msg})`);
   }
-}
-
-function getPracticeLocations_(): PracticeLocations {
-  const json = userProps.getProperty('PRACTICE_LOCATIONS');
-  if (!json) {
-    throw new Error('ScriptProperties に PRACTICE_LOCATIONS が設定されていません');
-  }
-  let data: unknown;
-  try {
-    data = JSON.parse(json);
-  } catch (e: unknown) {
-    throw new Error(`PRACTICE_LOCATIONS の JSON パースに失敗しました: ${e}`);
-  }
-  if (typeof data !== 'object' || data === null) {
-    throw new Error('PRACTICE_LOCATIONS の中身がオブジェクトではありません');
-  }
-  return data as PracticeLocations;
 }
 
 export const LineConfig = {
@@ -108,7 +91,7 @@ export const MailConfig = {
 export const DEBUG_MODE = (getOptionalProp_('DEBUG_MODE') || 'false') === 'true';
 export const DRIVE_URL = getRequiredProp_('DRIVE_URL');
 export const MANAGERS_PORTAL_URL = getRequiredProp_('MANAGERS_PORTAL_URL');
-export const PRACTICE_LOCATIONS = getPracticeLocations_();
+// export const PRACTICE_LOCATIONS = getPracticeLocations_();
 export const CONFIG_SPREADSHEET_ID = getRequiredProp_('CONFIG_SPREADSHEET_ID');
 
 const Config = {
@@ -119,7 +102,7 @@ const Config = {
   DEBUG_MODE,
   DRIVE_URL,
   MANAGERS_PORTAL_URL,
-  PRACTICE_LOCATIONS,
+  // PRACTICE_LOCATIONS,
   CONFIG_SPREADSHEET_ID,
 } as const;
 

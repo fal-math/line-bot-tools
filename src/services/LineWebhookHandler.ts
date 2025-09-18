@@ -1,16 +1,21 @@
 import Config from '../config/config';
 import { CalendarService } from '../services/CalendarService';
 import { LineService } from '../services/LineService';
-import { ExPracticeEvent } from '../types/type';
+import { ExPracticeEvent, HeaderMap } from '../types/type';
 import { DateUtils } from '../util/DateUtils';
 import { StringUtils } from '../util/StringUtils';
-import { SpreadsheetConfigService } from './SpreadsheetConfigService';
+import { PracticeConfigRow, SpreadsheetConfigService } from './SpreadsheetConfigService';
 
 export class LineWebhookHandler {
   private line = new LineService();
   private calendar = new CalendarService();
   private sheetName = '外部練';
-  private config = new SpreadsheetConfigService(Config.CONFIG_SPREADSHEET_ID, this.sheetName);
+  private configOfExPracrice = new SpreadsheetConfigService(
+    Config.CONFIG_SPREADSHEET_ID,
+    this.sheetName,
+    { name: '名前', description: '説明' } as HeaderMap<PracticeConfigRow>,
+    'name'
+  );
 
   private key = {
     date: '日付',
@@ -33,7 +38,7 @@ export class LineWebhookHandler {
 
   public handle(text: string, to: string) {
     if (text === '外部練追加') {
-      const categoryList = [...this.config.names(), 'その他'];
+      const categoryList = [...this.configOfExPracrice.names(), 'その他'];
       const categoryText = `種別:\n下記のどれかを選んでください。\n${categoryList.join('/')}`;
       this.line.pushText(
         to,
@@ -75,7 +80,9 @@ export class LineWebhookHandler {
         return;
       }
 
-      const calendarDescription = this.config.getDescription(exPracrtice.category);
+      const calendarDescription = this.configOfExPracrice.getByName(
+        exPracrtice.category
+      )?.description;
 
       try {
         this.calendar.createCalenderEvent(

@@ -1,7 +1,7 @@
-// src/_test_/services/SpreadsheetConfigService.test.ts
-import { SpreadsheetConfigService } from '../../services/SpreadsheetConfigService';
-import type { PracticeConfigRow } from '../../types/type';
-
+import {
+  PracticeConfigRow,
+  SpreadsheetConfigService,
+} from '../../services/SpreadsheetConfigService';
 /**
  * --- 簡易 GAS モック ---
  * SpreadsheetApp.openById(id).getSheetByName(name)
@@ -38,14 +38,19 @@ describe('SpreadsheetConfigService', () => {
     it('正常系: 行を読み取り、trim し、Map で返す（空行はスキップ）', () => {
       installSpreadsheetMock({
         [SHEET_NAME]: [
-          [' name ', ' description '],          // header（大小文字は問わないがここはそのまま）
-          row('  合同練  ', '  体験可  '),      // 前後空白は trim
-          ['', ''],                              // 空行 → スキップ
-          row('千葉練', ''),                     // description 空でもOK
+          [' name ', ' description '], // header（大小文字は問わないがここはそのまま）
+          row('  合同練  ', '  体験可  '), // 前後空白は trim
+          ['', ''], // 空行 → スキップ
+          row('千葉練', ''), // description 空でもOK
         ],
       });
 
-      const svc = new SpreadsheetConfigService(SHEET_ID, SHEET_NAME);
+      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+        SHEET_ID,
+        SHEET_NAME,
+        { name: 'name', description: 'description' },
+        'name'
+      );
       const m = svc.getAll();
 
       expect(m.size).toBe(2);
@@ -60,9 +65,16 @@ describe('SpreadsheetConfigService', () => {
     });
 
     it('シートが存在しない場合は例外', () => {
-      installSpreadsheetMock({ /* シートなし */ });
+      installSpreadsheetMock({
+        /* シートなし */
+      });
 
-      const svc = new SpreadsheetConfigService(SHEET_ID, SHEET_NAME);
+      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+        SHEET_ID,
+        SHEET_NAME,
+        { name: 'name', description: 'description' },
+        'name'
+      );
       expect(() => svc.getAll()).toThrowError(/Sheet not found/);
     });
 
@@ -71,20 +83,30 @@ describe('SpreadsheetConfigService', () => {
         [SHEET_NAME]: [['name', 'description']],
       });
 
-      const svc = new SpreadsheetConfigService(SHEET_ID, SHEET_NAME);
+      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+        SHEET_ID,
+        SHEET_NAME,
+        { name: 'name', description: 'description' },
+        'name'
+      );
       const m = svc.getAll();
       expect(m.size).toBe(0);
     });
 
-    it('ヘッダの大小文字は無視される（case-insensitive）', () => {
+    it('ヘッダに別文字を設定できる', () => {
       installSpreadsheetMock({
         [SHEET_NAME]: [
-          ['Name', 'Description'], // 大小混在
+          ['名前', '説明'], // 日本語
           row('合同練', '注意事項'),
         ],
       });
 
-      const svc = new SpreadsheetConfigService(SHEET_ID, SHEET_NAME);
+      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+        SHEET_ID,
+        SHEET_NAME,
+        { name: '名前', description: '説明' },
+        'name'
+      );
       const m = svc.getAll();
       expect(m.size).toBe(1);
       expect(m.get('合同練')!.description).toBe('注意事項');
@@ -96,16 +118,28 @@ describe('SpreadsheetConfigService', () => {
         [SHEET_NAME]: [['name'], row('合同練')],
       });
 
-      const svc1 = new SpreadsheetConfigService(SHEET_ID, SHEET_NAME);
-      expect(() => svc1.getAll()).toThrowError(/Missing required columns/i);
+      const svc1 = new SpreadsheetConfigService<PracticeConfigRow>(
+        SHEET_ID,
+        SHEET_NAME,
+        { name: 'name', description: 'description' },
+        'name'
+      );
+      expect(() => svc1.getAll()).toThrowError(
+        `Missing required column "description" in ${SHEET_NAME}`
+      );
 
       // description だけ
       installSpreadsheetMock({
         [SHEET_NAME]: [['description'], ['メモ']],
       });
 
-      const svc2 = new SpreadsheetConfigService(SHEET_ID, SHEET_NAME);
-      expect(() => svc2.getAll()).toThrowError(/Missing required columns/i);
+      const svc2 = new SpreadsheetConfigService<PracticeConfigRow>(
+        SHEET_ID,
+        SHEET_NAME,
+        { name: 'name', description: 'description' },
+        'name'
+      );
+      expect(() => svc2.getAll()).toThrowError(`Missing required column "name" in ${SHEET_NAME}`);
     });
 
     it('name が空の行が存在する場合は例外（isValid による検証）', () => {
@@ -116,8 +150,13 @@ describe('SpreadsheetConfigService', () => {
         ],
       });
 
-      const svc = new SpreadsheetConfigService(SHEET_ID, SHEET_NAME);
-      expect(() => svc.getAll()).toThrowError(/Invalid row at R2/);
+      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+        SHEET_ID,
+        SHEET_NAME,
+        { name: 'name', description: 'description' },
+        'name'
+      );
+      expect(() => svc.getAll()).toThrowError(/Empty key at R2/);
     });
 
     it('name 重複がある場合は例外', () => {
@@ -129,25 +168,31 @@ describe('SpreadsheetConfigService', () => {
         ],
       });
 
-      const svc = new SpreadsheetConfigService(SHEET_ID, SHEET_NAME);
-      expect(() => svc.getAll()).toThrowError(/Duplicate name "合同練" at R3/);
+      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+        SHEET_ID,
+        SHEET_NAME,
+        { name: 'name', description: 'description' },
+        'name'
+      );
+      expect(() => svc.getAll()).toThrowError(/Duplicate key "合同練" at R3/);
     });
   });
 
   describe('getDescription', () => {
     it('名称に一致する description を返す。なければ空文字', () => {
       installSpreadsheetMock({
-        [SHEET_NAME]: [
-          ['name', 'description'],
-          row('合同練', '体験可'),
-          row('千葉練', ''),
-        ],
+        [SHEET_NAME]: [['name', 'description'], row('合同練', '体験可'), row('千葉練', '')],
       });
 
-      const svc = new SpreadsheetConfigService(SHEET_ID, SHEET_NAME);
-      expect(svc.getDescription('合同練')).toBe('体験可');
-      expect(svc.getDescription('千葉練')).toBe('');        // 空でもOK
-      expect(svc.getDescription('存在しない')).toBe('');    // 見つからない → ''
+      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+        SHEET_ID,
+        SHEET_NAME,
+        { name: 'name', description: 'description' },
+        'name'
+      );
+      expect(svc.getByName('合同練')?.description).toBe('体験可');
+      expect(svc.getByName('千葉練')?.description).toBe(''); // 空でもOK
+      expect(svc.getByName('存在しない')).toBeNull(); // 見つからない
     });
   });
 
@@ -162,7 +207,12 @@ describe('SpreadsheetConfigService', () => {
         ],
       });
 
-      const svc = new SpreadsheetConfigService(SHEET_ID, SHEET_NAME);
+      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+        SHEET_ID,
+        SHEET_NAME,
+        { name: 'name', description: 'description' },
+        'name'
+      );
       const items = svc.list();
 
       expect(items).toEqual<PracticeConfigRow[]>([
@@ -173,26 +223,29 @@ describe('SpreadsheetConfigService', () => {
 
     it('names は name だけの配列を返す', () => {
       installSpreadsheetMock({
-        [SHEET_NAME]: [
-          ['name', 'description'],
-          row('合同練', '体験可'),
-          row('千葉練', ''),
-        ],
+        [SHEET_NAME]: [['name', 'description'], row('合同練', '体験可'), row('千葉練', '')],
       });
 
-      const svc = new SpreadsheetConfigService(SHEET_ID, SHEET_NAME);
+      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+        SHEET_ID,
+        SHEET_NAME,
+        { name: 'name', description: 'description' },
+        'name'
+      );
       expect(svc.names()).toEqual(['合同練', '千葉練']);
     });
 
     it('getByName は一致行を返し、なければ null', () => {
       installSpreadsheetMock({
-        [SHEET_NAME]: [
-          ['name', 'description'],
-          row('合同練', '体験可'),
-        ],
+        [SHEET_NAME]: [['name', 'description'], row('合同練', '体験可')],
       });
 
-      const svc = new SpreadsheetConfigService(SHEET_ID, SHEET_NAME);
+      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+        SHEET_ID,
+        SHEET_NAME,
+        { name: 'name', description: 'description' },
+        'name'
+      );
       expect(svc.getByName('合同練')).toEqual<PracticeConfigRow>({
         name: '合同練',
         description: '体験可',

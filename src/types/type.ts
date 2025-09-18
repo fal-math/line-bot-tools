@@ -13,10 +13,7 @@ export type ClassMap<T> = {
   [K in KarutaClass]: T;
 };
 
-export type PracticeConfigRow = {
-  name: string;
-  description: string;
-};
+export type HeaderMap<T> = Record<keyof T, string>;
 
 // ========== Calendar Events ==========
 export interface BaseEvent {
@@ -42,7 +39,7 @@ export interface ExPracticeEvent extends BaseEvent {
 }
 
 export interface ClubPracticeEvent extends BaseEvent {
-  location: PracticeLocation;
+  location: Venue;
   practiceType: string;
   timeRange: string;
   personInCharge: string;
@@ -55,14 +52,17 @@ export interface InternalDeadlineEvent extends BaseEvent {
   isExternalPractice: boolean;
 }
 
-export interface PracticeLocation {
-  clubName: string;
-  mapUrl: string;
-  buildingName: string;
-  shortenBuildingName: string;
+export interface Venue {
+  name: string; // 会場名
+  shortName: string; // 会場名（短縮）
+  nearestStation: string; // 最寄り駅
+  walkMinutes: string; // 徒歩時間
+  line: string; // 何線か
+  mapUrl: string; // 地図URL
+  clubName: string; // 団体名
 }
 
-export type PracticeLocations = Record<string, PracticeLocation>;
+// export type PracticeLocations = Record<string, PracticeLoc ation>;
 
 // ========== Participation & Registration ==========
 export interface ParticipantStatus {
