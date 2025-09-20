@@ -8,9 +8,9 @@ export class MessageBase {
     this.lines.push('');
     return this;
   }
-  section(title: string): this {
+  section(title: string, prefix = '【', suffix = '】'): this {
     if (this.lines.length) this.blank();
-    this.add(`【${title}】`);
+    this.add(`${prefix}${title}${suffix}`);
     return this;
   }
   bullet(text: string, bullet = '・'): this {

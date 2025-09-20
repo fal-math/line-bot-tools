@@ -8,7 +8,7 @@ import {
   MatchEvent,
   Registration,
 } from '../types/type';
-import { DateUtils, DAY_MS, WEEK_DAYS } from '../util/DateUtils';
+import { DateUtils, WEEK_DAYS } from '../util/DateUtils';
 import { KARUTA_CLASS_COLOR, StringUtils } from '../util/StringUtils';
 import { MessageBase } from './MessageBase';
 
@@ -118,7 +118,7 @@ export class Message {
 
     const msg = new MessageBase().add(o.header);
     for (const it of sorted) {
-      const ddays = this.daysDiff(o.today, it.date);
+      const ddays = DateUtils.daysDiff(o.today, it.date);
       const tag =
         ddays === 0 ? '本日〆切' : ddays > 0 ? `〆切まであと${ddays}日` : `期限超過${-ddays}日`;
       msg.blank().add(`【${tag}】`).bullet(it.title, o.bullet);
@@ -152,7 +152,7 @@ export class Message {
 
     return this.build(events, o, (ev, msg) => {
       msg.bullet(`${StringUtils.removeLeading(ev.title, '外部')}`, o.bullet);
-      const ddays = this.daysDiff(o.today, ev.deadline);
+      const ddays = DateUtils.daysDiff(o.today, ev.deadline);
       const tag =
         ddays === 0
           ? '本日〆切！'
@@ -205,11 +205,7 @@ export class Message {
     };
   }
 
-  private static daysDiff(a: Date, b: Date): number {
-    const d0 = DateUtils.startOfDay(a).getTime();
-    const d1 = DateUtils.startOfDay(b).getTime();
-    return Math.round((d1 - d0) / DAY_MS);
-  }
+
 
   private static build<T extends { date: Date }>(
     events: T[],

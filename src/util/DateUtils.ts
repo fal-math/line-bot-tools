@@ -121,6 +121,18 @@ export class DateUtils {
   }
 
   /**
+   * 2つの日付の差を取得する
+   * @param a 開始日
+   * @param b 終了日
+   * @returns 何日差かを整数で返す
+   */
+   static daysDiff(a: Date, b: Date): number {
+    const d0 = DateUtils.startOfDay(a).getTime();
+    const d1 = DateUtils.startOfDay(b).getTime();
+    return Math.round((d1 - d0) / DAY_MS);
+  }
+
+  /**
    * 同じ日付のイベントをグループ化する
    * @param evs eventの配列
    * @returns (日付,eventの配列)のマップ
