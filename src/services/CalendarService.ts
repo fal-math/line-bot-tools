@@ -11,6 +11,8 @@ import {
 import { DateUtils } from '../util/DateUtils';
 import { StringUtils } from '../util/StringUtils';
 
+const HOLIDAY_CALENDAR_ID = 'ja.japanese#holiday@group.v.calendar.google.com';
+
 export const EventType = {
   ClubPractice: 'clubPractice',
   ExternalPractice: 'externalPractice',
@@ -191,5 +193,27 @@ export class CalendarService {
       description: params.description,
     });
     return event;
+  }
+
+  /**
+   * 指定日が日本の祝日かどうかを判定する
+   * @param date 判定対象の日付
+   * @returns trueなら祝日
+   */
+  static isJapaneseHoliday(date: Date): boolean {
+    const cal = CalendarApp.getCalendarById(HOLIDAY_CALENDAR_ID);
+    const events = cal.getEventsForDay(date);
+    return events.length > 0;
+  }
+
+  /**
+   * 指定日の祝日名を取得する
+   * @param date 判定対象の日付
+   * @returns 祝日名 or null
+   */
+  static getHolidayName(date: Date): string | null {
+    const cal = CalendarApp.getCalendarById(HOLIDAY_CALENDAR_ID);
+    const events = cal.getEventsForDay(date);
+    return events.length > 0 ? events[0].getTitle() : null;
   }
 }
