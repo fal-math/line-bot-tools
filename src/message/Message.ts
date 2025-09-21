@@ -118,7 +118,7 @@ export class Message {
 
     const msg = new MessageBase().add(o.header);
     for (const it of sorted) {
-      const ddays = DateUtils.daysDiff(o.today, it.date);
+      const ddays = DateUtils.signedDaysDiff(o.today, it.date);
       const tag =
         ddays === 0 ? '本日〆切' : ddays > 0 ? `〆切まであと${ddays}日` : `期限超過${-ddays}日`;
       msg.blank().add(`【${tag}】`).bullet(it.title, o.bullet);
@@ -152,7 +152,7 @@ export class Message {
 
     return this.build(events, o, (ev, msg) => {
       msg.bullet(`${StringUtils.removeLeading(ev.title, '外部')}`, o.bullet);
-      const ddays = DateUtils.daysDiff(o.today, ev.deadline);
+      const ddays = DateUtils.signedDaysDiff(o.today, ev.deadline);
       const tag =
         ddays === 0
           ? '本日〆切！'
