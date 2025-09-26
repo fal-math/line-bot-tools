@@ -1,5 +1,6 @@
 import Config from '../config/config';
 import { Message } from '../message/Message';
+import { MessageTemplates } from '../message/MessageTemplates';
 import { CalendarService, EventType } from '../services/CalendarService';
 import { ChouseisanService } from '../services/ChouseisanService';
 import { DriveService } from '../services/DriveService';
@@ -32,7 +33,7 @@ export class Announcer {
   public deadlineFromTo(lineTo: string, from: Date, to: Date, deadlineLabel: string): void {
     // 外部練
     const internalDeadlineEvents = this.calendar.get(EventType.InternalDeadline, from, to);
-    const { hasExPractice, message: exPracticeMessage } = Message.deadlineExPractice(
+    const { hasExPractice, message: exPracticeMessage } = MessageTemplates.deadlineExPractice(
       internalDeadlineEvents,
       {
         header: [
@@ -44,12 +45,14 @@ export class Announcer {
 
     // 大会
     const { summary } = this.chouseisan.getSummary(from, to);
-    const { hasMatch, message: matchMessage } = Message.deadlineMatch(summary, {
+    const { hasMatch, message: matchMessage } = MessageTemplates.deadlineMatch(summary, {
       header: [
         `🔔${deadlineLabel}の大会〆切🔔`,
         '各大会情報については、級別のLINEノート(画面右上≡)を参照してください。',
         '申込入力URL(調整さん)では、⭕️か❌を期限内にご入力ください。',
         '',
+        '准会員向け：',
+        '「会から申込」を希望する場合は、調整さんのコメント欄にその旨をご記入ください。',
       ].join('\n'),
     });
 
@@ -99,69 +102,59 @@ export class Announcer {
    * @param to メッセージの送信先(LINE)
    */
   public weekly(to: string): void {
+    // 会練を取得
     const clubPractices = this.calendar.get(EventType.ClubPractice, this.today, this.oneWeekLater);
     const practiceLocationsString = this.getPracticeLocations(clubPractices);
-    const clubPracticeMessage = Message.clubPractice(clubPractices, {
+    const clubPracticeMessage = MessageTemplates.clubPractice(clubPractices, {
       header: '🔵今週の練習🔵',
       showPersonInCharge: false,
     });
 
+    // 外部練情報を取得
     const externalPractices = this.calendar.get(
       EventType.ExternalPractice,
       this.today,
       this.oneWeekLater
     );
-    const externalPracticeMessage = Message.exPractice(externalPractices, {
+    const externalPracticeMessage = MessageTemplates.exPractice(externalPractices, {
       header: '🟠今週の外部練🟠',
       showDescription: true,
     });
-    let externalPracticesString = '';
-    if (externalPracticeMessage.length > 0) {
-      externalPracticesString = [SEPARATOR, '', externalPracticeMessage].join('\n');
-    }
 
+    // 大会情報を取得
     const matches = this.calendar.get(EventType.Match, this.today, this.twoWeekLater);
-    const matchMessage = Message.match(matches, {
+    const matchMessage = MessageTemplates.match(matches, {
       header: '🟢今週・来週の出場大会🟢',
     });
-    let matchString = '';
-    if (matchMessage.length > 0) {
-      matchString = [SEPARATOR, '', matchMessage].join('\n');
-    }
 
-    const lines = [
-      '《ちはやふる富士見 木曜定期便》',
-      '',
-      clubPracticeMessage,
-      '',
-      '📍会練会場案内',
-      practiceLocationsString,
-      '',
-      '📒練習持ち物',
-      '・マイ札',
-      '・かるたノート',
-      '・上達カード(基本級～F級)',
-      '・スタートアップガイド',
-      '',
-      '📧会練遅刻欠席連絡',
-      '当日・事前の遅刻欠席連絡メールアドレス',
-      Config.Mail.attendance,
-      '⚠️下記を必ず記載⚠️',
-      '題名：名前と級',
-      '本文：参加する練習会場、用件(遅刻の場合、到着予定時刻)',
-      '※LINEで参加を押すと「初めから参加」の意味になります',
-      externalPracticesString,
-      matchString,
-      SEPARATOR,
-      '',
-      '◯活動カレンダー',
-      Config.Calendar.url,
-    ];
+    const message = new Message();
+
     if (this.testMode) {
-      lines.unshift('[テスト投稿]');
+      message.add('[テスト投稿]').blank();
     }
+    message.add('《ちはやふる富士見 木曜定期便》').blank();
+    message.add(clubPracticeMessage).blank();
+    message.add('📍会練会場案内').add(practiceLocationsString).blank();
 
-    this.line.pushText(to, lines.join('\n'));
+    message.add('📒練習持ち物');
+    message.bullet('マイ札');
+    message.bullet('かるたノート');
+    message.bullet('上達カード(基本級～F級)');
+    message.bullet('スタートアップガイド');
+    message.blank();
+    message.add('📧会練遅刻欠席連絡');
+    message.add('当日・事前の遅刻欠席連絡メールアドレス');
+    message.add(Config.Mail.attendance);
+    message.add('⚠️下記を必ず記載⚠️');
+    message.add('題名：名前と級');
+    message.add('本文：参加する練習会場、用件(遅刻の場合、到着予定時刻)');
+    message.add('※LINEで参加を押すと「初めから参加」の意味になります');
+    message.add(SEPARATOR);
+
+    if (externalPracticeMessage.length > 0) message.add(externalPracticeMessage).add(SEPARATOR);
+    if (matchMessage.length > 0) message.add(matchMessage).add(SEPARATOR);
+    message.add('⚫活動カレンダー⚫').add(Config.Calendar.url);
+    this.line.pushText(to, message.toString());
 
     const clubPracticeTypeImageId = '1nVYjeTLb57LtbV6kNd3lcCPpCtuM0tar';
     const image = this.drive.getImageUrls(clubPracticeTypeImageId);

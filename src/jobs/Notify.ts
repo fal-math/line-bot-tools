@@ -6,7 +6,7 @@ import { ChouseisanService } from '../services/ChouseisanService';
 import { LineService } from '../services/LineService';
 import { DateUtils } from '../util/DateUtils';
 import { KARUTA_CLASS_COLOR } from '../util/StringUtils';
-import { Message } from '../message/Message';
+import { MessageTemplates } from '../message/MessageTemplates';
 
 export class Notify {
   private weekdays = 7;
@@ -32,7 +32,7 @@ export class Notify {
 
     const { summary, isEmpty } = this.chouseisan.getSummary(from, to);
     if (isEmpty) return;
-    const {message} = Message.deadlineMatch(summary, {
+    const {message} = MessageTemplates.deadlineMatch(summary, {
       header: `{receiver}さん\n本日〆切の大会があります。未回答者に声掛けをお願いします。\n\n`,
       showAttending: false,
     });
@@ -122,7 +122,7 @@ export class Notify {
     );
     if (!practices.length) return;
 
-    const practiceMessage = Message.clubPractice(practices, {
+    const practiceMessage = MessageTemplates.clubPractice(practices, {
       header: '🔵今週来週の担当🔵\n全体LINEの参加ポチも忘れずにお願いします！',
       showTargetClasses: false,
     });
@@ -141,7 +141,7 @@ export class Notify {
       this.tomorrow
     );
     if (!practices.length) return;
-    const practiceMsg = Message.clubPractice(practices, {
+    const practiceMsg = MessageTemplates.clubPractice(practices, {
       header: '🔵今日の練習🔵',
       showTargetClasses: false,
       showPersonInCharge: true,

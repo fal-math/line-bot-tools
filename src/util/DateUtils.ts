@@ -92,7 +92,7 @@ export class DateUtils {
    * @param timeRange "0900-1200"のような文字列
    * @returns 開始時刻の0時からの経過分数
    */
-  static parseStartMinutes(timeRange: string): number {
+  static getStartMinutesFromRange(timeRange: string): number {
     // "9:00-12:00" / "0900-1200" / "9-12" 等を許容
     const m = timeRange?.match?.(/(\d{1,2})(?::?(\d{2}))?/);
     if (!m) return Number.MAX_SAFE_INTEGER;
@@ -114,10 +114,22 @@ export class DateUtils {
     const ad = a.date.getTime(),
       bd = b.date.getTime();
     if (ad !== bd) return ad - bd;
-    const am = DateUtils.parseStartMinutes(a.timeRange ?? '');
-    const bm = DateUtils.parseStartMinutes(b.timeRange ?? '');
+    const am = DateUtils.getStartMinutesFromRange(a.timeRange ?? '');
+    const bm = DateUtils.getStartMinutesFromRange(b.timeRange ?? '');
     if (am !== bm) return am - bm;
     return 0;
+  }
+
+  /**
+   * 2つの日付の符号付き差を取得する
+   * @param a 開始日
+   * @param b 終了日
+   * @returns b - a の日数差（bが未来なら正、過去なら負）
+   */
+  static signedDaysDiff(a: Date, b: Date): number {
+    const d0 = DateUtils.startOfDay(a).getTime();
+    const d1 = DateUtils.startOfDay(b).getTime();
+    return Math.round((d1 - d0) / DAY_MS);
   }
 
   /**
