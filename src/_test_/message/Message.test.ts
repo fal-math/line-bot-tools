@@ -1,4 +1,4 @@
-import { Message } from '../../message/Message';
+import { MessageTemplates } from '../../message/MessageTemplates';
 import { ClubPracticeEvent } from '../../types/type';
 
 function ev(
@@ -26,7 +26,7 @@ function ev(
 }
 
 test('ヘッダ差し替え＆時刻昇順整列', () => {
-  const text = Message.clubPractice(
+  const text = MessageTemplates.clubPractice(
     [
       ev(2025, 9, 9, '13:00-17:00', '常盤', '会練', 'A'),
       ev(2025, 9, 9, '9:00-12:00', '常盤', '会練', 'B'),
@@ -44,7 +44,7 @@ describe('buildWeeklyPracticeMessage', () => {
       ev(2025, 9, 8, '0900-1200', '全級', '会練', 'Bさん'),
       ev(2025, 9, 12, '1830-2100', 'F以上', '対戦練', 'Cさん'),
     ];
-    const text = Message.clubPractice(events, { header: '🟦今週の練習🟦' });
+    const text = MessageTemplates.clubPractice(events, { header: '🟦今週の練習🟦' });
     expect(text).toContain('🟦今週の練習🟦');
     const idxDate = text.indexOf('【9/8(月)】');
     const idx900 = text.indexOf('・0900-1200 常盤会練', idxDate);
@@ -59,6 +59,6 @@ describe('buildWeeklyPracticeMessage', () => {
   });
 
   it('イベントなしなら空文字', () => {
-    expect(Message.clubPractice([])).toBe('');
+    expect(MessageTemplates.clubPractice([])).toBe('');
   });
 });
