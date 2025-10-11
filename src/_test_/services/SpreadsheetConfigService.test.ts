@@ -1,5 +1,5 @@
 import {
-  PracticeConfigRow,
+  ExPracticeConfigRow,
   SpreadsheetConfigService,
 } from '../../services/SpreadsheetConfigService';
 /**
@@ -45,7 +45,7 @@ describe('SpreadsheetConfigService', () => {
         ],
       });
 
-      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+      const svc = new SpreadsheetConfigService<ExPracticeConfigRow>(
         SHEET_ID,
         SHEET_NAME,
         { name: 'name', description: 'description' },
@@ -54,11 +54,11 @@ describe('SpreadsheetConfigService', () => {
       const m = svc.getAll();
 
       expect(m.size).toBe(2);
-      expect(m.get('合同練')).toEqual<PracticeConfigRow>({
+      expect(m.get('合同練')).toEqual<ExPracticeConfigRow>({
         name: '合同練',
         description: '体験可',
       });
-      expect(m.get('千葉練')).toEqual<PracticeConfigRow>({
+      expect(m.get('千葉練')).toEqual<ExPracticeConfigRow>({
         name: '千葉練',
         description: '',
       });
@@ -69,7 +69,7 @@ describe('SpreadsheetConfigService', () => {
         /* シートなし */
       });
 
-      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+      const svc = new SpreadsheetConfigService<ExPracticeConfigRow>(
         SHEET_ID,
         SHEET_NAME,
         { name: 'name', description: 'description' },
@@ -83,7 +83,7 @@ describe('SpreadsheetConfigService', () => {
         [SHEET_NAME]: [['name', 'description']],
       });
 
-      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+      const svc = new SpreadsheetConfigService<ExPracticeConfigRow>(
         SHEET_ID,
         SHEET_NAME,
         { name: 'name', description: 'description' },
@@ -101,7 +101,7 @@ describe('SpreadsheetConfigService', () => {
         ],
       });
 
-      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+      const svc = new SpreadsheetConfigService<ExPracticeConfigRow>(
         SHEET_ID,
         SHEET_NAME,
         { name: '名前', description: '説明' },
@@ -118,7 +118,7 @@ describe('SpreadsheetConfigService', () => {
         [SHEET_NAME]: [['name'], row('合同練')],
       });
 
-      const svc1 = new SpreadsheetConfigService<PracticeConfigRow>(
+      const svc1 = new SpreadsheetConfigService<ExPracticeConfigRow>(
         SHEET_ID,
         SHEET_NAME,
         { name: 'name', description: 'description' },
@@ -133,7 +133,7 @@ describe('SpreadsheetConfigService', () => {
         [SHEET_NAME]: [['description'], ['メモ']],
       });
 
-      const svc2 = new SpreadsheetConfigService<PracticeConfigRow>(
+      const svc2 = new SpreadsheetConfigService<ExPracticeConfigRow>(
         SHEET_ID,
         SHEET_NAME,
         { name: 'name', description: 'description' },
@@ -150,7 +150,7 @@ describe('SpreadsheetConfigService', () => {
         ],
       });
 
-      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+      const svc = new SpreadsheetConfigService<ExPracticeConfigRow>(
         SHEET_ID,
         SHEET_NAME,
         { name: 'name', description: 'description' },
@@ -168,7 +168,7 @@ describe('SpreadsheetConfigService', () => {
         ],
       });
 
-      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+      const svc = new SpreadsheetConfigService<ExPracticeConfigRow>(
         SHEET_ID,
         SHEET_NAME,
         { name: 'name', description: 'description' },
@@ -184,7 +184,7 @@ describe('SpreadsheetConfigService', () => {
         [SHEET_NAME]: [['name', 'description'], row('合同練', '体験可'), row('千葉練', '')],
       });
 
-      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+      const svc = new SpreadsheetConfigService<ExPracticeConfigRow>(
         SHEET_ID,
         SHEET_NAME,
         { name: 'name', description: 'description' },
@@ -207,7 +207,7 @@ describe('SpreadsheetConfigService', () => {
         ],
       });
 
-      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+      const svc = new SpreadsheetConfigService<ExPracticeConfigRow>(
         SHEET_ID,
         SHEET_NAME,
         { name: 'name', description: 'description' },
@@ -215,7 +215,7 @@ describe('SpreadsheetConfigService', () => {
       );
       const items = svc.list();
 
-      expect(items).toEqual<PracticeConfigRow[]>([
+      expect(items).toEqual<ExPracticeConfigRow[]>([
         { name: '合同練', description: '体験可' },
         { name: '千葉練', description: '' },
       ]);
@@ -226,7 +226,7 @@ describe('SpreadsheetConfigService', () => {
         [SHEET_NAME]: [['name', 'description'], row('合同練', '体験可'), row('千葉練', '')],
       });
 
-      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+      const svc = new SpreadsheetConfigService<ExPracticeConfigRow>(
         SHEET_ID,
         SHEET_NAME,
         { name: 'name', description: 'description' },
@@ -240,13 +240,13 @@ describe('SpreadsheetConfigService', () => {
         [SHEET_NAME]: [['name', 'description'], row('合同練', '体験可')],
       });
 
-      const svc = new SpreadsheetConfigService<PracticeConfigRow>(
+      const svc = new SpreadsheetConfigService<ExPracticeConfigRow>(
         SHEET_ID,
         SHEET_NAME,
         { name: 'name', description: 'description' },
         'name'
       );
-      expect(svc.getByName('合同練')).toEqual<PracticeConfigRow>({
+      expect(svc.getByName('合同練')).toEqual<ExPracticeConfigRow>({
         name: '合同練',
         description: '体験可',
       });

@@ -4,7 +4,7 @@ import { LineService } from '../services/LineService';
 import { ExPracticeEvent, HeaderMap } from '../types/type';
 import { DateUtils } from '../util/DateUtils';
 import { StringUtils } from '../util/StringUtils';
-import { PracticeConfigRow, SpreadsheetConfigService } from './SpreadsheetConfigService';
+import { ExPracticeConfigRow, SpreadsheetConfigService } from './SpreadsheetConfigService';
 
 export class LineWebhookHandler {
   private line = new LineService();
@@ -13,7 +13,7 @@ export class LineWebhookHandler {
   private configOfExPracrice = new SpreadsheetConfigService(
     Config.CONFIG_SPREADSHEET_ID,
     this.sheetName,
-    { name: '名前', description: '説明' } as HeaderMap<PracticeConfigRow>,
+    { name: '名前', description: '説明' } as HeaderMap<ExPracticeConfigRow>,
     'name'
   );
 
@@ -71,7 +71,7 @@ export class LineWebhookHandler {
     }
 
     if (text.trim().includes('外部練追加フォーマット')) {
-      this.line.pushText(to, '外部練追加作業を行います。少々お待ちください。');
+      // this.line.pushText(to, '外部練追加作業を行います。少々お待ちください。');
 
       text = StringUtils.toHalfWidth(text);
       const exPracrtice = this.parseExternalPractice(text);

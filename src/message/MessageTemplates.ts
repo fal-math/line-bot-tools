@@ -138,7 +138,7 @@ export class MessageTemplates {
       dayLabels: opts.dayLabels,
     });
     return this.build(events, o, (ev, msg) => {
-      msg.bullet(`${ev.timeRange} ${ev.location.shortenBuildingName}${ev.practiceType}`, o.bullet);
+      msg.bullet(`${ev.timeRange} ${ev.location.shortName}${ev.practiceType}`, o.bullet);
       if ((opts.showPersonInCharge ?? true) && ev.personInCharge) msg.indent(ev.personInCharge);
       if (o.showTargetClasses && ev.targetClasses?.length)
         msg.indent('対象: ' + StringUtils.stringfyKarutaClass(ev.targetClasses));

@@ -103,7 +103,7 @@ describe('parseExternalPractice + category resolution', () => {
   });
 
   it('resolves category by tag or name', () => {
-    const cfgByName = handler.config.getByName('合同練');
+    const cfgByName = handler.configOfExPracrice.getByName('合同練');
     expect(cfgByName?.description).toMatch('山田さん');
   });
 });

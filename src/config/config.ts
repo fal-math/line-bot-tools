@@ -1,3 +1,4 @@
+import { SpreadsheetConfigService } from '../services/SpreadsheetConfigService';
 import { ClassMap, Venue } from '../types/type';
 import { ConfigValidator } from './configValidator';
 
@@ -88,21 +89,39 @@ export const MailConfig = {
   },
 };
 
+export const CONFIG_SPREADSHEET_ID = getRequiredProp_('CONFIG_SPREADSHEET_ID');
+
+export const Venues: Record<string, Venue> = Object.fromEntries(
+  new SpreadsheetConfigService<Venue>(
+    CONFIG_SPREADSHEET_ID,
+    '会場',
+    {
+      name: '会場名',
+      shortName: '会場名（短縮）',
+      nearestStation: '最寄り駅',
+      walkMinutes: '徒歩時間',
+      line: '路線',
+      mapUrl: '地図URL',
+      clubName: '団体名',
+    },
+    'shortName'
+  ).getAll()
+);
+// TODO: ExPracticeも同様にする
+
 export const DEBUG_MODE = (getOptionalProp_('DEBUG_MODE') || 'false') === 'true';
 export const DRIVE_URL = getRequiredProp_('DRIVE_URL');
 export const MANAGERS_PORTAL_URL = getRequiredProp_('MANAGERS_PORTAL_URL');
-// export const PRACTICE_LOCATIONS = getPracticeLocations_();
-export const CONFIG_SPREADSHEET_ID = getRequiredProp_('CONFIG_SPREADSHEET_ID');
 
 const Config = {
   Line: LineConfig,
   Calendar: CalendarConfig,
   Chouseisan: ChouseisanConfig,
   Mail: MailConfig,
+  Venues,
   DEBUG_MODE,
   DRIVE_URL,
   MANAGERS_PORTAL_URL,
-  // PRACTICE_LOCATIONS,
   CONFIG_SPREADSHEET_ID,
 } as const;
 

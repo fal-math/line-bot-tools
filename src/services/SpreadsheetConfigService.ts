@@ -1,12 +1,10 @@
 import { HeaderMap } from "../types/type";
 
 // 外部練
-export interface PracticeConfigRow {
+export interface ExPracticeConfigRow {
   name: string;
   description: string;
 }
-
-// 例: { name: "会場名", shortName: "会場名（短縮）", ... }
 
 export class SpreadsheetConfigService<T extends Record<string, any>> {
   constructor(

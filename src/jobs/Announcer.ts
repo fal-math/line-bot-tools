@@ -87,11 +87,11 @@ export class Announcer {
    * @returns リストに含まれる会場案内の文字列
    */
   private getPracticeLocations(infos: ClubPracticeEvent[]): string {
-    const uniqueLocs = Array.from(new Set(infos.map((info) => info.location.shortenBuildingName)));
+    const uniqueLocs = Array.from(new Set(infos.map((info) => info.location.shortName)));
     const practiceLocationsString = uniqueLocs
       .map((shortName) => {
-        const { buildingName, mapUrl } = Config.PRACTICE_LOCATIONS[shortName];
-        return `・${buildingName}\n${mapUrl}`;
+        const { name, mapUrl } = Config.Venues[shortName];
+        return `・${name}\n${mapUrl}`;
       })
       .join('\n');
     return practiceLocationsString;

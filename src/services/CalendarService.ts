@@ -7,6 +7,7 @@ import {
   BaseEvent,
   ClassMap,
   KarutaClass,
+  Venue,
 } from '../types/type';
 import { DateUtils } from '../util/DateUtils';
 import { StringUtils } from '../util/StringUtils';
@@ -38,23 +39,43 @@ export class CalendarService {
   private readonly configs: Record<EventTypeKey, EventConfig<any>> = {
     [EventType.ClubPractice]: {
       calendarId: Config.Calendar.id.clubPractice,
-      regex: /^(.+?)\.(.+?)(\d{3,4}-\d{3,4})(.+?)\((.+?)\)(.*)$/,
+      regex: new RegExp(
+        [
+          '^',
+          '(?<shortLoc>[^\\.・:]+)',
+          '[\\.・:]',
+          '(?<practiceType>[^\\d]+?)',
+          '(?<timeRange>\\d{3,4}-\\d{3,4})',
+          '(?:\\s*(?<targetClasses>[^(]+))?',
+          '(?:\\s*\\((?<person>[^)]+)\\))?',
+          '(?<description>.*)',
+          '$',
+        ].join('')
+      ),
       parser: (m, event) => {
-        const [_, shortLoc, practiceType, timeRange, targetClasses, person, description] = m;
-        const loc = Config.PRACTICE_LOCATIONS[shortLoc] ?? {
-          shortenBuildingName: shortLoc,
-          clubName: 'undefined',
-          mapUrl: '',
-          buildingName: shortLoc,
-        };
+        const { shortLoc, practiceType, timeRange, targetClasses, person, description } =
+          m.groups ?? {};
+
+        const loc =
+          Config.Venues[shortLoc] ??
+          ({
+            name: shortLoc,
+            shortName: shortLoc,
+            nearestStation: '不明',
+            walkMinutes: '不明',
+            line: '不明',
+            mapUrl: '不明',
+            clubName: '不明',
+          } as Venue);
+
         return {
           date: new Date(event.getStartTime().getTime()),
           location: loc,
-          practiceType: StringUtils.removeBracketSymbols(practiceType.trim()),
-          timeRange: StringUtils.removeBracketSymbols(timeRange.trim()),
-          targetClasses: StringUtils.removeBracketSymbols(targetClasses.trim()),
-          personInCharge: StringUtils.removeBracketSymbols(person.trim()),
-          description: StringUtils.removeBracketSymbols(description.trim()),
+          practiceType: StringUtils.removeBracketSymbols(practiceType?.trim() ?? ''),
+          timeRange: StringUtils.removeBracketSymbols(timeRange?.trim() ?? ''),
+          targetClasses: StringUtils.removeBracketSymbols(targetClasses?.trim() ?? ''),
+          personInCharge: StringUtils.removeBracketSymbols(person?.trim() ?? ''),
+          description: StringUtils.removeBracketSymbols(description?.trim() ?? ''),
         } as ClubPracticeEvent;
       },
     },

@@ -82,19 +82,40 @@ export const setStore = (entries: [string, string][]) => {
   getUserLabelByName: jest.fn().mockReturnValue(null),
 };
 
-(global as any).SpreadsheetApp = {
-  openById: (id: string) => ({
-    getSheetByName: (name: string) => ({
-      getDataRange: () => ({
-        getDisplayValues: () => [
-          ['name', 'description'],
-          ['合同練', '欠席連絡は山田さんメールに！'],
-          ['和光練', '欠席連絡は永野さんにLINE！'],
-        ],
-      }),
+// test/setupSpreadsheetApp.ts
+type SheetValues = string[][];
+
+// シート名 → 返す2次元配列
+const SHEETS: Record<string, SheetValues> = {
+  // 外部練（※シート上は日本語ヘッダで運用）
+  外部練: [
+    ['名前', '説明'],
+    ['合同練', '欠席連絡は山田さんメールに！'],
+    ['和光練', '欠席連絡は永野さんにLINE！'],
+  ],
+
+  // 会場
+  会場: [
+    ['会場名', '会場名（短縮）', '最寄り駅', '徒歩時間', '路線', '地図URL', `団体名`],
+    ['常盤公民館', '常盤', '北浦和', '10', '京浜東北線', 'http://example.com', `南極かるた会`],
+  ],
+};
+
+const SpreadsheetAppMock = {
+  openById: jest.fn().mockReturnValue({
+    getSheetByName: jest.fn().mockImplementation((name: string) => {
+      const values = SHEETS[name];
+      if (!values) return null; // 存在しないシート名なら実際と同様に null
+      return {
+        getDataRange: () => ({
+          getDisplayValues: () => values,
+        }),
+      };
     }),
   }),
 };
+(global as any).SpreadsheetApp = SpreadsheetAppMock;
+
 // ===================================================================================
 // CalendarApp モック
 // ===================================================================================

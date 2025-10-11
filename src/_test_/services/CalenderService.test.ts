@@ -18,7 +18,7 @@ describe('CalendarService#get in JST', () => {
     const end = DateUtils.addDays(start, 1);
 
     const fakeEvent = {
-      getTitle: () => `富士見.基本 1200-1345 G(田中)`,
+      getTitle: () => `富士見.基本1200-1345 G以上(田中)`,
       getStartTime: () => start,
       getEndTime: () => end,
       getLocation: () => '富士見公民館',
@@ -35,9 +35,9 @@ describe('CalendarService#get in JST', () => {
     expect(ev.date.getTime()).toBe(start.getTime());
     expect(ev.practiceType).toBe('基本');
     expect(ev.timeRange).toBe('1200-1345');
-    expect(ev.targetClasses).toBe('G');
+    expect(ev.targetClasses).toBe('G以上');
     expect(ev.personInCharge).toBe('田中');
-    expect(ev.location.shortenBuildingName).toBe('富士見');
+    expect(ev.location.shortName).toBe('富士見');
   });
 
   it('ignores unparsable event titles', () => {
@@ -251,7 +251,15 @@ describe('CalendarService#get in JST', () => {
       ({
         date: jstDate(d),
         timeRange: tr,
-        location: { shortenBuildingName: 'Mock', clubName: '', buildingName: '', mapUrl: '' },
+        location: {
+          name: '常盤公民館',
+          shortName: '常盤',
+          nearestStation: '北浦和駅',
+          walkMinutes: '5分',
+          line: '京浜東北線',
+          mapUrl: 'https://example.com',
+          clubName: 'test_club',
+        },
         practiceType: '基本',
         targetClasses: 'A',
         personInCharge: 'X',

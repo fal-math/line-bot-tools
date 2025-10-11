@@ -11,6 +11,28 @@ export const KARUTA_CLASS_COLOR: ClassMap<string> = {
 };
 export const SEPARATOR = '__________';
 
+const PAREN_MAP: Record<string, string> = {
+  // 丸括弧
+  '（': '(',
+  '）': ')',
+  // 角括弧
+  '［': '[',
+  '］': ']',
+  // 波括弧
+  '｛': '{',
+  '｝': '}',
+  // 山括弧
+  '＜': '<',
+  '＞': '>',
+  '〈': '<',
+  '〉': '>',
+  '《': '<',
+  '》': '>',
+  // 装飾括弧
+  '【': '[',
+  '】': ']',
+};
+
 export class StringUtils {
   /**
    * 全角英数字を半角英数字に変換する関数
@@ -89,9 +111,24 @@ export class StringUtils {
   }
 
   /**
-   * 文字列からよく使われるカッコ文字をすべて除去する
-   * @param input 元の文字列
-   * @returns カッコ文字のみ除去した文字列
+   * 括弧類を半角に正規化する
+   *
+   * @param input 入力文字列
+   * @returns 正規化後の文字列
+   */
+  static normalizeBrackets(input: string): string {
+    if (!input) return input;
+    return input.replace(
+      new RegExp(`[${Object.keys(PAREN_MAP).join('')}]`, 'g'),
+      (c) => PAREN_MAP[c] || c
+    );
+  }
+
+  /**
+   * 括弧類を削除する
+   *
+   * @param input 入力文字列
+   * @returns 括弧を削除した文字列
    */
   static removeBracketSymbols(input: string): string {
     return input.replace(/[()\[\]{}〈〉《》<>＜＞【】（）［］｛｝「」『』]/g, '');
