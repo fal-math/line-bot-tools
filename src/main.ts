@@ -68,7 +68,8 @@ function backupChouseisan() {
  */
 function doPost(e: GoogleAppsScript.Events.DoPost) {
   try {
-    const body = JSON.parse(e.postData!.contents) as { events: any[] };
+    if (!e?.postData?.contents) throw new Error('Missing postData.contents');
+    const body = JSON.parse(e.postData.contents);
     for (const ev of body.events) {
       const text: string | undefined = ev.message?.text;
       const to: string = ev.source.groupId || ev.source.roomId || ev.source.userId || '';
