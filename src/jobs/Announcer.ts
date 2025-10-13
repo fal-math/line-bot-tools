@@ -29,48 +29,63 @@ export class Announcer {
    * @param lineTo LINEの送信先
    * @param from 〆切を取得したい期間の開始日
    * @param to 〆切を取得したい期間の終了日
+   * @param deadlineLabel 見出し（例：「今週」「来週」など）
+   * @param includeExPractice 外部練を含めるか（default: true）
+   * @param includeMatch 大会を含めるか（default: true）
    */
-  public deadlineFromTo(lineTo: string, from: Date, to: Date, deadlineLabel: string): void {
-    // 外部練
-    const internalDeadlineEvents = this.calendar.get(EventType.InternalDeadline, from, to);
-    const { hasExPractice, message: exPracticeMessage } = MessageTemplates.deadlineExPractice(
-      internalDeadlineEvents,
-      {
-        header: [
-          `🔔${deadlineLabel}の外部練〆切🔔`,
-          '外部練申込は、LINEイベントから(会の練習参加と同様)です。',
-        ].join('\n'),
-      }
-    );
-
-    // 大会
-    const { summary } = this.chouseisan.getSummary(from, to);
-    const { hasMatch, message: matchMessage } = MessageTemplates.deadlineMatch(summary, {
-      header: [
-        `🔔${deadlineLabel}の大会〆切🔔`,
-        '各大会情報については、級別のLINEノート(画面右上≡)を参照してください。',
-        '申込入力URL(調整さん)では、⭕️か❌を期限内にご入力ください。',
-        '',
-        '准会員向け：',
-        '「会から申込」を希望する場合は、調整さんのコメント欄にその旨をご記入ください。',
-      ].join('\n'),
-    });
-
-    if (!hasExPractice && !hasMatch) return;
-
+  public deadlineFromTo(
+    lineTo: string,
+    from: Date,
+    to: Date,
+    deadlineLabel: string,
+    includeExPractice: boolean = true,
+    includeMatch: boolean = true
+  ): void {
     const parts: string[] = [];
-    if (hasExPractice && exPracticeMessage) parts.push(exPracticeMessage);
-    if (hasMatch && matchMessage) parts.push(matchMessage);
+
+    // --- 外部練 ------------------------------------------------------------
+    if (includeExPractice) {
+      const internalDeadlineEvents = this.calendar.get(EventType.InternalDeadline, from, to);
+      const { hasExPractice, message: exPracticeMessage } = MessageTemplates.deadlineExPractice(
+        internalDeadlineEvents,
+        {
+          header: [
+            `🔔${deadlineLabel}の外部練〆切🔔`,
+            '外部練申込は、LINEイベントから(会の練習参加と同様)です。',
+          ].join('\n'),
+        }
+      );
+      if (hasExPractice && exPracticeMessage) parts.push(exPracticeMessage);
+    }
+
+    // --- 大会 --------------------------------------------------------------
+    if (includeMatch) {
+      const { summary } = this.chouseisan.getSummary(from, to);
+      const { hasMatch, message: matchMessage } = MessageTemplates.deadlineMatch(summary, {
+        header: [
+          `🔔${deadlineLabel}の大会〆切🔔`,
+          '各大会情報については、級別のLINEノート(画面右上≡)を参照してください。',
+          '申込入力URL(調整さん)では、⭕️か❌を期限内にご入力ください。',
+          '',
+          '准会員向け：',
+          '「会から申込」を希望する場合は、調整さんのコメント欄にその旨をご記入ください。',
+        ].join('\n'),
+      });
+      if (hasMatch && matchMessage) parts.push(matchMessage);
+    }
+
+    // --- どちらも空なら送信しない ---------------------------------------
+    if (parts.length === 0) return;
 
     this.line.pushText(lineTo, parts.join('\n\n\n'));
   }
 
   /**
-   * 受付〆アナウンス（当日 21 時）
+   * 受付〆アナウンス（当日 21 時）: 大会情報のみ
    * @param to メッセージの送信先(LINE)
    */
   public deadlineToday(to: string): void {
-    this.deadlineFromTo(to, this.today, this.tomorrow, '本日');
+    this.deadlineFromTo(to, this.today, this.tomorrow, '本日', false, true);
   }
 
   /**

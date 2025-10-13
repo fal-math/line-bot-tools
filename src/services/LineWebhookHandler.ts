@@ -93,7 +93,7 @@ export class LineWebhookHandler {
         {
           start: exPracrtice.date,
           location: exPracrtice.location,
-          summary: `外部${exPracrtice.title}${exPracrtice.timeRange} ${
+          summary: `${exPracrtice.title}${exPracrtice.timeRange} ${
             exPracrtice.targetClasses
           }:${DateUtils.formatMD(exPracrtice.deadline)}〆`,
           description: calendarDescription,
