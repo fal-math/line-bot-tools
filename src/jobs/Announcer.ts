@@ -61,7 +61,7 @@ export class Announcer {
     // --- 大会 --------------------------------------------------------------
     if (includeMatch) {
       const { summary } = this.chouseisan.getSummary(from, to);
-      const { hasMatch, message: matchMessage } = MessageTemplates.deadlineMatch(summary, {
+      const { hasMatch, message: matchMessage } = MessageTemplates.buildClasswiseDeadlineMessage(summary, {
         header: [
           `🔔${deadlineLabel}の大会〆切🔔`,
           '各大会情報については、級別のLINEノート(画面右上≡)を参照してください。',
@@ -172,6 +172,10 @@ export class Announcer {
     this.line.pushText(to, message.toString());
 
     const clubPracticeTypeImageId = '1nVYjeTLb57LtbV6kNd3lcCPpCtuM0tar';
+
+    // 偶数週のみ会場案内画像を送信
+    const weekNumber = this.today.getDate() % 7;
+    if (weekNumber % 2 === 1) return;
     const image = this.drive.getImageUrls(clubPracticeTypeImageId);
     if (image) this.line.pushImage(to, image);
   }

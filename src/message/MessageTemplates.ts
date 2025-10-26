@@ -38,7 +38,7 @@ export type DeadlineMatchMessageOptions = BaseMessageOptions & {
 };
 
 export class MessageTemplates {
-  static deadlineMatch(
+  static buildClasswiseDeadlineMessage(
     itemMap: ClassMap<Registration[]>,
     opts: DeadlineMatchMessageOptions = {}
   ): { hasMatch: boolean; message: string } {
@@ -52,49 +52,145 @@ export class MessageTemplates {
       showAttending: opts.showAttending ?? true,
     };
 
-    const chouseisanSummary = {} as ClassMap<string>;
-    let hasMatch = false;
-    for (const [kClass, registrations] of Object.entries(itemMap) as [
-      KarutaClass,
-      Registration[]
-    ][]) {
-      if (registrations.length === 0) {
-        chouseisanSummary[kClass] = '';
-      } else {
-        hasMatch = true;
-        let summaryText = ``;
-        registrations.forEach((ev) => {
-          summaryText += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(
-            ev.deadline
-          )}〆切）\n`;
-          if (o.showAttending) {
-            summaryText += `⭕参加:\n`;
-            if (ev.participants.attending.length > 0) {
-              summaryText += ev.participants.attending.join('\n') + '\n';
-            }
-          }
-          if (ev.participants.undecided.length > 0) {
-            summaryText += `❓未回答:\n`;
-            summaryText += ev.participants.undecided.join('\n') + '\n';
-          }
-        });
-        chouseisanSummary[kClass] = summaryText;
-      }
-    }
+    // --- クラスごとのサマリ構築 -----------------------------------------
+    const { summaryMap, hasMatch } = Object.entries(itemMap).reduce(
+      (acc, [kClass, registrations]) => {
+        // 1. 各級ごとに実行される処理
+        const text = this.buildSingleClassDeadline(registrations, o);
+        if (text) acc.hasMatch = true;
+        acc.summaryMap[kClass as KarutaClass] = text;
+        // 2. 次のループに渡す値（accumulator）
+        return acc;
+      },
+      // 3. 初期値（最初のaccumulator）
+      { summaryMap: {} as ClassMap<string>, hasMatch: false }
+    );
 
+    // --- 全体メッセージ構築 ---------------------------------------------
     const msg = new Message().add(o.header);
-    for (const [kClass, summaryText] of Object.entries(chouseisanSummary) as [
-      KarutaClass,
-      string
-    ][]) {
-      const fullText = [summaryText].filter(Boolean).join('\n');
-      if (!fullText) continue;
 
-      const header = `${KARUTA_CLASS_COLOR[kClass]}${kClass}級｜${Config.Chouseisan.urls[kClass]}`;
-      msg.add(`${header}`).blank().add(`${fullText}`);
+    for (const [kClass, summaryText] of Object.entries(summaryMap)) {
+      if (!summaryText) continue;
+
+      const header = `${KARUTA_CLASS_COLOR[kClass as KarutaClass]}${kClass}級｜${
+        Config.Chouseisan.urls[kClass as KarutaClass]
+      }`;
+      msg.add(header).add(summaryText);
     }
 
     return { hasMatch, message: msg.toString() };
+  }
+
+  // --- helper -------------------------------------------------------
+  static buildSingleClassDeadline(
+    registrations: Registration[],
+    o: Required<DeadlineMatchMessageOptions>
+  ): string {
+    if (registrations.length === 0) return '';
+
+    const m = new Message();
+    registrations.forEach((ev) => {
+      m.blank();
+      m.add(
+        `🔷${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(ev.deadline)}会〆）`
+      );
+
+      if (o.showAttending) {
+        m.add('⭕参加:');
+        if (ev.participants.attending.length > 0) {
+          m.add(ev.participants.attending.join('\n'));
+        }
+      }
+
+      if (ev.participants.undecided.length > 0) {
+        m.add('❓未回答:');
+        m.add(ev.participants.undecided.join('\n'));
+      }
+    });
+
+    return m.toString();
+  }
+
+  static buildEventwiseDeadlineMessage(
+    itemMap: ClassMap<Registration[]>,
+    opts: DeadlineMatchMessageOptions = {}
+  ): { hasMatch: boolean; message: string } {
+    const o = {
+      ...this.norm({
+        header: opts.header ?? '🧑‍💻〆切(大会別)🧑‍💻',
+        bullet: opts.bullet,
+        showTargetClasses: opts.showTargetClasses,
+        dayLabels: opts.dayLabels,
+      }),
+      showAttending: opts.showAttending ?? true,
+    };
+
+    // --- 1️⃣ 大会タイトルごとに再グルーピング ------------------------------
+    const eventMap = Object.entries(itemMap).reduce((acc, [kClass, registrations]) => {
+      for (const reg of registrations) {
+        const key = reg.title;
+        if (!acc[key]) acc[key] = [];
+        // どの級の登録かを付与（構造上 Registration には存在しないため合成）
+        acc[key].push({ ...reg, _fromClass: kClass as KarutaClass });
+      }
+      return acc;
+    }, {} as Record<string, (Registration & { _fromClass: KarutaClass })[]>);
+
+    // --- 2️⃣ メッセージ生成 --------------------------------------------------
+    const { summaryMap, hasMatch } = Object.entries(eventMap).reduce(
+      (acc, [eventTitle, registrations]) => {
+        const text = this.buildSingleEventDeadline(eventTitle, registrations, o);
+        if (text) acc.hasMatch = true;
+        acc.summaryMap[eventTitle] = text;
+        return acc;
+      },
+      { summaryMap: {} as Record<string, string>, hasMatch: false }
+    );
+
+    // --- 3️⃣ 全体メッセージ組み立て -----------------------------------------
+    const msg = new Message().add(o.header);
+    for (const [eventTitle, summaryText] of Object.entries(summaryMap)) {
+      if (!summaryText) continue;
+      
+      msg.blank().add(`🔷${eventTitle}`).add(summaryText);
+    }
+
+    return { hasMatch, message: msg.toString() };
+  }
+
+  // --- helper -------------------------------------------------------
+  static buildSingleEventDeadline(
+    eventTitle: string,
+    registrations: (Registration & { _fromClass: KarutaClass })[],
+    o: Required<DeadlineMatchMessageOptions>
+  ): string {
+    if (registrations.length === 0) return '';
+
+    const m = new Message();
+    // 同一大会に含まれる全クラスを昇順で表示
+    const sorted = registrations.sort((a, b) => (a._fromClass > b._fromClass ? 1 : -1));
+
+    for (const reg of sorted) {
+      const color = KARUTA_CLASS_COLOR[reg._fromClass] ?? '';
+      m.add(
+        `${color}${reg._fromClass}級 ${DateUtils.formatMD(reg.eventDate)}（会〆${DateUtils.formatMD(
+          reg.deadline
+        )}）`
+      );
+      if (o.showAttending) {
+        m.add('⭕参加:');
+        if (reg.participants.attending.length > 0) {
+          m.add(reg.participants.attending.join('\n'));
+        }
+      }
+
+      if (reg.participants.undecided.length > 0) {
+        m.add('❓未回答:');
+        m.add(reg.participants.undecided.join('\n'));
+      }
+    }
+
+    return m.toString();
   }
 
   static deadlineExPractice(

@@ -32,7 +32,7 @@ export class Notify {
 
     const { summary, isEmpty } = this.chouseisan.getSummary(from, to);
     if (isEmpty) return;
-    const {message} = MessageTemplates.deadlineMatch(summary, {
+    const { message } = MessageTemplates.buildClasswiseDeadlineMessage(summary, {
       header: `{receiver}さん\n本日〆切の大会があります。未回答者に声掛けをお願いします。\n\n`,
       showAttending: false,
     });
@@ -54,39 +54,44 @@ export class Notify {
     const { summary, isEmpty } = this.chouseisan.getSummary(this.oneWeekAgo, this.oneWeekLater);
     if (isEmpty) return;
 
-    let lastWeek = '';
-    let thisWeek = '';
-    for (const [kClass, registrations] of Object.entries(summary) as [
-      KarutaClass,
-      Registration[]
-    ][]) {
-      lastWeek += `${KARUTA_CLASS_COLOR[kClass]}${kClass}級\n`;
-      thisWeek += `${KARUTA_CLASS_COLOR[kClass]}${kClass}級\n`;
-      if (registrations.length > 0) {
-        registrations.forEach((ev) => {
-          let body = ``;
-          body += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(
-            ev.deadline
-          )}〆切）\n`;
-          body += `⭕参加:\n`;
-          if (ev.participants.attending.length > 0) {
-            body += ev.participants.attending.join('\n') + '\n';
-          }
-          if (ev.participants.undecided.length > 0) {
-            body += `❓未回答:\n`;
-            body += ev.participants.undecided.join('\n') + '\n';
-          }
-          if (this.oneWeekAgo <= ev.deadline && ev.deadline < this.today) {
-            lastWeek += body;
-          } else if (this.today <= ev.deadline && ev.deadline <= this.oneWeekLater) {
-            thisWeek += body;
-          }
-        });
-      }
-    }
+    const { message } = MessageTemplates.buildEventwiseDeadlineMessage(summary, {
+      header: `今週来週に〆がある大会\n\n`,
+      showAttending: true,
+    });
+    if (!message) return;
 
-    this.line.pushText(to, `先週分\n\n${lastWeek}`);
-    this.line.pushText(to, `今週分\n\n${thisWeek}`);
+    this.line.pushText(to, message);
+    // for (const [kClass, registrations] of Object.entries(summary) as [
+    //   KarutaClass,
+    //   Registration[]
+    // ][]) {
+    //   lastWeek += `${KARUTA_CLASS_COLOR[kClass]}${kClass}級\n`;
+    //   thisWeek += `${KARUTA_CLASS_COLOR[kClass]}${kClass}級\n`;
+    //   if (registrations.length > 0) {
+    //     registrations.forEach((ev) => {
+    //       let body = ``;
+    //       body += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(
+    //         ev.deadline
+    //       )}〆切）\n`;
+    //       body += `⭕参加:\n`;
+    //       if (ev.participants.attending.length > 0) {
+    //         body += ev.participants.attending.join('\n') + '\n';
+    //       }
+    //       if (ev.participants.undecided.length > 0) {
+    //         body += `❓未回答:\n`;
+    //         body += ev.participants.undecided.join('\n') + '\n';
+    //       }
+    //       if (this.oneWeekAgo <= ev.deadline && ev.deadline < this.today) {
+    //         lastWeek += body;
+    //       } else if (this.today <= ev.deadline && ev.deadline <= this.oneWeekLater) {
+    //         thisWeek += body;
+    //       }
+    //     });
+    //   }
+    // }
+
+    // this.line.pushText(to, `先週分\n\n${lastWeek}`);
+    // this.line.pushText(to, `今週分\n\n${thisWeek}`);
   }
 
   // ==================================================================================
