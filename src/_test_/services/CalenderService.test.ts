@@ -18,7 +18,7 @@ describe('CalendarService#get in JST', () => {
     const end = DateUtils.addDays(start, 1);
 
     const fakeEvent = {
-      getTitle: () => `富士見.基本1200-1345 G以上(田中)`,
+      getTitle: () => `富士見1200-1345(田中)`,
       getStartTime: () => start,
       getEndTime: () => end,
       getLocation: () => '富士見公民館',
@@ -33,9 +33,8 @@ describe('CalendarService#get in JST', () => {
     const ev = result[0] as ClubPracticeEvent;
 
     expect(ev.date.getTime()).toBe(start.getTime());
-    expect(ev.practiceType).toBe('基本');
     expect(ev.timeRange).toBe('1200-1345');
-    expect(ev.targetClasses).toBe('G以上');
+    expect(ev.targetClasses).toBe('全級');
     expect(ev.personInCharge).toBe('田中');
     expect(ev.location.shortName).toBe('富士見');
   });
@@ -196,7 +195,7 @@ describe('CalendarService#get in JST', () => {
     const s = jstDate('2025-07-01T00:00:00'),
       e = DateUtils.addDays(s, 1);
     const fake = {
-      getTitle: () => `未知.基本 1200-1345 G(山田)`,
+      getTitle: () => `未知1200-1345(山田)`,
       getStartTime: () => s,
       getEndTime: () => e,
       getLocation: () => '',

@@ -7,7 +7,6 @@ function ev(
   d: number,
   timeRange: string,
   targetClasses: string,
-  type: string,
   pic?: string
 ): ClubPracticeEvent {
   return {
@@ -23,7 +22,6 @@ function ev(
       mapUrl: 'https://example.com',
       clubName: 'test_club',
     },
-    practiceType: type,
     personInCharge: pic,
   } as ClubPracticeEvent;
 }
@@ -31,27 +29,27 @@ function ev(
 test('ヘッダ差し替え＆時刻昇順整列', () => {
   const text = MessageTemplates.clubPractice(
     [
-      ev(2025, 9, 9, '13:00-17:00', '常盤', '会練', 'A'),
-      ev(2025, 9, 9, '9:00-12:00', '常盤', '会練', 'B'),
+      ev(2025, 9, 9, '13:00-17:00', '常盤', 'A'),
+      ev(2025, 9, 9, '9:00-12:00', '常盤', 'B'),
     ],
     { header: 'H' }
   );
   expect(text.startsWith('H')).toBe(true);
-  expect(text.indexOf('・9:00-12:00')).toBeLessThan(text.indexOf('・13:00-17:00'));
+  expect(text.indexOf('・9:00～12:00')).toBeLessThan(text.indexOf('・13:00～17:00'));
 });
 
 describe('buildWeeklyPracticeMessage', () => {
   it('日付ごとグループ化 + 開始時刻ソート + 担当者表示', () => {
     const events = [
-      ev(2025, 9, 8, '1300-1700', '全級', '会練', 'Aさん'),
-      ev(2025, 9, 8, '0900-1200', '全級', '会練', 'Bさん'),
-      ev(2025, 9, 12, '1830-2100', 'F以上', '対戦練', 'Cさん'),
+      ev(2025, 9, 8, '1300-1700', '全級', 'Aさん'),
+      ev(2025, 9, 8, '0900-1200', '全級', 'Bさん'),
+      ev(2025, 9, 12, '1830-2100', 'F以上', 'Cさん'),
     ];
     const text = MessageTemplates.clubPractice(events, { header: '🟦今週の練習🟦' });
     expect(text).toContain('🟦今週の練習🟦');
     const idxDate = text.indexOf('【9/8(月)】');
-    const idx900 = text.indexOf('・0900-1200 常盤会練', idxDate);
-    const idx1300 = text.indexOf('・1300-1700 常盤会練', idxDate);
+    const idx900 = text.indexOf('・0900～1200 常盤', idxDate);
+    const idx1300 = text.indexOf('・1300～1700 常盤', idxDate);
     expect(idx900).toBeGreaterThan(-1);
     expect(idx1300).toBeGreaterThan(-1);
     expect(idx900).toBeLessThan(idx1300);

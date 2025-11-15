@@ -42,19 +42,16 @@ export class CalendarService {
       regex: new RegExp(
         [
           '^',
-          '(?<shortLoc>[^\\.・:]+)',
-          '[\\.・:]',
-          '(?<practiceType>[^\\d]+?)',
-          '(?<timeRange>\\d{3,4}-\\d{3,4})',
-          '(?:\\s*(?<targetClasses>[^(]+))?',
-          '(?:\\s*\\((?<person>[^)]+)\\))?',
-          '(?<description>.*)',
+          '(?<shortLoc>[^.\\u30FB:|\\-]+)',
+          '(?<timeRange>\\d{4}-\\d{4})',
+          '(?:\\s*[\\(（\\[［](?<person>[^\\)）\\]］]+)[\\)）\\]］])?',
+          '(?<description>.*?)(?=\\|\\S|$)',
+          '(?:\\s*\\|\\s*(?<targetClasses>.*))?',
           '$',
         ].join('')
       ),
       parser: (m, event) => {
-        const { shortLoc, practiceType, timeRange, targetClasses, person, description } =
-          m.groups ?? {};
+        let { shortLoc, timeRange, person, description, targetClasses } = m.groups ?? {};
 
         const loc =
           Config.Venues[shortLoc] ??
@@ -67,15 +64,19 @@ export class CalendarService {
             mapUrl: '不明',
             clubName: '不明',
           } as Venue);
+        if (!targetClasses || targetClasses.trim() === '') {
+          targetClasses = '全級';
+        }
 
         return {
           date: new Date(event.getStartTime().getTime()),
           location: loc,
-          practiceType: StringUtils.removeBracketSymbols(practiceType?.trim() ?? ''),
           timeRange: StringUtils.removeBracketSymbols(timeRange?.trim() ?? ''),
-          targetClasses: StringUtils.removeBracketSymbols(targetClasses?.trim() ?? ''),
           personInCharge: StringUtils.removeBracketSymbols(person?.trim() ?? ''),
           description: StringUtils.removeBracketSymbols(description?.trim() ?? ''),
+          targetClasses: StringUtils.stringfyKarutaClass(
+            StringUtils.formatKarutaClass(targetClasses?.trim() ?? '')
+          ),
         } as ClubPracticeEvent;
       },
     },

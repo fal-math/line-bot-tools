@@ -40,7 +40,7 @@ export interface ExPracticeEvent extends BaseEvent {
 
 export interface ClubPracticeEvent extends BaseEvent {
   location: Venue;
-  practiceType: string;
+  // practiceType: string;
   timeRange: string;
   personInCharge: string;
   description?: string;

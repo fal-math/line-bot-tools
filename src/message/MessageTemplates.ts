@@ -75,7 +75,7 @@ export class MessageTemplates {
       const header = `${KARUTA_CLASS_COLOR[kClass as KarutaClass]}${kClass}級｜${
         Config.Chouseisan.urls[kClass as KarutaClass]
       }`;
-      msg.add(header).add(summaryText);
+      msg.blank().add(header).add(summaryText);
     }
 
     return { hasMatch, message: msg.toString() };
@@ -151,7 +151,7 @@ export class MessageTemplates {
     const msg = new Message().add(o.header);
     for (const [eventTitle, summaryText] of Object.entries(summaryMap)) {
       if (!summaryText) continue;
-      
+
       msg.blank().add(`🔷${eventTitle}`).add(summaryText);
     }
 
@@ -234,10 +234,18 @@ export class MessageTemplates {
       dayLabels: opts.dayLabels,
     });
     return this.build(events, o, (ev, msg) => {
-      msg.bullet(`${ev.timeRange} ${ev.location.shortName}${ev.practiceType}`, o.bullet);
+      let line = '';
+      line += `${ev.timeRange.replace('-', '～')} ${ev.location.shortName}`;
+      if (
+        o.showTargetClasses &&
+        ev.targetClasses?.length &&
+        StringUtils.stringfyKarutaClass(ev.targetClasses) !== '全級'
+      ) {
+        line += `(対象:${StringUtils.stringfyKarutaClass(ev.targetClasses)})`;
+      }
+      line += `${ev.description ?? ''}`;
+      msg.bullet(line, o.bullet);
       if ((opts.showPersonInCharge ?? true) && ev.personInCharge) msg.indent(ev.personInCharge);
-      if (o.showTargetClasses && ev.targetClasses?.length)
-        msg.indent('対象: ' + StringUtils.stringfyKarutaClass(ev.targetClasses));
     });
   }
 

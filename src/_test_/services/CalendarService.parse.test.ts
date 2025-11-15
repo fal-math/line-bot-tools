@@ -1,7 +1,4 @@
 import { CalendarService, EventType } from '../../services/CalendarService';
-import { DateUtils } from '../../util/DateUtils';
-import { StringUtils } from '../../util/StringUtils';
-import Config from '../../config/config';
 import { ClubPracticeEvent } from '../../types/type';
 
 describe('CalendarService parser tests', () => {
@@ -18,11 +15,10 @@ describe('CalendarService parser tests', () => {
     } as unknown as GoogleAppsScript.Calendar.CalendarEvent);
 
   type ClubPracticeEventTypeKey = {
-    practiceType: string;
     timeRange: string;
-    targetClasses: string;
     personInCharge: string;
     description: string;
+    targetClasses: string;
   };
   function checkClubPracticeParsing(title: string, expected: ClubPracticeEventTypeKey) {
     const service = new CalendarService() as any;
@@ -32,64 +28,50 @@ describe('CalendarService parser tests', () => {
     expect(m).not.toBeNull();
 
     const parsed = cfg.parser(m!, ev) as ClubPracticeEvent;
-    expect(parsed.practiceType).toBe(expected.practiceType);
     expect(parsed.timeRange).toBe(expected.timeRange);
-    expect(parsed.targetClasses).toBe(expected.targetClasses);
     expect(parsed.personInCharge).toBe(expected.personInCharge);
     expect(parsed.description).toContain(expected.description);
+    expect(parsed.targetClasses).toContain(expected.targetClasses);
   }
 
   // --- ClubPractice --------------------------------------------------------
   it('parses ClubPractice correctly', () => {
     //基本
-    checkClubPracticeParsing('富士見.基本1200-1345[G以上](田中)', {
-      practiceType: '基本',
-      timeRange: '1200-1345',
-      targetClasses: 'G以上',
-      personInCharge: '田中',
+    checkClubPracticeParsing('岸町1300-1830(久下、伊藤)', {
+      timeRange: '1300-1830',
+      personInCharge: '久下、伊藤',
       description: '',
-    });
-    checkClubPracticeParsing('富士見.基本1200-1345[G以上](田中, 中田)', {
-      practiceType: '基本',
-      timeRange: '1200-1345',
-      targetClasses: 'G以上',
-      personInCharge: '田中, 中田',
-      description: '',
-    });
-    checkClubPracticeParsing('富士見.基本1200-1345 [G以上](田中)', {
-      practiceType: '基本',
-      timeRange: '1200-1345',
-      targetClasses: 'G以上',
-      personInCharge: '田中',
-      description: '',
-    });
-    checkClubPracticeParsing('富士見.基本1200-1345 [G以上](田中)', {
-      practiceType: '基本',
-      timeRange: '1200-1345',
-      targetClasses: 'G以上',
-      personInCharge: '田中',
-      description: '',
-    });
-    checkClubPracticeParsing('富士見.基本1200-1345 G以上(田中,鈴木)※県大会対策', {
-      practiceType: '基本',
-      timeRange: '1200-1345',
-      targetClasses: 'G以上',
-      personInCharge: '田中,鈴木',
-      description: '※県大会対策',
-    });
-    checkClubPracticeParsing('富士見.基本1200-1345 G以上', {
-      practiceType: '基本',
-      timeRange: '1200-1345',
-      targetClasses: 'G以上',
-      personInCharge: '',
-      description: '',
-    });
-    checkClubPracticeParsing('富士見.基本1200-1345 全級', {
-      practiceType: '基本',
-      timeRange: '1200-1345',
       targetClasses: '全級',
-      personInCharge: '',
+    });
+    checkClubPracticeParsing('岸町1300-1830(久下, 伊藤)', {
+      timeRange: '1300-1830',
+      personInCharge: '久下, 伊藤',
       description: '',
+      targetClasses: '全級',
+    });
+    checkClubPracticeParsing('岸町1300-1830(久下・伊藤)', {
+      timeRange: '1300-1830',
+      personInCharge: '久下・伊藤',
+      description: '',
+      targetClasses: '全級',
+    });
+    checkClubPracticeParsing('岸町1300-1830（久下, 伊藤）', {
+      timeRange: '1300-1830',
+      personInCharge: '久下, 伊藤',
+      description: '',
+      targetClasses: '全級',
+    });
+    checkClubPracticeParsing('富士見1300-1830(久下、伊藤)※G基向け特練', {
+      timeRange: '1300-1830',
+      personInCharge: '久下、伊藤',
+      description: '※G基向け特練',
+      targetClasses: '全級',
+    });
+    checkClubPracticeParsing('上落合1300-1830(久下、伊藤)※県E対策対戦練習|E以上', {
+      timeRange: '1300-1830',
+      personInCharge: '久下、伊藤',
+      description: '※県E対策対戦練習',
+      targetClasses: 'ABCDE',
     });
   });
 

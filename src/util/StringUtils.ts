@@ -9,7 +9,7 @@ export const KARUTA_CLASS_COLOR: ClassMap<string> = {
   F: '🟥',
   G: '🟪',
 };
-export const SEPARATOR = '__________';
+export const SEPARATOR = '-------------------';
 
 const PAREN_MAP: Record<string, string> = {
   // 丸括弧
