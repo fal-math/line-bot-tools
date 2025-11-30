@@ -247,7 +247,7 @@ export class MessageTemplates {
       ) {
         line += `(対象:${StringUtils.stringfyKarutaClass(ev.targetClasses)})`;
       }
-      if (o.showClubName) line += `(${ev.location.clubName})\n`;
+      if (o.showClubName) line += `(${ev.location.clubName})`;
       line += `${ev.description ?? ''}`;
       msg.bullet(line, o.bullet);
       if ((opts.showPersonInCharge ?? true) && ev.personInCharge) msg.indent(ev.personInCharge);
