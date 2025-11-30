@@ -24,7 +24,7 @@ export class Notify {
   // ==================================================================================
   // 受付〆アナウンス（当日 21 時）
   // ==================================================================================
-  public deadlineToday(lineTo: string, mentionee: string): void {
+  public deadlineToday(lineTo: string): void {
     const from = this.today;
     const to = this.tomorrow;
     const internalDeadlineEvents = this.calendar.get(EventType.InternalDeadline, from, to);
@@ -33,18 +33,12 @@ export class Notify {
     const { summary, isEmpty } = this.chouseisan.getSummary(from, to);
     if (isEmpty) return;
     const { message } = MessageTemplates.buildClasswiseDeadlineMessage(summary, {
-      header: `{receiver}さん\n本日〆切の大会があります。未回答者に声掛けをお願いします。\n\n`,
+      header: `本日が会〆の大会への未回答者一覧です。\n\n`,
       showAttending: false,
     });
     if (!message) return;
 
-    const substitution = {
-      receiver: {
-        type: 'mention',
-        mentionee: { type: 'user', userId: mentionee },
-      },
-    } as SubstitutionMap;
-    this.line.pushText(lineTo, message, substitution);
+    this.line.pushText(lineTo, message);
   }
 
   // ==================================================================================
@@ -61,37 +55,6 @@ export class Notify {
     if (!message) return;
 
     this.line.pushText(to, message);
-    // for (const [kClass, registrations] of Object.entries(summary) as [
-    //   KarutaClass,
-    //   Registration[]
-    // ][]) {
-    //   lastWeek += `${KARUTA_CLASS_COLOR[kClass]}${kClass}級\n`;
-    //   thisWeek += `${KARUTA_CLASS_COLOR[kClass]}${kClass}級\n`;
-    //   if (registrations.length > 0) {
-    //     registrations.forEach((ev) => {
-    //       let body = ``;
-    //       body += `🔹${DateUtils.formatMD(ev.eventDate)}${ev.title}（${DateUtils.formatMD(
-    //         ev.deadline
-    //       )}〆切）\n`;
-    //       body += `⭕参加:\n`;
-    //       if (ev.participants.attending.length > 0) {
-    //         body += ev.participants.attending.join('\n') + '\n';
-    //       }
-    //       if (ev.participants.undecided.length > 0) {
-    //         body += `❓未回答:\n`;
-    //         body += ev.participants.undecided.join('\n') + '\n';
-    //       }
-    //       if (this.oneWeekAgo <= ev.deadline && ev.deadline < this.today) {
-    //         lastWeek += body;
-    //       } else if (this.today <= ev.deadline && ev.deadline <= this.oneWeekLater) {
-    //         thisWeek += body;
-    //       }
-    //     });
-    //   }
-    // }
-
-    // this.line.pushText(to, `先週分\n\n${lastWeek}`);
-    // this.line.pushText(to, `今週分\n\n${thisWeek}`);
   }
 
   // ==================================================================================
@@ -150,6 +113,7 @@ export class Notify {
       header: '🔵今日の練習🔵',
       showTargetClasses: false,
       showPersonInCharge: true,
+      showClubName: true,
     });
 
     const { clubCardsStr, myCardsStr } = new CardShufffleService().do();

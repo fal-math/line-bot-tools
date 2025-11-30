@@ -21,6 +21,7 @@ type BaseMessageOptions = {
 
 export type ClubPracticeMessageOptions = BaseMessageOptions & {
   showPersonInCharge?: boolean;
+  showClubName?: boolean;
 };
 
 export type ExPracticeMessageOptions = BaseMessageOptions & {
@@ -130,7 +131,7 @@ export class MessageTemplates {
       for (const reg of registrations) {
         const key = reg.title;
         if (!acc[key]) acc[key] = [];
-        // どの級の登録かを付与（構造上 Registration には存在しないため合成）
+        // どの級の登録かを付与（構造上 Registration には存在しない）
         acc[key].push({ ...reg, _fromClass: kClass as KarutaClass });
       }
       return acc;
@@ -227,12 +228,15 @@ export class MessageTemplates {
   }
 
   static clubPractice(events: ClubPracticeEvent[], opts: ClubPracticeMessageOptions = {}): string {
-    const o = this.norm({
-      header: opts.header ?? '🔵練習のお知らせ🔵',
-      bullet: opts.bullet ?? '・',
-      showTargetClasses: opts.showTargetClasses ?? true,
-      dayLabels: opts.dayLabels,
-    });
+    const o = {
+      ...this.norm({
+        header: opts.header ?? '🔵練習のお知らせ🔵',
+        bullet: opts.bullet ?? '・',
+        showTargetClasses: opts.showTargetClasses ?? true,
+        dayLabels: opts.dayLabels,
+      }),
+      showClubName: opts.showClubName ?? false,
+    };
     return this.build(events, o, (ev, msg) => {
       let line = '';
       line += `${ev.timeRange.replace('-', '～')} ${ev.location.shortName}`;
@@ -243,6 +247,7 @@ export class MessageTemplates {
       ) {
         line += `(対象:${StringUtils.stringfyKarutaClass(ev.targetClasses)})`;
       }
+      if (o.showClubName) line += `(${ev.location.clubName})\n`;
       line += `${ev.description ?? ''}`;
       msg.bullet(line, o.bullet);
       if ((opts.showPersonInCharge ?? true) && ev.personInCharge) msg.indent(ev.personInCharge);

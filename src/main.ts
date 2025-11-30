@@ -29,7 +29,7 @@ function announceDeadlineNextWeek() {
 }
 
 function notifyDeadlineToday() {
-  return new Notify().deadlineToday(lineId.apply, lineId.userK);
+  return new Notify().deadlineToday(lineId.apply);
 }
 
 function notifyFinalToday() {
