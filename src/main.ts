@@ -1,4 +1,4 @@
-import { LineConfig } from './config/config';
+import config from './config/config';
 import { Announcer } from './jobs/Announcer';
 import { Notify } from './jobs/Notify';
 import { MailRouter } from './jobs/MailRouter';
@@ -9,7 +9,7 @@ import { DateUtils } from './util/DateUtils';
 
 // リマインドなび
 
-const lineId = LineConfig.id;
+const lineId = config.Line.id;
 
 function announceWeekly() {
   return new Announcer().weekly(lineId.all);

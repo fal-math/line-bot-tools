@@ -1,5 +1,5 @@
 import { SpreadsheetConfigService } from '../services/SpreadsheetConfigService';
-import { ClassMap, Venue } from '../types/type';
+import { ClassMap, ExPracticeDescription, HeaderMap, Venue } from '../types/type';
 import { ConfigValidator } from './configValidator';
 
 const userProps = PropertiesService.getScriptProperties();
@@ -45,7 +45,7 @@ function getJsonProp_<T>(key: string): T {
   }
 }
 
-export const LineConfig = {
+const LineConfig = {
   channelToken: getRequiredProp_('LINE_CHANNEL_ACCESS_TOKEN'),
   id: {
     apply: getRequiredProp_('LINE_GROUP_ID_TAIKAI_MOUSHIKOMI'),
@@ -61,7 +61,7 @@ export const LineConfig = {
   } as const,
 };
 
-export const CalendarConfig = {
+const CalendarConfig = {
   url: getRequiredProp_('CALENDAR_URL'),
   id: {
     match: getRequiredProp_('GOOGLE_CALENDAR_ID_TAIKAI'),
@@ -72,13 +72,13 @@ export const CalendarConfig = {
   },
 } as const;
 
-export const ChouseisanConfig = {
+const ChouseisanConfig = {
   urls: getJsonProp_<ClassMap<string>>('CHOUSEISAN_URLS'),
   csvs: getJsonProp_<ClassMap<string>>('CHOUSEISAN_CSVS'),
   spreadsheetId: getRequiredProp_('BACKUP_SPREADSHEET_ID'),
 };
 
-export const MailConfig = {
+const MailConfig = {
   attendance: getRequiredProp_('ATTENDANCE_ADDRESS'),
   reserveCsv: getRequiredProp_('RESERVE_CSV_ADDRESS'),
   reserve: {
@@ -90,9 +90,9 @@ export const MailConfig = {
   },
 };
 
-export const CONFIG_SPREADSHEET_ID = getRequiredProp_('CONFIG_SPREADSHEET_ID');
+const CONFIG_SPREADSHEET_ID = getRequiredProp_('CONFIG_SPREADSHEET_ID');
 
-export const Venues: Record<string, Venue> = Object.fromEntries(
+const Venues: Record<string, Venue> = Object.fromEntries(
   new SpreadsheetConfigService<Venue>(
     CONFIG_SPREADSHEET_ID,
     '会場',
@@ -104,26 +104,35 @@ export const Venues: Record<string, Venue> = Object.fromEntries(
       line: '路線',
       mapUrl: '地図URL',
       clubName: '団体名',
-    },
+    } as HeaderMap<Venue>,
     'shortName'
   ).getAll()
 );
-// TODO: ExPracticeも同様にする
 
-export const DEBUG_MODE = (getOptionalProp_('DEBUG_MODE') || 'false') === 'true';
-export const DRIVE_URL = getRequiredProp_('DRIVE_URL');
-export const MANAGERS_PORTAL_URL = getRequiredProp_('MANAGERS_PORTAL_URL');
+const ExPracticeRecord: Record<string, ExPracticeDescription> = Object.fromEntries(
+  new SpreadsheetConfigService(
+    CONFIG_SPREADSHEET_ID,
+    '外部練',
+    { name: '名前', description: '説明' } as HeaderMap<ExPracticeDescription>,
+    'name'
+  ).getAll()
+);
+
+const DEBUG_MODE = (getOptionalProp_('DEBUG_MODE') || 'false') === 'true';
+const DRIVE_URL = getRequiredProp_('DRIVE_URL');
+const MANAGERS_PORTAL_URL = getRequiredProp_('MANAGERS_PORTAL_URL');
 
 const Config = {
   Line: LineConfig,
   Calendar: CalendarConfig,
   Chouseisan: ChouseisanConfig,
   Mail: MailConfig,
+  CONFIG_SPREADSHEET_ID,
   Venues,
+  ExPracticeRecord,
   DEBUG_MODE,
   DRIVE_URL,
   MANAGERS_PORTAL_URL,
-  CONFIG_SPREADSHEET_ID,
 } as const;
 
 /**

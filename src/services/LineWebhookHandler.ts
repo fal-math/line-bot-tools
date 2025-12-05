@@ -1,21 +1,14 @@
 import Config from '../config/config';
 import { CalendarService } from '../services/CalendarService';
 import { LineService } from '../services/LineService';
-import { ExPracticeEvent, HeaderMap } from '../types/type';
+import { ExPracticeEvent } from '../types/type';
 import { DateUtils } from '../util/DateUtils';
 import { StringUtils } from '../util/StringUtils';
-import { ExPracticeConfigRow, SpreadsheetConfigService } from './SpreadsheetConfigService';
 
 export class LineWebhookHandler {
   private line = new LineService();
   private calendar = new CalendarService();
-  private sheetName = '外部練';
-  private configOfExPracrice = new SpreadsheetConfigService(
-    Config.CONFIG_SPREADSHEET_ID,
-    this.sheetName,
-    { name: '名前', description: '説明' } as HeaderMap<ExPracticeConfigRow>,
-    'name'
-  );
+  private configOfExPracrice = Config.ExPracticeRecord;
 
   public handle(text: string, to: string) {
     if (text === '★外部練追加★') this.replyFormat(to);
@@ -23,55 +16,39 @@ export class LineWebhookHandler {
   }
 
   // 外部練追加フォーマットのキー
-  private key = {
-    date: '日付',
-    time: '時間',
-    title: '練習名',
-    location: '場所',
-    targetClasses: '対象級',
-    deadline: '〆切',
-    category: '種別',
+  private fields = {
+    date: { label: '日付', desc: '日付: 「◯/☓」の形式。例→9/13' },
+    time: { label: '時間', desc: '時間: 「0900-1900」の形式' },
+    title: { label: '練習名', desc: '練習名: 「◯◯練」の形式が推奨' },
+    location: { label: '場所', desc: '場所: 特になし' },
+    targetClasses: {
+      label: '対象級',
+      desc: '対象級: 例→ABC、\n例→E以上、\n例→G級①②③以上',
+    },
+    deadline: { label: '〆切', desc: '〆切: 「◯/☓」の形式。例→9/13' },
+    category: { label: '種別', desc: '' },
   };
-  private keyDescription = {
-    date: '日付: 「◯/☓」の形式。例→9/13',
-    time: '時間: 「0900-1900」の形式',
-    title: '練習名: 「◯◯練」の形式が推奨',
-    location: '場所: 特になし',
-    targetClasses: '対象級: 例→ABC、\n例→E以上、\n例→G級①②③以上',
-    deadline: '〆切: 「◯/☓」の形式。例→9/13',
-    category: '',
-  };
+
   // 外部練追加フォーマットの返信
   private replyFormat(to: string) {
-    const categoryList = [...this.configOfExPracrice.names(), 'その他'];
+    const formatText = [
+      '★外部練追加フォーマット★',
+      ...Object.values(this.fields).map((f) => `${f.label}：`),
+    ].join('\n');
+
+    const categoryList = [...Object.keys(this.configOfExPracrice), 'その他'];
     const categoryText = `種別:\n下記のどれかを選んでください。\n${categoryList.join('/')}`;
-    this.line.pushText(
-      to,
-      [
-        '★外部練追加フォーマット★',
-        `${this.key.date}：`,
-        `${this.key.time}：`,
-        `${this.key.title}：`,
-        `${this.key.location}：`,
-        `${this.key.targetClasses}：`,
-        `${this.key.deadline}：`,
-        `${this.key.category}：`,
-      ].join('\n')
-    );
-    this.line.pushText(
-      to,
-      [
-        '↑埋めて返信してください↑',
-        '※記載上の注意',
-        `${this.keyDescription.date}`,
-        `${this.keyDescription.time}`,
-        `${this.keyDescription.title}`,
-        `${this.keyDescription.location}`,
-        `${this.keyDescription.targetClasses}`,
-        `${this.keyDescription.deadline}`,
-        categoryText,
-      ].join('\n\n')
-    );
+    const descriptionText = [
+      '↑埋めて返信してください↑',
+      '※記載上の注意',
+      ...Object.values(this.fields)
+        .map((f) => f.desc)
+        .filter(Boolean),
+      categoryText,
+    ].join('\n\n');
+
+    this.line.pushText(to, formatText);
+    this.line.pushText(to, descriptionText);
     return;
   }
 
@@ -84,9 +61,7 @@ export class LineWebhookHandler {
       return;
     }
 
-    const calendarDescription = this.configOfExPracrice.getByName(
-      exPracrtice.category
-    )?.description;
+    const calendarDescription = this.configOfExPracrice[exPracrtice.category]?.description;
 
     try {
       this.calendar.createCalenderEvent(
@@ -148,13 +123,14 @@ export class LineWebhookHandler {
       data[key] = rest.join(':').trim();
     }
 
-    const dateStr = data[this.key.date];
-    const deadlineStr = data[this.key.deadline];
-    const timeRange = data[this.key.time];
-    const title = data[this.key.title];
-    const targetClasses = data[this.key.targetClasses];
-    const location = data[this.key.location];
-    const category = data[this.key.category];
+    const f = this.fields;
+    const dateStr = data[f.date.label];
+    const deadlineStr = data[f.deadline.label];
+    const timeRange = data[f.time.label];
+    const title = data[f.title.label];
+    const targetClasses = data[f.targetClasses.label];
+    const location = data[f.location.label];
+    const category = data[f.category.label];
 
     if (!dateStr || !deadlineStr || !timeRange || !title || !location || !category) return null;
 

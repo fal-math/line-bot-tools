@@ -63,24 +63,10 @@ export class ConfigValidator {
   }
 
   /**
-   * 調整さん/スプレッドシート関連
+   * 調整さん
    */
   static validateChouseisanConfig(obj: unknown, keyPath = 'ChouseisanConfig') {
     const o = this.requireObject<Record<string, unknown>>(obj, keyPath);
     this.requireNonEmptyString(o['spreadsheetId'], `${keyPath}.spreadsheetId`);
-  }
-
-  static validatePracticeLocations(obj: unknown, keyPath = 'PRACTICE_LOCATIONS') {
-    const o = this.requireObject<Record<string, unknown>>(obj, keyPath);
-    for (const [name, v] of Object.entries(o)) {
-      const loc = this.requireObject<Record<string, unknown>>(v, `${keyPath}.${name}`);
-      this.requireNonEmptyString(loc['clubName'], `${keyPath}.${name}.clubName`);
-      this.requireNonEmptyString(loc['mapUrl'], `${keyPath}.${name}.mapUrl`);
-      this.requireNonEmptyString(loc['buildingName'], `${keyPath}.${name}.buildingName`);
-      this.requireNonEmptyString(
-        loc['shortenBuildingName'],
-        `${keyPath}.${name}.shortenBuildingName`
-      );
-    }
   }
 }

@@ -1,11 +1,5 @@
 import { HeaderMap } from "../types/type";
 
-// 外部練
-export interface ExPracticeConfigRow {
-  name: string;
-  description: string;
-}
-
 export class SpreadsheetConfigService<T extends Record<string, any>> {
   constructor(
     private sheetId: string,

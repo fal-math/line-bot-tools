@@ -52,6 +52,8 @@ export interface InternalDeadlineEvent extends BaseEvent {
   isExternalPractice: boolean;
 }
 
+// Spreadsheet Config
+
 export interface Venue {
   name: string; // 会場名
   shortName: string; // 会場名（短縮）
@@ -61,6 +63,12 @@ export interface Venue {
   mapUrl: string; // 地図URL
   clubName: string; // 団体名
 }
+
+export interface ExPracticeDescription {
+  name: string;
+  description: string;
+}
+
 
 // export type PracticeLocations = Record<string, PracticeLoc ation>;
 

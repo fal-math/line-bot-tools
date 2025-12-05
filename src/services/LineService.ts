@@ -1,10 +1,10 @@
-import { DEBUG_MODE, LineConfig } from '../config/config';
+import Config from '../config/config';
 import { ImageUrls, SubstitutionMap } from '../types/type';
 
 export class LineService {
-  constructor(private token: string = LineConfig.channelToken) {}
+  constructor(private token: string = Config.Line.channelToken) {}
   pushText(to: string, text: string, substitution?: SubstitutionMap, retryKey?: string): void {
-    if (DEBUG_MODE) {
+    if (Config.DEBUG_MODE) {
       Logger.log(`[DEBUG] to=${to}\n${text}`);
       return;
     }
@@ -34,7 +34,7 @@ export class LineService {
   }
 
   pushError(text: string, retryKey?: string): void {
-    const to = LineConfig.id.userT;
+    const to = Config.Line.id.userT;
     const payload = {
       to,
       messages: [
@@ -58,7 +58,7 @@ export class LineService {
   }
 
   pushImage(to: string, image: ImageUrls, retryKey?: string): void {
-    if (DEBUG_MODE) {
+    if (Config.DEBUG_MODE) {
       Logger.log(`[DEBUG] \noriginal=${image.original}\npreview=${image.preview}`);
       return;
     }
