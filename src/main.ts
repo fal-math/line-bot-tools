@@ -1,10 +1,10 @@
 import { LineConfig } from './config/config';
 import { Announcer } from './jobs/Announcer';
 import { Notify } from './jobs/Notify';
-import { setupTriggers_ } from './jobs/setupTriggers';
-import { InboxRouter } from './jobs/InboxRouter';
+import { MailRouter } from './jobs/MailRouter';
 import { Backup } from './jobs/Backup';
 import { LineWebhookHandler } from './services/LineWebhookHandler';
+import { setupTriggers_ } from './jobs/setupTriggers';
 import { DateUtils } from './util/DateUtils';
 
 // リマインドなび
@@ -52,8 +52,8 @@ function notifyDebugMode() {
   return new Notify().sendDebugBanner();
 }
 
-function inboxRouterProcesser() {
-  return new InboxRouter().processUnread();
+function mailRouter() {
+  return new MailRouter().processUnread();
 }
 
 function backupChouseisan() {

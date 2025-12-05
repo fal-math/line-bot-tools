@@ -170,13 +170,6 @@ export class Announcer {
     if (matchMessage.length > 0) message.add(matchMessage).add(SEPARATOR);
     message.add('⚫活動カレンダー⚫').add(Config.Calendar.url);
     this.line.pushText(to, message.toString());
-
-    // const clubPracticeTypeImageId = '1nVYjeTLb57LtbV6kNd3lcCPpCtuM0tar';
-    // 偶数週のみ会場案内画像を送信
-    // const weekNumber = this.today.getDate() % 7;
-    // if (weekNumber % 2 === 1) return;
-    // const image = this.drive.getImageUrls(clubPracticeTypeImageId);
-    // if (image) this.line.pushImage(to, image);
   }
 }
 

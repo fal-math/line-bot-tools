@@ -28,6 +28,7 @@ const store = new Map<string, string>([
   ['RESERVE_BESSHO_ADDRESS', 'xxx'],
   ['RESERVE_SASHIOUGI_ADDRESS', 'xxx'],
   ['RESERVE_TOKIWA_ADDRESS', 'xxx'],
+  ['RESERVE_CSV_ADDRESS', 'xxx'],
 
   ['CHOUSEISAN_URLS', JSON.stringify({ A: 'urlA', B: 'urlB' })],
   ['CHOUSEISAN_CSVS', JSON.stringify({ A: 'csvA', B: 'csvB' })],

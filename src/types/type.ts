@@ -91,25 +91,36 @@ export interface ImageUrls {
   preview: string;
 }
 
-// ========== Mail Forwarding Helpers ==========
+// ========== MailRouter Helpers ==========
+export type MailRule = {
+  from?: string | RegExp;
+  to?: string | RegExp;
+  subject?: string | RegExp;
+  handler: any;
+};
 
-export type InboxRoute = {
-  /** 対象の受信アドレス（Gmail の送信エイリアス含む）。小文字記載推奨 */
-  address: string;
-  /** LINE の送り先（複数可） */
-  lineRecipients: string[];
-  /** LINE 通知テンプレ（{subject},{receivedAt},{from},{to},{cc},{body} が使える） */
-  lineNoticeTemplate?: string;
-  /** 自動返信するか */
-  enableAutoReply?: boolean;
-  /** 自動返信テンプレ（{subject},{receivedAt},{from},{to} が使える） */
-  autoReplyTemplate?: string;
-  /** 自動返信の From（未指定なら address を使用） */
-  autoReplyFrom?: string;
-  /** CSS や <style> の除去を行うか（既定: true） */
-  stripCss?: boolean;
-  /** <!--banner-info--> … <!--banner-info--> ブロックを除去するか（既定: true） */
-  stripBannerInfo?: boolean;
-  /** 件名・本文ペアでホワイトリストを指定 */
-  allowPairs?: { subject: string; body: string }[];
+export type LotteryEntry = {
+  result: string; // 抽選結果
+  receivedAt: string; // 受付日
+  hall: string; // 利用館
+  facility: string; // 利用施設
+  date: string; // 利用日
+  time: string; // 利用時間
+};
+
+export interface LotteryMail {
+  userId: string; // 利用者番号
+  userName: string; // 利用者名
+  entries: LotteryEntry[]; // 抽選結果（1メールに複数）
+}
+
+export const FIELD_MAP: Record<string, keyof LotteryEntry | 'userId' | 'userName'> = {
+  利用者番号: 'userId',
+  利用者名: 'userName',
+  抽選結果: 'result',
+  受付日: 'receivedAt',
+  利用館: 'hall',
+  利用施設: 'facility',
+  利用日: 'date',
+  利用時間: 'time',
 };

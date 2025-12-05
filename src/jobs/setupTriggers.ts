@@ -52,5 +52,5 @@ export function setupTriggers_(): void {
   ScriptApp.newTrigger('notifyDebugMode').timeBased().everyMinutes(30).create();
 
   /** 遅刻欠席連絡: 毎分 */
-  ScriptApp.newTrigger('inboxRouterProcesser').timeBased().everyMinutes(1).create();
+  ScriptApp.newTrigger('mailRouter').timeBased().everyMinutes(1).create();
 }

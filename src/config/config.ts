@@ -80,6 +80,7 @@ export const ChouseisanConfig = {
 
 export const MailConfig = {
   attendance: getRequiredProp_('ATTENDANCE_ADDRESS'),
+  reserveCsv: getRequiredProp_('RESERVE_CSV_ADDRESS'),
   reserve: {
     Kamiochiai: getRequiredProp_('RESERVE_KAMIOCHIAI_ADDRESS'),
     Kishicho: getRequiredProp_('RESERVE_KISHICHO_ADDRESS'),
