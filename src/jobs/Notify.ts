@@ -93,6 +93,7 @@ export class Notify {
     const practiceMessage = MessageTemplates.clubPractice(practices, {
       header: '🔵今週来週の担当🔵\n全体LINEの参加ポチも忘れずにお願いします！',
       showTargetClasses: false,
+      showCapacityOfPairs: true,
     });
     const message = [practiceMessage, '', '=運営ポータル=', Config.MANAGERS_PORTAL_URL].join('\n');
 

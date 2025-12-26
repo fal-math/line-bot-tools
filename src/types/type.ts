@@ -62,13 +62,13 @@ export interface Venue {
   line: string; // 何線か
   mapUrl: string; // 地図URL
   clubName: string; // 団体名
+  capacityOfPairs: number; // 最大組数
 }
 
 export interface ExPracticeDescription {
   name: string;
   description: string;
 }
-
 
 // export type PracticeLocations = Record<string, PracticeLoc ation>;
 

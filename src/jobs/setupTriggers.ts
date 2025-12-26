@@ -41,11 +41,11 @@ export function setupTriggers_(): void {
   /** 練習前通知: 毎日 08:00 */
   ScriptApp.newTrigger('notifyTodayPractice').timeBased().everyDays(1).atHour(8).create();
 
-  /** 調整さんバックアップ: 火曜22時 */
+  /** 調整さんバックアップ: 水曜03時 */
   ScriptApp.newTrigger('backupChouseisan')
     .timeBased()
-    .onWeekDay(ScriptApp.WeekDay.TUESDAY)
-    .atHour(22)
+    .onWeekDay(ScriptApp.WeekDay.WEDNESDAY)
+    .atHour(3)
     .create();
 
   /** デバッグモード通知: 30分毎 */

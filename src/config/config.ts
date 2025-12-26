@@ -104,6 +104,7 @@ const Venues: Record<string, Venue> = Object.fromEntries(
       line: '路線',
       mapUrl: '地図URL',
       clubName: '団体名',
+      capacityOfPairs: '組数',
     } as HeaderMap<Venue>,
     'shortName'
   ).getAll()

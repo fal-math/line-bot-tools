@@ -22,6 +22,7 @@ type BaseMessageOptions = {
 export type ClubPracticeMessageOptions = BaseMessageOptions & {
   showPersonInCharge?: boolean;
   showClubName?: boolean;
+  showCapacityOfPairs?: boolean;
 };
 
 export type ExPracticeMessageOptions = BaseMessageOptions & {
@@ -236,10 +237,12 @@ export class MessageTemplates {
         dayLabels: opts.dayLabels,
       }),
       showClubName: opts.showClubName ?? false,
+      showCapacityOfPairs: opts.showCapacityOfPairs ?? false,
     };
     return this.build(events, o, (ev, msg) => {
       let line = '';
       line += `${ev.timeRange.replace('-', '～')} ${ev.location.shortName}`;
+      if (o.showCapacityOfPairs) line += `[${ev.location.capacityOfPairs}組]`;
       if (
         o.showTargetClasses &&
         ev.targetClasses?.length &&
