@@ -1,95 +1,79 @@
-# LINE Bot 運用支援システム README
+﻿# LINE Bot 運用支援ツール
 
-## 概要
+競技かるたの練習/大会運営向けに、Google Apps Script と LINE Messaging API で通知を自動化するツール群です。Google カレンダー、調整さん、Gmail、スプレッドシートの情報を集約し、運営と参加者向けの連絡を省力化します。
 
-このプロジェクトは、競技かるた関連のイベント／練習情報を
-Google カレンダー・調整さん（CSV）・Gmail などから取得し、
-LINE Bot を通じて参加者や運営に対して自動通知を行う運用支援システムです。
+## できること
 
-**主な機能**
+- 週次の練習案内（会場案内・持ち物・カレンダーリンク）
+- 大会/外部練習の締切アナウンス（当日/来週）
+- 当日の練習リマインドと札シャッフル
+- 調整さんの集計と CSV バックアップ（スプレッドシート保存）
+- Gmail 受信の自動振り分け（欠席/遅刻連絡、予約 CSV など）
+- LINE Webhook 経由で外部練習イベントの登録
 
-* 毎週木曜の練習予定＆場所案内の定期通知
-* 大会申込〆切（当日21時／来週分まとめ）のクラス別通知
-* 今日の練習案内と札分け（カードシャッフル）
-* 調整さん締切データ取得＆LINE通知
-* Gmail 遅刻欠席連絡の検知＆LINE通知＋自動返信
-* Webhook を用いた外部練習イベント登録
-* WBGT（暑さ指数）の取得・通知
-
----
-
-## ディレクトリ構成
+## 構成
 
 ```
-├─ src/
-│  ├─ main.ts                  // GAS エントリポイント
-│  ├─ config.ts                // スクリプトプロパティ取得ユーティリティ
-│  ├─ types/type.ts            // 型定義（KarutaClass など）
-│  ├─ util/
-│  │   ├─ DateUtils.ts         // 日付ユーティリティ
-│  │   └─ StringUtils.ts       // 文字列ユーティリティ
-│  ├─ services/
-│  │   ├─ CalendarService.ts   // カレンダー取得・解析
-│  │   ├─ ChouseisanService.ts // 調整さん CSV パース・集計
-│  │   ├─ LineService.ts       // LINE Push API 呼び出し
-│  │   ├─ CardShuffle.ts       // カード（札）シャッフル
-│  │   └─ WbgtService.ts       // WBGT 取得・整形
-│  └─ jobs/
-│      ├─ Announcer.ts         // 定期通知ジョブ
-│      ├─ Notify.ts            // 〆切通知・当日通知ジョブ
-│      ├─ Attendance.ts        // Gmail 受付遅刻連絡ハンドラ
-│      └─ setupTriggers.ts     // 全トリガー再作成スクリプト
-└─ initial/
-    └─ scriptProperties.template.gs // スクリプトプロパティ一括設定サンプル
+src/
+  main.ts                    // GAS エントリポイント
+  config/                    // スクリプトプロパティ読み込み/検証
+  jobs/                      // 定期ジョブ（通知/バックアップ/メール）
+  services/                  // 外部連携（LINE/Calendar/Chouseisan など）
+  mailHandlers/              // Gmail 受信処理
+  message/                   // メッセージ生成
+  util/                      // 便利関数
+  types/                     // 型定義
+initial/
+  scriptProperties.gs        // スクリプトプロパティ登録サンプル
+
+dist/
+  code.js                    // ビルド成果物（GAS に push）
 ```
 
----
+## セットアップ
 
-### src/config.ts の解説
+1. 依存関係をインストール
 
-* **getRequiredProp\_(key)**
-  指定キーのスクリプトプロパティを取得。未設定時は `Error` を投げる。
+```
+npm install
+```
 
-  ```js
-  function getRequiredProp_(key) {
-    const value = userProps.getProperty(key);
-    if (!value) throw new Error(`Missing required property: ${key}`);
-    return value;
-  }
-  ```
+2. ビルド（`dist/code.js` を生成）
 
-  ※元コードにて、`return value;` の後に閉じ中括弧 (`}`) が欠落している場合、文法エラーとなります。ご注意ください。
-* **getOptionalProp\_(key)**
-  空文字または未設定時は `undefined` を返し、それ以外は文字列を返す。
-* **getJsonProp\_(key)**
-  必須プロパティ値を `JSON.parse`。パース失敗時はエラー。
-* **getPracticeLocations\_()**
-  `PRACTICE_LOCATIONS` キーから JSON オブジェクトを取得・検証し、オブジェクトでない場合はエラー。
-* 上記をまとめて `Config` オブジェクトに格納し、デフォルトエクスポート。
+```
+npm run build
+```
 
----
+3. clasp 設定（初回のみ）
 
-## 必要なスクリプトプロパティ
+```
+clasp login
+```
 
-Google Apps Script の **スクリプトプロパティ** に以下キーを登録してください。
+4. GAS へ反映
 
-| キー                                  | 内容・形式                                                                                              |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `LINE_CHANNEL_ACCESS_TOKEN`           | LINE Messaging API のチャネルトークン                                                                   |
-| `LINE_GROUP_ID_TAIKAI_MOUSHIKOMI` 他… | 送信先グループ／ユーザー ID（複数）                                                                     |
-| `CALENDAR_URL`                        | カレンダー一覧や共有 URL                                                                                |
-| `GOOGLE_CALENDAR_ID_TAIKAI` 他…       | 各種カレンダーのID（大会／練習／〆切用 合計5種）                                                        |
-| `CHOUSEISAN_URLS`                     | 調整さん URL マップ(JSON)：`{"A":"…","B":"…",…}`                                                        |
-| `CHOUSEISAN_CSVS`                     | 調整さん CSV URL マップ(JSON)：`{"A":"…","B":"…",…}`                                                    |
-| `SPREADSHEET_ID`                      | CSV バックアップ用スプレッドシート ID                                                                   |
-| `DRIVE_URL`                           | ドライブ共有フォルダ URL                                                                                |
-| `MANAGERS_PORTAL_URL`                 | 運営用ポータル URL                                                                                      |
-| `ATTENDANCE_ADDRESS`                  | 遅刻欠席連絡受信用 Gmail アドレス                                                                       |
-| `PRACTICE_LOCATIONS`                  | 練習場所定義(JSON)：<br>`{"短縮名":{ "buildingName":"…", "shortenBuildingName":"…", "mapUrl":"…" }, …}` |
-| `DEBUG_MODE` *(任意)*                 | `"true"` or `"false"`（省略時は `"false"`）                                                             |
+```
+npm run push
+```
 
----
+5. スクリプトプロパティを設定（後述）
 
-## initial/scriptProperties.template.gs
+6. トリガー再作成（GAS の関数 `setupTriggers()` を実行）
 
-実行することで上記キーの初期登録が可能です。
+## トリガー
+
+`setupTriggers()` を実行すると既存トリガーを削除して再作成します。スケジュールは `src/jobs/setupTriggers.ts` を参照してください。主なものは以下です。
+
+- 木曜定期便: 毎週木曜 16:00
+- 木曜定期便（テスト）: 毎週水曜 16:00
+- 大会締切まとめ: 毎週土曜 09:00
+- 大会締切（当日）: 毎日 09:00 / 21:00
+- 練習案内: 毎週月曜 16:00 / 当日 08:00
+- 調整さんバックアップ: 毎週水曜 03:00
+- メール受信処理: 毎分
+
+## テスト
+
+```
+npm test
+```
