@@ -6,7 +6,7 @@
  * を検証するユニットテスト例です。
  */
 
-import { LineConfig } from '../../config/config';
+import Config from '../../config/config';
 import { LineService } from '../../services/LineService';
 
 declare const global: Record<string, any>; // テスト環境用に global を再宣言
@@ -41,7 +41,7 @@ describe('services/line.pushTextV2', () => {
     expect(body.to).toBe('dummyTarget');
     expect(body.messages[0]).toEqual({ type: 'textV2', text: 'hello, world' });
 
-    expect(options.headers.Authorization).toBe(`Bearer ${LineConfig.channelToken}`);
+    expect(options.headers.Authorization).toBe(`Bearer ${Config.Line.channelToken}`);
     expect(options.method).toBe('post');
     expect(options.contentType).toBe('application/json');
   });

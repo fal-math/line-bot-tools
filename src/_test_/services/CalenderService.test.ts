@@ -258,6 +258,7 @@ describe('CalendarService#get in JST', () => {
           line: '京浜東北線',
           mapUrl: 'https://example.com',
           clubName: 'test_club',
+          capacityOfPairs: 12
         },
         practiceType: '基本',
         targetClasses: 'A',
