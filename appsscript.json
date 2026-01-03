@@ -1,18 +1,10 @@
 {
   "timeZone": "Etc/GMT-9",
   "dependencies": {
-    "enabledAdvancedServices": [
-      {
-        "userSymbol": "Slides",
-        "version": "v1",
-        "serviceId": "slides"
-      }
-    ]
+    "enabledAdvancedServices": []
   },
   "oauthScopes": [
     "https://www.googleapis.com/auth/script.scriptapp",
-    "https://www.googleapis.com/auth/presentations",
-    "https://www.googleapis.com/auth/presentations.readonly",
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive",
     "https://www.googleapis.com/auth/script.external_request",

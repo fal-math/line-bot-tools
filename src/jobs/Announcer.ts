@@ -68,8 +68,9 @@ export class Announcer {
           '申込入力URL(調整さん)では、⭕️か❌を期限内にご入力ください。',
           '',
           '准会員向け：',
-          '「会から申込」を希望する場合は、調整さんのコメント欄にその旨をご記入ください。',
-        ].join('\n'),
+          '「会から申込」を希望する場合は、髙田まで別途個別に連絡ください。'
+        ]
+        .join('\n'),
       });
       if (hasMatch && matchMessage) parts.push(matchMessage);
     }
